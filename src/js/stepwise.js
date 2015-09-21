@@ -100,12 +100,7 @@
 	
 	Stepwise.prototype.nextStep = function() {
 		return this.score.nextStep();
-	}
-	                                
-	// REMOVE PROGRESSIVE
-	Stepwise.prototype.progressiveStep = function( progress ) {
-		return this.score.progressiveStep( progress );
-	}
+	}  
 		
 	Stepwise.prototype.handleExecuteStep = function( event, step ) {
 	
@@ -235,20 +230,11 @@
 		
 		return false;
 	
-	}   
-	
-	Score.prototype.progressiveStep = function( progress ) {
-	
-		this.updateCurrentSequence();
-		
-		return this.currentSequence.progressiveStep( progress );
-		
-	} 		
+	}   	
 	
 	Score.prototype.updateCurrentSequence = function() {
 	
-		var sequence;
-		var index;
+		var sequence;  
 		
 		//console.log( 'next step for score' );
 		
@@ -525,13 +511,7 @@
 		}
 	
 		return result;
-	}
-	
-	Sequence.prototype.progressiveStep = function( progress ) {
-		progress = Math.max( Math.min( progress, 1.0 ), 0.0 );
-		var index = Math.round( progress * ( this.steps.length - 1 ) );
-		return this.steps[ index ].execute();
-	}
+	} 
 	
 	Sequence.prototype.getCurrentStepId = function() {
 		if ( this.stepIndex == -1 ) {
