@@ -111,7 +111,7 @@
 			case "narrate":
 			case "speak":
 			case "think":
-			$( this ).text( step.data.text() );
+			$( this ).text( step.content );
 			break;
 
 			case "setdate":
@@ -119,7 +119,7 @@
 			break;
 			
 			case "setlocation":
-			stepwise.score.setLocation( step.location );
+			stepwise.score.setLocation( step.target );
 			break;
 			
 			case "setsequence":
@@ -131,7 +131,7 @@
 			break;
 			
 			case "setweather":
-			stepwise.score.setWeather( step.content );
+			stepwise.score.setWeather( step.weather );
 			break;
 			
 			case "group":
