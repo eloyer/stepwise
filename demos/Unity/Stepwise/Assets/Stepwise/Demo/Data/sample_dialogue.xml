@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stepwise>
+	<title>My First Story</title>
+	<description></description>
+	<primaryCredits></primaryCredits>
+	<secondaryCredits></secondaryCredits>
+	<version></version>
+
+	<character id="aron" firstName="Aron" lastName=""/>
+	<character id="tasha" firstName="Tasha" lastName=""/>
+
+	<location id="sanFrancisco" lat="37.774929" lon="-122.419416">San Francisco</location>
+	<location id="london" lat="37.774929" lon="-122.419416">London</location>
+	<location id="miami" lat="37.774929" lon="-122.419416">Miami</location>
+
+	<sequence id="start" repeat="+">
+		<speak character="tasha">I love visiting cities like...</speak>
+		<setSequence autoStart="true">whichCity</setSequence>
+	</sequence>
+
+	<sequence id="whichCity" shuffle="true">
+		<group>
+			<setLocation>sanFrancisco</setLocation>
+			<speak character="tasha">San Francisco.</speak>
+			<setSequence>reaction</setSequence>
+		</group>
+		<group>
+			<setLocation>london</setLocation>
+			<speak character="tasha">London.</speak>
+			<setSequence>reaction</setSequence>
+		</group>
+		<group>
+			<setLocation>miami</setLocation>
+			<speak character="tasha">Miami.</speak>
+			<setSequence>reaction</setSequence>
+		</group>
+	</sequence>
+
+	<sequence id="reaction" shuffle="true">
+		<group>
+			<speak character="aron">Really?</speak>
+			<setSequence>loop</setSequence>
+		</group>
+		<group>
+			<speak character="aron">No way.</speak>
+			<setSequence>loop</setSequence>
+		</group>
+		<group>
+			<speak character="aron">Unbelievable.</speak>
+			<setSequence>loop</setSequence>
+		</group>
+		<group>
+			<speak character="aron">Give me a break.</speak>
+			<setSequence>loop</setSequence>
+		</group>
+	</sequence>
+
+	<sequence id="loop" repeat="+">
+		<group>
+			<speak character="tasha">Something about the weather there reminds me that...</speak>
+			<setSequence>start</setSequence>
+		</group>
+	</sequence>
+
+</stepwise>

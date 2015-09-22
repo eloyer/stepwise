@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stepwise>
+	<title>My First Story</title>
+	<description></description>
+	<primaryCredits></primaryCredits>
+	<secondaryCredits></secondaryCredits>
+	<version></version>
+	
+	<sequence id="stories" repeat="+">
+		<group>
+			<setdate>Sun, 11 Apr 1993 19:48:00 GMT</setdate>
+			<narrate>a list of events</narrate>
+		</group>
+		<group>
+			<setdate>Mon, 12 Apr 1993 00:19:00 GMT</setdate>
+			<narrate>getting started on their task</narrate>
+		</group>
+		<group>
+			<setdate>Mon, 12 Apr 1993 02:13:00 GMT</setdate>
+			<narrate>getting started on their task</narrate>
+		</group>
+		<group>
+			<setdate>Mon, 12 Apr 1993 04:11:00 GMT</setdate>
+			<narrate>getting started on their task</narrate>
+		</group>
+		<group>
+			<setdate>Mon, 12 Apr 1993 07:22:00 GMT</setdate>
+			<narrate>the 12 jurors resumed their talks</narrate>
+		</group>
+		<group>
+			<setdate>Mon, 12 Apr 1993 15:21:00 GMT</setdate>
+			<narrate>the buildup could backfire</narrate>
+		</group>
+		<group>
+			<setdate>Mon, 12 Apr 1993 19:01:00 GMT</setdate>
+			<narrate>charges against four policemen</narrate>
+		</group>
+		<group>
+			<setdate>Mon, 12 Apr 1993 22:44:00 GMT</setdate>
+			<narrate>the 12 jurors resumed their talks</narrate>
+		</group>
+		<group>
+			<setdate>Mon, 12 Apr 1993 23:09:00 GMT</setdate>
+			<narrate>identity unknown</narrate>
+		</group>
+		<group>
+			<setdate>Tue, 13 Apr 1993 00:07:00 GMT</setdate>
+			<narrate>identity unknown</narrate>
+		</group>
+		<group>
+			<setdate>Tue, 13 Apr 1993 03:08:00 GMT</setdate>
+			<narrate>the 12 jurors resumed their talks</narrate>
+		</group>
+		<group>
+			<setdate>Tue, 13 Apr 1993 03:52:00 GMT</setdate>
+			<narrate>verdict rumors</narrate>
+		</group>
+		<group>
+			<setdate>Tue, 13 Apr 1993 05:09:00 GMT</setdate>
+			<narrate>the 12 jurors resumed their talks</narrate>
+		</group>
+		<group>
+			<setdate>Tue, 13 Apr 1993 10:30:00 GMT</setdate>
+			<narrate>Barricades went up around the courthouse</narrate>
+		</group>
+		<group>
+			<setdate>Tue, 13 Apr 1993 19:02:00 GMT</setdate>
+			<narrate>Barricades went up around the courthouse</narrate>
+		</group>
+		<group>
+			<setdate>Wed, 14 Apr 1993 00:38:00 GMT</setdate>
+			<narrate>Barricades went up around the courthouse</narrate>
+		</group>
+		<group>
+			<setdate>Wed, 14 Apr 1993 03:35:00 GMT</setdate>
+			<narrate>Barricades went up around the courthouse</narrate>
+		</group>
+		<group>
+			<setdate>Wed, 14 Apr 1993 04:55:00 GMT</setdate>
+			<narrate>Los Angeles is simply evolving</narrate>
+		</group>
+		<group>
+			<setdate>Wed, 14 Apr 1993 08:29:00 GMT</setdate>
+			<narrate>Charges in the federal indictment</narrate>
+		</group>
+		<group>
+			<setdate>Wed, 14 Apr 1993 11:36:00 GMT</setdate>
+			<narrate>Deliberations were interrupted</narrate>
+		</group>
+		<group>
+			<setdate>Wed, 14 Apr 1993 15:27:00 GMT</setdate>
+			<narrate>Deliberations were interrupted</narrate>
+		</group>
+		<group>
+			<setdate>Wed, 14 Apr 1993 19:04:00 GMT</setdate>
+			<narrate>Deliberations were interrupted</narrate>
+		</group>
+		<group>
+			<setdate>Wed, 14 Apr 1993 23:22:00 GMT</setdate>
+			<narrate>Deliberations were interrupted</narrate>
+		</group>
+		<group>
+			<setdate>Thu, 15 Apr 1993 00:16:00 GMT</setdate>
+			<narrate>a juror became ill</narrate>
+		</group>
+		<group>
+			<setdate>Thu, 15 Apr 1993 03:52:00 GMT</setdate>
+			<narrate>the commercial value of their story</narrate>
+		</group>
+		<group>
+			<setdate>Thu, 15 Apr 1993 04:07:00 GMT</setdate>
+			<narrate>Deliberations were interrupted</narrate>
+		</group>
+		<group>
+			<setdate>Thu, 15 Apr 1993 05:19:00 GMT</setdate>
+			<narrate>Deliberations were interrupted</narrate>
+		</group>
+		<group>
+			<setdate>Thu, 15 Apr 1993 10:37:00 GMT</setdate>
+			<narrate>a sixth day of talks</narrate>
+		</group>
+		<group>
+			<setdate>Thu, 15 Apr 1993 19:06:00 GMT</setdate>
+			<narrate>a sixth day of talks</narrate>
+		</group>
+		<group>
+			<setdate>Thu, 15 Apr 1993 19:14:00 GMT</setdate>
+			<narrate>a sixth day of talks</narrate>
+		</group>
+		<group>
+			<setdate>Thu, 15 Apr 1993 21:43:00 GMT</setdate>
+			<narrate>a sixth day of talks</narrate>
+		</group>
+		<group>
+			<setdate>Fri, 16 Apr 1993 00:27:00 GMT</setdate>
+			<narrate>a sixth day of talks</narrate>
+		</group>
+		<group>
+			<setdate>Fri, 16 Apr 1993 03:29:00 GMT</setdate>
+			<narrate>a sixth day of talks</narrate>
+		</group>
+		<group>
+			<setdate>Fri, 16 Apr 1993 09:43:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Fri, 16 Apr 1993 19:07:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Fri, 16 Apr 1993 21:40:00 GMT</setdate>
+			<narrate>verdict rumors</narrate>
+		</group>
+		<group>
+			<setdate>Fri, 16 Apr 1993 22:58:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 01:30:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 02:54:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 03:28:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 03:35:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 03:38:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 04:10:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 04:24:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 04:27:00 GMT</setdate>
+			<narrate>three days of deadly riots</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 04:31:00 GMT</setdate>
+			<narrate>live broadcast of the verdicts</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 04:32:00 GMT</setdate>
+			<narrate>overwhelmed private security firms</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 04:33:00 GMT</setdate>
+			<narrate>The Rodney King beating and its aftermath</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 04:34:00 GMT</setdate>
+			<narrate>Charges in the federal indictment</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 05:19:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 05:20:00 GMT</setdate>
+			<narrate>Possible next steps once the jury...makes an announcement</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 05:32:00 GMT</setdate>
+			<narrate>verdict rumors</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 06:03:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 06:15:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 06:42:00 GMT</setdate>
+			<narrate>a televised address</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 06:45:00 GMT</setdate>
+			<narrate>the jury may be deadlocked</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 07:34:00 GMT</setdate>
+			<narrate>He'll never have a normal life</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 07:40:00 GMT</setdate>
+			<narrate>The Rodney King beating and its aftermath</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 07:44:00 GMT</setdate>
+			<narrate>Main players</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 07:57:00 GMT</setdate>
+			<narrate>Comparisons between federal and state...trials</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 08:51:00 GMT</setdate>
+			<narrate>an announcement</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 12:10:00 GMT</setdate>
+			<narrate>a televised address</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 17:02:00 GMT</setdate>
+			<narrate>an announcement</narrate>
+		</group>
+		<group>
+			<setdate>Sat, 17 Apr 1993 17:17:00 GMT</setdate>
+			<narrate>an announcement</narrate>
+		</group>
+	</sequence>
+
+</stepwise>  
