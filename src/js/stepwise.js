@@ -529,7 +529,7 @@
 		var i, step,
 			n = this.steps.length;
 
-		if ( date == "current" ) {
+		if ( date == null ) {
 			date = plugin.score.currentDate;
 		}
 
