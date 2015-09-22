@@ -595,7 +595,7 @@
 			break;
 			
 			case "setweather":
-			this.content = WeatherConditions[ data.text() != null ? data.text().toUpperCase() : null ];
+			this.content = WeatherConditions[ content != null ? content.toUpperCase() : null ];
 			if ( this.content == null ) {
 				this.content = WeatherConditions.SUNNY;
 			}
