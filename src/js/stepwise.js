@@ -595,7 +595,7 @@
 			break;
 			
 			case "setweather":
-			this.content = WeatherConditions[ content != null ? content.toUpperCase() : null ];
+			this.content = WeatherConditions[ this.content != null ? this.content.toUpperCase() : null ];
 			if ( this.content == null ) {
 				this.content = WeatherConditions.SUNNY;
 			}
@@ -627,11 +627,11 @@
 			break;
 			
 			case "setlocation":
-			this.target = plugin.score.getItemForId( "location", this.data.text() );
+			this.target = plugin.score.getItemForId( "location", this.content );
 			break;
 			
 			case "setsequence":
-			this.target = plugin.score.getItemForId( "sequence", this.data.text() );
+			this.target = plugin.score.getItemForId( "sequence", this.content );
 			break;
 		
 		}
