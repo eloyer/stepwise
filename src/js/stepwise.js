@@ -581,24 +581,15 @@
 		switch ( this.command ) {
 		
 			case "speak":
-			this.tone = SpeechTone[ data.attr( "tone" ) != null ? data.attr( "tone" ).toUpperCase() : null ];
-			if ( this.tone == null ) {
-				this.tone = SpeechTone.NORMAL;
-			}
+			this.tone = SpeechTone[ data.attr( "tone" ) != null ? data.attr( "tone" ).toUpperCase() : SpeechTone.NORMAL ];
 			break;
 			
 			case "settemperature":
-			this.units = TemperatureUnits[ data.attr( "units" ) != null ? data.attr( "units" ).toUpperCase() : null ];
-			if ( this.units == null ) {
-				this.units = TemperatureUnits.CELSIUS;
-			}
-			break;
+			this.units = TemperatureUnits[ data.attr( "units" ) != null ? data.attr( "units" ).toUpperCase() : TemperatureUnits.CELSIUS ];
+    		break;
 			
 			case "setweather":
-			this.content = WeatherConditions[ this.content != null ? this.content.toUpperCase() : null ];
-			if ( this.content == null ) {
-				this.content = WeatherConditions.SUNNY;
-			}
+			this.weather = WeatherConditions[ this.content != null ? this.content.toUpperCase() : WeatherConditions.SUNNY ]; 
 			break;
 
 			case "setdate":
