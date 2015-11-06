@@ -19,6 +19,7 @@ namespace Opertoon.Stepwise {
 		public int completions = 0;
 		public List<int> usedIndexes;
 		public Score parentScore;
+		public float percentCompleted = 0f;
 
 		public Sequence( XmlElement xml, Score score ) {
 
@@ -72,6 +73,7 @@ namespace Opertoon.Stepwise {
 		public void Reset() {
 			stepIndex = -1;
 			isCompleted = false;
+			percentCompleted = 0f;
 		}
 
 		public Step NextStep() {
@@ -94,7 +96,9 @@ namespace Opertoon.Stepwise {
 					
 					stepIndex++;
 					result = steps[ stepIndex ].Execute(); 
-					
+
+					percentCompleted = ( float )stepIndex / ( float )steps.Length;
+
 					//Debug.Log( "step " + stepIndex );
 					
 					// if this is the last step in the sequence, then
@@ -141,7 +145,7 @@ namespace Opertoon.Stepwise {
 							}
 						} 
 					}
-					
+
 					// shuffled playback
 				} else {
 					//Debug.Log( "this is a shuffled sequence" );
@@ -161,6 +165,8 @@ namespace Opertoon.Stepwise {
 						isExhausted = true;
 					}
 					result = steps[ stepIndex ].Execute(); 
+
+					// TODO: Implement percentCompleted for shuffle memory
 				}
 				
 			}

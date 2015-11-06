@@ -29,9 +29,11 @@ namespace Opertoon.Stepwise {
 
 		public TextAsset dataFile;
 
+		[HideInInspector]
+		public Score score;
+
 		private XmlDocument xmlDoc;
-		private Score score;
-		
+
 		// Use this for initialization
 		void Start () {
 
@@ -46,12 +48,24 @@ namespace Opertoon.Stepwise {
 		public void Load( TextAsset file ) {
 
 			if ( file != null ) {
+				Load ( file.text );
+			}
+			
+		}
+
+		public void Load( string text ) {
+			
+			if ( text != null ) {
 				xmlDoc = new XmlDocument();
-				xmlDoc.LoadXml( dataFile.text );
+				xmlDoc.LoadXml( text );
 				score = new Score( xmlDoc.DocumentElement );
 				score.Init();
 			}
-			
+
+		}
+
+		public void Reset() {
+			score.Reset();
 		}
 
 		public Step NextStep() {
@@ -60,32 +74,34 @@ namespace Opertoon.Stepwise {
 
 		public void HandleStepExecuted( Step step ) {
 			
-			switch ( step.command ) {
-				
-			case "setdate":
-				score.SetDate( step.date );
-				break;
-				
-			case "setlocation":
-				score.SetLocation( ( Location ) step.target );
-				break;
-				
-			case "setsequence":
-				score.SetSequence( ( Sequence ) step.target, step.atDate, step.autoStart );
-				break;
-				
-			case "settemperature":
-				score.SetTemperature( float.Parse ( step.content ), step.units );
-				break;
-				
-			case "setweather":
-				score.SetWeather( step.weather );
-				break;
-				
-			case "group":
-				step.ExecuteSubsteps();
-				break;
-				
+			if ( step.parentScore == score ) {
+				switch ( step.command ) {
+					
+				case "setdate":
+					score.SetDate( step.date );
+					break;
+					
+				case "setlocation":
+					score.SetLocation( ( Location ) step.target );
+					break;
+					
+				case "setsequence":
+					score.SetSequence( ( Sequence ) step.target, step.atDate, step.autoStart );
+					break;
+					
+				case "settemperature":
+					score.SetTemperature( float.Parse ( step.content ), step.units );
+					break;
+					
+				case "setweather":
+					score.SetWeather( step.weather );
+					break;
+					
+				case "group":
+					step.ExecuteSubsteps();
+					break;
+					
+				}
 			}
 
 		}

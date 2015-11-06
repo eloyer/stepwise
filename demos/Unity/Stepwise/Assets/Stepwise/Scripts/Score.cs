@@ -122,6 +122,19 @@ namespace Opertoon.Stepwise {
 				sequences[ i ].Init();
 			}
 		}
+		
+		public void Reset() {
+			
+			int i;
+			int n = sequences.Length;
+			for ( i = 0; i < n; i++ ) {
+				sequences[ i ].Reset();
+			}
+			
+			sequenceIndex = 0;
+			currentSequence = null;
+			sequenceQueue.Clear();
+		}    
 
 		public Step NextStep() {
 
