@@ -132,7 +132,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public void Init() {
+		public virtual void Init() {
 			int i;
 			int n = sequences.Length;
 			for ( i = 0; i < n; i++ ) {
@@ -153,7 +153,7 @@ namespace Opertoon.Stepwise {
 			sequenceQueue.Clear();
 		}    
 
-		public Step NextStep() {
+		public virtual Step NextStep() {
 
 			Step step = null;
 
@@ -170,7 +170,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public void UpdateCurrentSequence() {
+		public virtual void UpdateCurrentSequence() {
 
 			Sequence sequence;
 
@@ -219,11 +219,11 @@ namespace Opertoon.Stepwise {
 		 * @param atDate		If specified, will attempt to cue up the sequence to the same date.
 		 * @param autoStart		If true, the sequence will automatically play its first step.
 		 */
-		public void SetSequence( Sequence sequence, bool autoStart ) {
+		public virtual void SetSequence( Sequence sequence, bool autoStart ) {
 			SetSequence( sequence, 0, autoStart );
 		}
 
-		public void SetSequence( Sequence sequence, long atDate, bool autoStart ) {
+		public virtual void SetSequence( Sequence sequence, long atDate, bool autoStart ) {
 
 			//Debug.Log ( "set sequence: " + sequence.id + " " + autoStart );
 
@@ -241,7 +241,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public void PlaySequence( Sequence sequence ) {
+		public virtual void PlaySequence( Sequence sequence ) {
 			currentSequence = sequence;
 			sequenceQueue.Add( sequence );
 			sequence.NextStep();
@@ -253,7 +253,7 @@ namespace Opertoon.Stepwise {
 		 * @param	type	The type of item to be retrieved.
 		 * @param	id		The id of the sequence to be retrieved.
 		 */
-		public object GetItemForId( string type, string id ) {
+		public virtual object GetItemForId( string type, string id ) {
 
 			switch ( type ) {
 				
@@ -278,7 +278,7 @@ namespace Opertoon.Stepwise {
 		 *
 		 * @param location		The location to make current.
 		 */
-		public void SetLocation( Location location ) {
+		public virtual void SetLocation( Location location ) {
 			int index = Array.IndexOf( locations, location );
 			if ( index != -1 ) {
 				currentLocation = location;
@@ -290,7 +290,7 @@ namespace Opertoon.Stepwise {
 		 *
 		 * @param temperature		The temperature to make current.
 		 */
-		public void SetTemperature( float temperature, TemperatureUnits units ) {
+		public virtual void SetTemperature( float temperature, TemperatureUnits units ) {
 			currentTemperature = temperature;
 			currentTemperatureUnits = units;
 		}
@@ -300,7 +300,7 @@ namespace Opertoon.Stepwise {
 		 *
 		 * @param weather		The weather conditions to make current.
 		 */
-		public void SetWeather( WeatherConditions weather ) {
+		public virtual void SetWeather( WeatherConditions weather ) {
 			currentWeather = weather;
 		}
 
@@ -309,7 +309,7 @@ namespace Opertoon.Stepwise {
 		 *
 		 * @param date 			The date to make current.
 		 */
-		public void SetDate( long dateTicks ) {
+		public virtual void SetDate( long dateTicks ) {
 			currentDate = dateTicks;
 		}
 

@@ -68,7 +68,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public void ParseCommand() {
+		public virtual void ParseCommand() {
 
 			switch ( command ) {
 				
@@ -109,7 +109,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public void Init() {
+		public virtual void Init() {
 
 			int i, n;
 			
@@ -137,18 +137,18 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public Step Execute() {
+		public virtual Step Execute() {
 			HandleStepExecuted( this );  
 			return this;
 		}
 		
-		public void HandleStepExecuted( Step step ) {
+		public virtual void HandleStepExecuted( Step step ) {
 			if ( OnStepExecuted != null ) {
 				OnStepExecuted( step );
 			}
 		} 
 
-		public void ExecuteSubsteps() {
+		public virtual void ExecuteSubsteps() {
 
 			int i;
 			int n = substeps.Count;

@@ -91,7 +91,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public void Init() {
+		public virtual void Init() {
 
 			int i;
 			int n = steps.Count;
@@ -101,7 +101,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public void Reset() {
+		public virtual void Reset() {
 			stepIndex = -1;
 			isCompleted = false;
 			isExhausted = false;
@@ -198,7 +198,7 @@ namespace Opertoon.Stepwise {
 					}
 					result = steps[ stepIndex ].Execute(); 
 
-					// TODO: Implement percentCompleted for shuffle memory (see Strange Rain source)
+					// TODO: Implement percentCompleted for shuffle memory
 				}
 				
 			}
@@ -206,7 +206,7 @@ namespace Opertoon.Stepwise {
 			return result;
 		}
 
-		public string GetCurrentStepId() {
+		public virtual string GetCurrentStepId() {
 			if ( stepIndex == -1 ) {
 				return "";
 			} else {
@@ -214,7 +214,7 @@ namespace Opertoon.Stepwise {
 			}
 		}
 
-		public void MatchDate( long date = -1 ) {
+		public virtual void MatchDate( long date = -1 ) {
 
 			int i;
 			Step step;

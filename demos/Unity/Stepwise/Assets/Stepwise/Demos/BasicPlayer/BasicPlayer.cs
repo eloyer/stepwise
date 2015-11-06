@@ -18,7 +18,7 @@ public class BasicPlayer : MonoBehaviour {
 
 	}
 	
-	public void HandleStepExecuted( Step step ) {
+	public virtual void HandleStepExecuted( Step step ) {
 
 		switch ( step.command ) {
 			

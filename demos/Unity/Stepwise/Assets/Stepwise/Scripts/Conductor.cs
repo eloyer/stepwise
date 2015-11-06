@@ -46,7 +46,7 @@ namespace Opertoon.Stepwise {
 
 		}
 		
-		public bool Load( TextAsset file ) {
+		public virtual bool Load( TextAsset file ) {
 
 			if ( file != null ) {
 				return Load ( file.text );
@@ -135,11 +135,11 @@ namespace Opertoon.Stepwise {
 			score.Reset();
 		}
 
-		public Step NextStep() {
+		public virtual Step NextStep() {
 			return score.NextStep();
 		}
 
-		public void HandleStepExecuted( Step step ) {
+		public virtual void HandleStepExecuted( Step step ) {
 			
 			if ( step.parentScore == score ) {
 				switch ( step.command ) {
