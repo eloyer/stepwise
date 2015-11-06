@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -12,7 +13,7 @@ namespace Opertoon.Stepwise {
 		public bool shuffle = false;
 		public bool repeat = false;
 		public int count = -1;
-		public Step[] steps;
+		public List<Step> steps;
 		public int stepIndex = -1;
 		public bool isCompleted = false;
 		public bool isExhausted = false;
@@ -20,6 +21,34 @@ namespace Opertoon.Stepwise {
 		public List<int> usedIndexes;
 		public Score parentScore;
 		public float percentCompleted = 0f;
+
+		public Sequence( string text, Score score ) {
+
+			parentScore = score;
+
+			usedIndexes = new List<int>();
+
+			id = "sequence";
+			repeat = true;
+
+			string[] lines = text.Split( new string[] { "\r\n", "\n" }, StringSplitOptions.None );
+
+			int i;
+			int n = lines.Length;
+			string line;
+			string lineLower;
+			Step step;
+			steps = new List<Step>();
+			for ( i = 0; i < n; i++ ) {
+				line = lines[ i ];
+				lineLower = line.ToLower();
+				if ( !lineLower.StartsWith( "stepwise.title:" ) && !lineLower.StartsWith( "stepwise.credit:" ) && !lineLower.StartsWith( "stepwise.description:" ) ) {
+					step = new Step( line, parentScore );
+					steps.Add ( step );
+				}
+			}
+
+		}
 
 		public Sequence( XmlElement xml, Score score ) {
 
@@ -29,10 +58,12 @@ namespace Opertoon.Stepwise {
 			Step step;
 
 			parentScore = score;
-			
+
 			attr = xml.Attributes.GetNamedItem( "id" );
 			if ( attr != null ) {
 				id = attr.InnerXml;
+			} else {
+				id = "utterance" + parentScore.sequences.Length;
 			}
 
 			attr = xml.Attributes.GetNamedItem( "shuffle" );
@@ -52,10 +83,10 @@ namespace Opertoon.Stepwise {
 
 			elements = xml.ChildNodes;
 			n = elements.Count;
-			steps = new Step[ n ];
+			steps = new List<Step>();
 			for ( i = 0; i < n; i++ ) {
 				step = new Step( ( XmlElement ) elements[ i ], parentScore );
-				steps[ i ] = step;
+				steps.Add ( step );
 			}
 
 		}
@@ -63,7 +94,7 @@ namespace Opertoon.Stepwise {
 		public void Init() {
 
 			int i;
-			int n = steps.Length;
+			int n = steps.Count;
 			for ( i = 0; i < n; i++ ) {
 				steps[ i ].Init();
 			}
@@ -73,10 +104,11 @@ namespace Opertoon.Stepwise {
 		public void Reset() {
 			stepIndex = -1;
 			isCompleted = false;
+			isExhausted = false;
 			percentCompleted = 0f;
 		}
 
-		public Step NextStep() {
+		public virtual Step NextStep() {
 
 			Step result = null;
 			
@@ -97,12 +129,12 @@ namespace Opertoon.Stepwise {
 					stepIndex++;
 					result = steps[ stepIndex ].Execute(); 
 
-					percentCompleted = ( float )stepIndex / ( float )steps.Length;
+					percentCompleted = ( float )stepIndex / ( float )steps.Count;
 
 					//Debug.Log( "step " + stepIndex );
 					
 					// if this is the last step in the sequence, then
-					if ( stepIndex >= ( steps.Length - 1 )) { 
+					if ( stepIndex >= ( steps.Count - 1 )) { 
 						completions++; 
 						
 						//Debug.Log( "sequence " + id + " reached its end" );
@@ -150,10 +182,10 @@ namespace Opertoon.Stepwise {
 				} else {
 					//Debug.Log( "this is a shuffled sequence" );
 					do {
-						stepIndex = ( int ) Mathf.Floor( Random.value * steps.Length );
+						stepIndex = ( int ) Mathf.Floor( UnityEngine.Random.value * steps.Count );
 					} while ( usedIndexes.IndexOf( stepIndex ) != -1 );
 					usedIndexes.Add( stepIndex );
-					if ( usedIndexes.Count >= steps.Length ) {
+					if ( usedIndexes.Count >= steps.Count ) {
 						//Debug.Log( "used up all of the steps; starting over" );
 						usedIndexes.Clear();
 						usedIndexes.Add( stepIndex );
@@ -166,7 +198,7 @@ namespace Opertoon.Stepwise {
 					}
 					result = steps[ stepIndex ].Execute(); 
 
-					// TODO: Implement percentCompleted for shuffle memory
+					// TODO: Implement percentCompleted for shuffle memory (see Strange Rain source)
 				}
 				
 			}
@@ -186,7 +218,7 @@ namespace Opertoon.Stepwise {
 
 			int i;
 			Step step;
-			int n = steps.Length;
+			int n = steps.Count;
 			
 			if ( date == -1 ) {
 				date = parentScore.currentDate;

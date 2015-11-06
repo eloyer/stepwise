@@ -28,6 +28,18 @@ namespace Opertoon.Stepwise {
 		[HideInInspector]
 		public static event StepExecuted OnStepExecuted;
 
+		public Step( string text, Score score ) {
+
+			parentScore = score;
+
+			command = "narrate";
+			content = text;
+			substeps = new List<Step>();
+
+			ParseCommand();
+
+		}
+
 		public Step( XmlElement xml, Score score ) {
 
 			int i, n;
@@ -51,7 +63,13 @@ namespace Opertoon.Stepwise {
 					substeps.Add( step );
 				}
 			}
-			
+
+			ParseCommand();
+
+		}
+
+		public void ParseCommand() {
+
 			switch ( command ) {
 				
 			case "speak":
@@ -88,7 +106,7 @@ namespace Opertoon.Stepwise {
 				break;
 				
 			}
-			
+
 		}
 
 		public void Init() {

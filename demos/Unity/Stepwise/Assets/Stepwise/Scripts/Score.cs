@@ -29,6 +29,23 @@ namespace Opertoon.Stepwise {
 		public WeatherConditions currentWeather;
 		public long currentDate;
 
+		public Score() {
+
+			sequenceQueue = new List<Sequence>();
+
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml( "<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>" );
+			currentLocation = new Location( doc.DocumentElement );
+			
+			currentTemperature = 24f;
+			currentTemperatureUnits = TemperatureUnits.CELSIUS;
+			
+			currentWeather = WeatherConditions.SUNNY;
+			
+			currentDate = DateTime.Now.Ticks;
+
+		}
+
 		public Score( XmlElement xml ) {
 
 			int i, n;
@@ -82,7 +99,7 @@ namespace Opertoon.Stepwise {
 			characters = new Character[ n ];
 			charactersById = new Hashtable();
 			for ( i = 0; i < n; i++ ) {
-				character = new Character( ( XmlElement ) elements[ i ] );
+				character = new Character( ( XmlElement ) elements[ i ], this );
 				characters[ i ] = character;
 				if ( character.id == null ) {
 					character.id = "character" + i;
@@ -123,7 +140,7 @@ namespace Opertoon.Stepwise {
 			}
 		}
 		
-		public void Reset() {
+		public virtual void Reset() {
 			
 			int i;
 			int n = sequences.Length;

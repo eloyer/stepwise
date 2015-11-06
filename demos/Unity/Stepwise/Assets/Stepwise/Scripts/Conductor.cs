@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO;
+using System;
 
 namespace Opertoon.Stepwise {
 
@@ -32,7 +33,7 @@ namespace Opertoon.Stepwise {
 		[HideInInspector]
 		public Score score;
 
-		private XmlDocument xmlDoc;
+		protected XmlDocument xmlDoc;
 
 		// Use this for initialization
 		void Start () {
@@ -45,26 +46,92 @@ namespace Opertoon.Stepwise {
 
 		}
 		
-		public void Load( TextAsset file ) {
+		public bool Load( TextAsset file ) {
 
 			if ( file != null ) {
-				Load ( file.text );
+				return Load ( file.text );
 			}
-			
+
+			return false;
 		}
 
-		public void Load( string text ) {
+		public virtual bool Load( string text ) {
 			
 			if ( text != null ) {
 				xmlDoc = new XmlDocument();
-				xmlDoc.LoadXml( text );
-				score = new Score( xmlDoc.DocumentElement );
+				try {
+					xmlDoc.LoadXml( text );
+					score = new Score( xmlDoc.DocumentElement );
+					score.Init();
+				}
+				catch {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		public virtual bool LoadPlainText( string text ) {
+
+			if ( text != null ) {
+
+				score = new Score();
+				string[] lines = text.Split( new string[] { "\r\n", "\n" }, StringSplitOptions.None );
+
+				if ( lines.Length > 0 ) {
+					score.title = lines[ 0 ].Trim();
+				}
+				if ( lines.Length > 1 ) {
+					score.primaryCredits = lines[ 1 ].Trim ();
+				}
+				if ( lines.Length > 2 ) {
+					score.description = lines[ 2 ].Trim ();
+				}
+
+				if ( score.title == "" ) {
+					score.title = "Untitled";
+				}
+				if ( score.primaryCredits == "" ) {
+					score.primaryCredits = "Author unknown";
+				}
+
+				int i;
+				int n = lines.Length;
+				string line;
+				string lineLower;
+				string key;
+				for ( i = 0; i < n; i++ ) {
+
+					line = lines[ i ];
+					lineLower = line.ToLower();
+
+					key = "stepwise.title:";
+					if ( lineLower.StartsWith( key ) ) {
+						score.title = line.Remove( 0, key.Length );
+					}
+					key = "stepwise.credit:";
+					if ( lineLower.StartsWith( key ) ) {
+						score.primaryCredits = line.Remove( 0, key.Length );
+					}
+					key = "stepwise.description:";
+					if ( lineLower.StartsWith( key ) ) {
+						score.description = line.Remove( 0, key.Length );
+					}
+				}
+
+				score.sequences = new Sequence[ 1 ];
+				Sequence sequence = new Sequence( text, score );
+				score.sequences[ 0 ] = sequence;
+				score.sequencesById = new Hashtable();
+				score.sequencesById[ sequence.id ] = sequence;
 				score.Init();
 			}
 
+			return true;
 		}
 
-		public void Reset() {
+		public virtual void Reset() {
 			score.Reset();
 		}
 
