@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<stepwise>
+	<title>Hello world</title>
+
+	<sequence id="hello" repeat="+">
+		<narrate>Hello...</narrate>
+		<group>
+			<setSequence autoStart="true">world</setSequence>
+			<setSequence>hello</setSequence>
+		</group>
+	</sequence>
+
+	<sequence id="world" shuffle="true">
+		<narrate>world.</narrate>
+		<narrate>planet.</narrate>
+		<narrate>Earth.</narrate>
+		<narrate>universe.</narrate>
+		<narrate>reality.</narrate>
+	</sequence>
+
+</stepwise>
