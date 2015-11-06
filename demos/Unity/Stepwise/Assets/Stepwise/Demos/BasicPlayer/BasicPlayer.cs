@@ -3,7 +3,7 @@ using System.Collections;
 using Opertoon.Stepwise;
 using UnityEngine.UI;
 
-public class Demo : MonoBehaviour {
+public class BasicPlayer : MonoBehaviour {
 
 	public Text output;
 
@@ -27,7 +27,7 @@ public class Demo : MonoBehaviour {
 		case "think":
 			output.text = step.content;
 			break;
-			
+
 		}
 		
 	}
@@ -35,7 +35,7 @@ public class Demo : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if ( Input.GetMouseButtonDown( 0 ) ) {
+		if ( Input.anyKeyDown ) {
 			conductor.NextStep();
 		}
 	

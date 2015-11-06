@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<title>Hello World</title>
+		<link href="css/reset.css" type="text/css" rel="stylesheet">
+		<link href="css/global.css" type="text/css" rel="stylesheet">
+		<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script type="text/javascript" src="../../../src/js/stepwise.js"></script>
+		<script type="text/javascript">
+		
+			$( document ).ready( function() {
+			
+				var progress = 0.0;
+			
+				var stepwise = $( "#story" ).stepwise( { 
+					url: "hello_world.xml",
+					success: function( event, step ) {
+
+						switch ( step.command ) {
+
+							case "narrate":
+							case "speak":
+							case "think":
+							setActor( step );
+							break;
+									
+							case "setlocation":
+							setLocation( step );
+							break;
+						
+							case "settemperature":
+							setTemperature( step );
+							break;
+						
+							case "setweather":
+							setWeather( step );
+							break;
+
+							case "setdate":
+							setDate( step );
+							break;
+							
+						}
+
+					}
+				} );
+				
+				$( "body" ).keydown( function() {
+    				if (( event.keyCode != 91 ) && ( event.keyCode != 93 )) {
+						stepwise.data( "plugin_stepwise" ).nextStep();
+					} 
+    			} );
+				
+				$( "body" ).mousedown( function() {
+					stepwise.data( "plugin_stepwise" ).nextStep();   
+    			} ); 
+
+				function setLocation( step ) {
+					if ( step == null ) {
+						$( "#location" ).hide();
+					} else {
+						$( "#location > span" ).text( step.target.name );
+						$( "#location" ).show();
+					}
+				}
+
+				function setTemperature( step ) {
+					if ( step == null ) {
+						$( "#temperature" ).hide();
+					} else {
+						$( "#temperature > span" ).html( step.content + "&deg; " + step.units );
+						$( "#temperature" ).show();
+					}
+				}
+
+				function setWeather( step ) {
+					if ( step == null ) {
+						$( "#weather" ).hide();
+					} else {
+						$( "#weather > span" ).text( step.content );
+						$( "#weather" ).show();
+					}
+				}
+	
+				function setDate( step ) {
+					if ( step == null ) {
+						$( "#date" ).hide();
+					} else {
+						$( "#date > span" ).text( step.date.toLocaleDateString() + " " + step.date.toLocaleTimeString() );
+						$( "#date" ).show();
+					}
+				}
+
+				function setActor( step ) {
+
+					$( "#story" ).hide();
+
+					switch ( step.command ) {
+
+						case "narrate":
+						$( "#actor" ).empty().hide();
+						$( "#story" ).removeClass( "thought" );
+						break;
+
+						case "speak":
+						$( "#actor" ).text( step.target.firstName + " " + step.target.lastName + ":" );
+						$( "#actor" ).show();
+						$( "#story" ).removeClass( "thought" );
+						break;
+
+						case "think":
+						$( "#actor" ).text( step.target.name );
+						$( "#actor" ).show();
+						$( "#story" ).addClass( "thought" );
+						break;
+
+					}
+
+					$( "#story" ).fadeIn( "fast" );
+
+				}
+			
+			} );
+		
+		</script>
+	</head>
+	<body>
+		<div id="content-container">   
+			<div id="instructions">[ Click or press any key to step ]</div>
+			<div id="content">
+				<div id="actor"></div>
+				<div id="story"></div>
+			</div>
+		</div>
+		<div id="stats">
+			<div id="date">Date: <span></span></div>
+			<div id="location">Location: <span></span></div>
+			<div id="temperature">Temperature: <span></span></div>
+			<div id="weather">Weather: <span></span></div>
+		</div>
+	</body>
+</html>

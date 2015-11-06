@@ -195,8 +195,8 @@ Camera:
   m_GameObject: {fileID: 362176136}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: .192156866, g: .301960796, b: .474509805, a: .0196078438}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: .266666681, g: .266666681, b: .266666681, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -261,11 +261,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2054318468}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -40, y: -40}
+  m_SizeDelta: {x: -80, y: -80}
   m_Pivot: {x: .5, y: .5}
 --- !u!114 &1059901774
 MonoBehaviour:
@@ -281,24 +281,90 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FontData:
-    m_Font: {fileID: 12800000, guid: 4fb587a6e7365403990ce979ba0f240a, type: 3}
-    m_FontSize: 36
-    m_FontStyle: 0
-    m_BestFit: 1
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 72
+    m_FontStyle: 1
+    m_BestFit: 0
     m_MinSize: 20
     m_MaxSize: 80
-    m_Alignment: 4
+    m_Alignment: 3
     m_RichText: 1
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: .800000012
-  m_Text: '{ click to begin }'
+  m_Text: 
 --- !u!222 &1059901775
 CanvasRenderer:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1059901772}
+--- !u!1 &1291063812
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 4
+  m_Component:
+  - 224: {fileID: 1291063813}
+  - 222: {fileID: 1291063815}
+  - 114: {fileID: 1291063814}
+  m_Layer: 5
+  m_Name: Instructions
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1291063813
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1291063812}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2054318468}
+  m_RootOrder: 0
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 40, y: -40}
+  m_SizeDelta: {x: -80, y: 100}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &1291063814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1291063812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 708705254, guid: f5f67c52d1564df4a8936ccd202a3bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: .65882355, g: .65882355, b: .65882355, a: 1}
+  m_FontData:
+    m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+    m_FontSize: 16
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 20
+    m_MaxSize: 80
+    m_Alignment: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: .800000012
+  m_Text: '[ Click or press any key to step ]'
+--- !u!222 &1291063815
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1291063812}
 --- !u!1 &1679953669
 GameObject:
   m_ObjectHideFlags: 0
@@ -339,7 +405,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a54a2e0cca1ef4cf7b1372fe3a09e9bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataFile: {fileID: 4900000, guid: 0b57bfd06aaa84977af1c8fd073442ae, type: 3}
+  dataFile: {fileID: 4900000, guid: 1054752588a2249df8126bc4438a521c, type: 3}
 --- !u!114 &1679953672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348,7 +414,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1679953669}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a1c1f0c82df44604bed4b4266dda8ce, type: 3}
+  m_Script: {fileID: 11500000, guid: f732807f5a29d4e12a1b64fa2bdca275, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   output: {fileID: 1059901774}
@@ -508,6 +574,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_Children:
+  - {fileID: 1291063813}
   - {fileID: 1059901773}
   m_Father: {fileID: 0}
   m_RootOrder: 3
