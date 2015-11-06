@@ -1,7 +1,0 @@
-Base path: /Applications/Unity AppleTV/Unity.app/Contents
-Pipe name: \\.\pipe\UnityShaderCompiler-64bit-1-2109932288
-Cmd: getPlatforms
-Cmd: compileSnippet
-  api=0 type=0 insize=1089 outsize=669 kw= ok=1
-Cmd: compileSnippet
-  api=0 type=1 insize=1089 outsize=6 kw= ok=1
