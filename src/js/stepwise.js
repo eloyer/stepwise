@@ -58,17 +58,14 @@
     }
  
     Stepwise.prototype.init = function() {
-        // Place initialization logic here
-        // We already have access to the DOM element and
-        // the options via the instance, e.g. this.element
-        // and this.options
-        
+         
         if ( this.options.url != null ) {
-        	this.load( this.options.url );
+        	this.load( this.options.url, this.options.dataType );
         }
+        
     };
     
-    Stepwise.prototype.load = function( url ) {
+    Stepwise.prototype.load = function( url, dataType ) {
     
     	var me = this;
     
@@ -76,11 +73,15 @@
     		$.ajax({
     			type: "GET",
     			url: url,
-    			dataType: "xml",
-    			success: function( data ) {
-			    	me.score = new Score( $( data ).find( "stepwise" ).first(), me.element );
+    			dataType: dataType,
+    			success: ( dataType == "xml" ) ?
+    			function( xml ) {
+			    	me.score = new Score( $( xml ).find( "stepwise" ).first(), "xml", me.element );
 			    	me.score.init();
-			    	console.log( "ready" );
+    			} :
+    			function( text ) {
+ 			    	me.score = new Score( text, "text", me.element );
+			    	me.score.init();
     			},
     			error: function( request, status, error ) {
     			
@@ -96,6 +97,10 @@
     		});
     	}
 
+    }
+
+    Stepwise.prototype.reset = function() {
+    	this.score.reset();
     }
 	
 	Stepwise.prototype.nextStep = function() {
@@ -146,78 +151,185 @@
 	
 	}
 	 
-	function Score( data, element ) {
+	function Score( data, dataType, element ) {
+
+		this.element = element;
+		this.setDefaults();
+		this.parseMetadata( data, dataType );
+		this.parseStory( data, dataType );
+		this.init();
+
+	}
+
+	Score.prototype.setDefaults = function() {
+
+		version = 1;
+		type = "basic";
+		
+		sequenceQueue = [];
+		
+		currentLocation = new Location( $("<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>") );
+		
+		currentTemperature = 24;
+		currentTemperatureUnits = TemperatureUnits.CELSIUS;
+		
+		currentWeather = WeatherConditions.CLEAR;
+		
+		currentDate = Date.now();
+
+	}
+
+	Score.prototype.parseMetadata = function( data, dataType ) {
 	
 		var me = this;
-	
-		this.title = data.find( "title" ).first().text();
-		this.description = data.find( "description" ).first().text();
-		this.primaryCredits = data.find( "primaryCredits" ).first().text();
-		this.secondaryCredits = data.find( "secondaryCredits" ).first().text();
-		this.version = data.find( "version" ).first().text();
-		this.element = element;
-		
-		this.sequences = [];
-		this.sequencesById = {};
-		var sequence;
-		data.find( "sequence" ).each( function() {
-			sequence = new Sequence( $( this ), me.element );
-			if ( sequence.id == null ) {
-				sequence.id = "sequence" + me.sequences.length;
-			}
-			me.sequences.push( sequence );
-			me.sequencesById[ sequence.id ] = sequence;
-		});
-		
-		this.sequenceIndex = 0;
-		this.currentSequence = null;
-		this.sequenceQueue = [];
-		
-		this.characters = [];
-		this.charactersById = {};
-		var character;
-		data.find( "character" ).each( function() {
-			character = new Character( $( this ), me.element );
-			if ( character.id == null ) {
-				character.id = "character" + me.characters.length;
-			}
-			me.characters.push( character );
-			me.charactersById[ character.id ] = character;
-		});
-		
-		this.locations = [];
-		this.locationsById = {};
-		var location;
-		data.find( "location" ).each( function() {
-			location = new Location( $( this ), me.element );
-			if ( location.id == null ) {
-				location.id = "location" + me.locations.length;
-			}
-			me.locations.push( location );
-			me.locationsById[ location.id ] = location;
-		});
-		this.currentLocation = new Location( $( '<location id="defaultLocation" lat="0" lon="0">Default Location</location>' ) );
-		
-		this.currentTemperature = 24;
-		this.currentTemperatureUnits = TemperatureUnits.CELSIUS;
-		
-		this.currentWeather = WeatherConditions.SUNNY;
 
-		this.currentDate = new Date();
+		if ( data != null ) {
+			if ( dataType != "xml" ) {
+
+				lines = data.split(/\r?\n/);
+				
+				var i, line, lineLower, key,
+					n = lines.Length,
+					isUsingStepwiseKeys = false;
+
+				for ( i = 0; i < n; i++ ) {
+					
+					line = lines[ i ];
+					lineLower = line.toLowerCase();
+					
+					key = "stepwise.title:";
+					if ( lineLower.indexOf( key ) == 0 ) {
+						title = line.substr( key.length );
+						isUsingStepwiseKeys = true;
+					}
+					key = "stepwise.credit:";
+					if ( lineLower.indexOf( key ) == 0 ) {
+						primaryCredits = line.substr( key.length );
+						isUsingStepwiseKeys = true;
+					}
+					key = "stepwise.description:";
+					if ( lineLower.indexOf( key ) == 0 ) {
+						description = line.substr( key.length );
+						isUsingStepwiseKeys = true;
+					}
+				}
+
+				if ( !isUsingStepwiseKeys ) {
+					if ( lines.length > 0 ) {
+						title = lines[ 0 ].trim();
+					}
+					if ( lines.length > 1 ) {
+						primaryCredits = lines[ 1 ].trim();
+					}
+					if ( lines.length > 2 ) {
+						description = lines[ 2 ].trim();
+					}
+				}
+				
+				if ( title == "" ) {
+					title = "Untitled";
+				}
+				if ( primaryCredits == "" ) {
+					primaryCredits = "Author unknown";
+				}
+				version = 1;
+				type = "basic";			
+
+			} else {
+			
+				this.title = data.find( "title" ).first().text();
+				this.description = data.find( "description" ).first().text();
+				this.primaryCredits = data.find( "primaryCredits" ).first().text();
+				this.secondaryCredits = data.find( "secondaryCredits" ).first().text();
+				this.version = parseInt( data.find( "version" ).first().text() );
+			}
+		}
+	}
+
+	Score.prototype.parseStory = function( data, dataType ) {
+
+		var me = this;
+				
+		if ( data != null ) {
+
+			this.sequences = [];
+			this.sequencesById = {};
+			var sequence;
+
+			if ( dataType != "xml" ) {
+				sequence = new Sequence( data, "text", this );
+				this.sequences.push( sequence );
+				sequencesById[ sequence.id ] = sequence;
+
+			} else {
+				data.find( "sequence" ).each( function() {
+					sequence = new Sequence( $( this ), "xml", me );
+					if ( sequence.id == null ) {
+						sequence.id = "sequence" + me.sequences.length;
+					}
+					me.sequences.push( sequence );
+					me.sequencesById[ sequence.id ] = sequence;
+				});
+				
+				this.sequenceIndex = 0;
+				this.currentSequence = null;
+				this.sequenceQueue = [];
+				
+				this.characters = [];
+				this.charactersById = {};
+				var character;
+				data.find( "character" ).each( function() {
+					character = new Character( $( this ), me );
+					if ( character.id == null ) {
+						character.id = "character" + me.characters.length;
+					}
+					me.characters.push( character );
+					me.charactersById[ character.id ] = character;
+				});
+				
+				this.locations = [];
+				this.locationsById = {};
+				var location;
+				data.find( "location" ).each( function() {
+					location = new Location( $( this ), me );
+					if ( location.id == null ) {
+						location.id = "location" + me.locations.length;
+					}
+					me.locations.push( location );
+					me.locationsById[ location.id ] = location;
+				});
+			}
+		}
 		
 	}
 	
 	Score.prototype.init = function() {
-	
-		var i;
-		var n = this.sequences.length;
+
+		var i,
+			n = this.sequences.length;
+
 		for ( i = 0; i < n; i++ ) {
 			this.sequences[ i ].init();
 		}
-	
+	}
+
+	Score.prototype.reset = function() {
+
+		var i,
+			n = this.sequences.Length;
+
+		for ( i = 0; i < n; i++ ) {
+			this.sequences[ i ].reset();
+		}
+		
+		this.sequenceIndex = 0;
+		this.currentSequence = null;
+		this.sequenceQueue = [];
 	}
 
 	Score.prototype.nextStep = function() {
+
+		var step = null;
 	
 		this.updateCurrentSequence();
 
@@ -225,10 +337,10 @@
 		 
 		// if the sequence hasn't been exhausted, execute its next step
 		if ( !this.currentSequence.isExhausted ) { 
-			return this.currentSequence.nextStep(); 
+			step = this.currentSequence.nextStep(); 
 		} 
 		
-		return false;
+		return step;
 	
 	}   	
 	
@@ -372,42 +484,69 @@
 		this.currentDate = date;
 	}
 	
-	function Sequence( data, element ) {
+	function Sequence( data, dataType, score ) {
 	
 		var me = this;
 
-		this.id = $( data ).attr( "id" );
-		this.element = element;
-		this.shuffle = $( data ).attr( "shuffle" ) == "true" ? true : false;
+		this.parentScore = score;
+		this.shuffle = false;
 		this.repeat = false;
 		this.count = -1;
-		if ( $( data ).attr( "repeat" ) != null ) {
-			this.repeat = ( $( data ).attr( "repeat" ) != null );
-			this.count = parseInt( $( data ).attr( "repeat" ) );
-			if ( isNaN( this.count ) ) {
-				this.count = -1; // repeat infinitely
-			}
-		}
 		this.steps = [];
 		this.stepIndex = -1;
 		this.isCompleted = false;
 		this.isExhausted = false;
 		this.completions = 0;
 		this.usedIndexes = [];
-		
-		this.steps = [];
-		var step;
-		data.children().each( function() {
-			var step = new Step( $( this ), me.element );
-			me.steps.push( step );
-		});
+		this.percentCompleted = 0;
+
+		if ( dataType != "xml" ) {
+			this.id = "sequence" + this.parentScore.sequences.Length;
+			this.repeat = true;
+
+			var lines = data.split(/\r?\n/);
+
+			var i, line, lineLower, step,
+				n = lines.length;
+
+			for ( i = 0; i < n; i++ ) {
+				line = lines[ i ];
+				lineLower = line.toLowerCase();
+				if (( lineLower.indexOf( "stepwise.title:" ) != 0 ) && ( lineLower.indexOf( "stepwise.credit:" ) != 0 ) && ( lineLower.indexOf( "stepwise.description:" ) != 0 )) {
+					step = new Step( line, "text", this.parentScore );
+					steps.push( step );
+				}
+			}
+
+		} else {
+
+			this.id = $( data ).attr( "id" );
+			if ( this.id == null ) {
+				this.id = "sequence" + this.parentScore.sequences.Length;
+			}
+			this.shuffle = $( data ).attr( "shuffle" ) == "true" ? true : false;
+			if ( $( data ).attr( "repeat" ) != null ) {
+				this.repeat = ( $( data ).attr( "repeat" ) != null );
+				this.count = parseInt( $( data ).attr( "repeat" ) );
+				if ( isNaN( this.count ) ) {
+					this.count = -1; // repeat infinitely
+				}
+			}
+			
+			var step;
+			data.children().each( function() {
+				var step = new Step( $( this ), "xml", me.parentScore );
+				me.steps.push( step );
+			});
+		}
 		
 	}
 	
 	Sequence.prototype.init = function() {
 	
-		var i;
-		var n = this.steps.length;
+		var i,
+			n = this.steps.length;
+
 		for ( i = 0; i < n; i++ ) {
 			this.steps[ i ].init();
 		}
@@ -417,97 +556,103 @@
 	Sequence.prototype.reset = function() {
 		this.stepIndex = -1; 
 		this.isCompleted = false;
+		this.isExhausted = false;
+		this.percentCompleted = 0;
 	}
 	
 	Sequence.prototype.nextStep = function() {
 	
-		var result;
+		var result = null;
 
 		//console.log( this.id + ' ' + this.isExhausted + ' ' + this.shuffle + ' ' + this.isCompleted );
 	  
-	  	// if the sequence hasn't been exhausted, then
-	 	if ( !this.isExhausted ) {
-		 	
-			// if the sequence is not shuffled, then
-			if ( !this.shuffle ) { 
-			 
-			 	// if the sequence has been completed and is set to repeat, then restart it
-				if ( this.isCompleted && this.repeat ) { 
-					//console.log('sequence was completed; resetting');
-					this.reset();
-				}
-					 
-				this.stepIndex++;
-				result = this.steps[ this.stepIndex ].execute(); 
-				
-				//console.log( "step " + this.stepIndex );
-				
-				// if this is the last step in the sequence, then
-				if ( this.stepIndex >= ( this.steps.length - 1 )) { 
-					this.completions++; 
+	  	if ( this.steps.length > 0 ) {
+
+		  	// if the sequence hasn't been exhausted, then
+		 	if ( !this.isExhausted ) {
+			 	
+				// if the sequence is not shuffled, then
+				if ( !this.shuffle ) { 
+				 
+				 	// if the sequence has been completed and is set to repeat, then restart it
+					if ( this.isCompleted && this.repeat ) { 
+						//console.log('sequence was completed; resetting');
+						this.reset();
+					}
+						 
+					this.stepIndex++;
+					result = this.steps[ this.stepIndex ].execute(); 
+
+					this.percentCompleted = this.stepIndex / parseFloat( this.steps.Count );
 					
-					//console.log('sequence ' + this.id + ' reached its end');
+					//console.log( "step " + this.stepIndex );
 					
-					// if the sequence is set to repeat, then
-					if ( this.repeat ) {   
-						//console.log('this is a repeating sequence');
-					
-						if ( this.count > -1 ) {
-							//console.log('a count has been specified');
-							if ( this.completions >= this.count ) {  
-								//console.log('the count has been exhausted');
-								this.isExhausted = true;
-							} else { 
-								//console.log('resetting for another round');
+					// if this is the last step in the sequence, then
+					if ( this.stepIndex >= ( this.steps.length - 1 )) { 
+						this.completions++; 
+						
+						//console.log('sequence ' + this.id + ' reached its end');
+						
+						// if the sequence is set to repeat, then
+						if ( this.repeat ) {   
+							//console.log('this is a repeating sequence');
+						
+							if ( this.count > -1 ) {
+								//console.log('a count has been specified');
+								if ( this.completions >= this.count ) {  
+									//console.log('the count has been exhausted');
+									this.isExhausted = true;
+								} else { 
+									//console.log('resetting for another round');
+									this.reset();
+								}
+							} else {
+								//console.log('no count specified; resetting for another round');
 								this.reset();
 							}
-						} else {
-							//console.log('no count specified; resetting for another round');
-							this.reset();
-						}
-						
-					// otherwise, if the sequence is not set to repeat, then mark it as completed
-					} else { 
-						//console.log('this is a non-repeating sequence');
-					
-						if ( this.count > -1 ) {
-							//console.log('a count has been specified');
-							if ( this.completions >= count ) {
-								//console.log('the count has been exhausted');
-								this.isExhausted = true;
-							} else { 
-								//console.log('the sequence is completed');
-								this.isCompleted = true;
-							}
+							
+						// otherwise, if the sequence is not set to repeat, then mark it as completed
 						} else { 
-							//console.log('no count specified; sequence is completed');
-							this.isCompleted = true;
-							this.isExhausted = true;
-						}
-					} 
-				}
-				
-			// shuffled playback
-			} else {
-				//console.log( 'this is a shuffled sequence' );
-				do {
-					this.stepIndex = Math.floor( Math.random() * this.steps.length );
-				} while ( this.usedIndexes.indexOf( this.stepIndex ) != -1 );
-				this.usedIndexes.push( this.stepIndex );
-				if ( this.usedIndexes.length >= this.steps.length ) {
-					//console.log( 'used up all of the steps; starting over' );
-					this.usedIndexes = [];
+							//console.log('this is a non-repeating sequence');
+						
+							if ( this.count > -1 ) {
+								//console.log('a count has been specified');
+								if ( this.completions >= count ) {
+									//console.log('the count has been exhausted');
+									this.isExhausted = true;
+								} else { 
+									//console.log('the sequence is completed');
+									this.isCompleted = true;
+								}
+							} else { 
+								//console.log('no count specified; sequence is completed');
+								this.isCompleted = true;
+								this.isExhausted = true;
+							}
+						} 
+					}
+					
+				// shuffled playback
+				} else {
+					//console.log( 'this is a shuffled sequence' );
+					do {
+						this.stepIndex = Math.floor( Math.random() * this.steps.length );
+					} while ( this.usedIndexes.indexOf( this.stepIndex ) != -1 );
 					this.usedIndexes.push( this.stepIndex );
+					if ( this.usedIndexes.length >= this.steps.length ) {
+						//console.log( 'used up all of the steps; starting over' );
+						this.usedIndexes = [];
+						this.usedIndexes.push( this.stepIndex );
+					}
+					this.completions++;
+					this.isCompleted = true;
+					if (( this.count != -1 ) && ( this.completions >= this.count )) {
+						//console.log( 'the count has been exhausted' );
+						this.isExhausted = true;
+					}
+					result = this.steps[ this.stepIndex ].execute(); 
 				}
-				this.completions++;
-				this.isCompleted = true;
-				if (( this.count != -1 ) && ( this.completions >= this.count )) {
-					//console.log( 'the count has been exhausted' );
-					this.isExhausted = true;
-				}
-				result = this.steps[ this.stepIndex ].execute(); 
 			}
-			
 		}
 	
 		return result;
@@ -524,13 +669,11 @@
 
 	Sequence.prototype.matchDate = function( date ) {
 
-		var plugin = $( this.element ).data( "plugin_stepwise" );
-
 		var i, step,
 			n = this.steps.length;
 
 		if ( date == null ) {
-			date = plugin.score.currentDate;
+			date = this.parentScore.currentDate;
 		}
 
 		for ( i = 0; i < n; i++ ) {
@@ -545,8 +688,8 @@
 	} 
 	
 	var SpeechTone = {
-		WHISPER: "whisper",
 		NORMAL: "normal",
+		WHISPER: "whisper",
 		SHOUT: "shout"
 	}
 	
@@ -555,37 +698,64 @@
 		CELSIUS: "celsius"
 	}
 	
+	// adapted from http://openweathermap.org/weather-conditions
 	var WeatherConditions = {
-		SUNNY: "sunny",
-		CLOUDY: "cloudy",
-		RAINY: "rainy"
+		CLEAR: "clear",
+		DRIZZLE: "drizzle",
+		LIGHTRAIN: "lightrain",
+		RAIN: "rain",
+		HEAVYRAIN: "heavyrain",
+		THUNDERSTORM: "thunderstorm",
+		SNOW: "snow",
+		ATMOSPHERE: "atmosphere",
+		CLOUDS: "clouds",
+		EXTREME: "extreme",
+		ADDITIONAL: "additional"
 	}
 		
-	function Step( data, element ) {
+	function Step( data, dataType, score ) {
 	
 		var me = this;
+		this.parentScore = score;
+
+		if ( dataType != "xml" ) {
+			this.command = "narrate";
+			this.content = data;
+			this.tone = SpeechTone.NORMAL;
+			this.delay = 0;
+			this.substeps = [];
+
+		} else {
 	
-		this.data = $( data );
-		this.element = element;
-		this.command = data.prop( "tagName" ).toLowerCase();
-		this.itemRef = data.attr( "itemRef" );
-		this.content = data.text();
-		this.substeps = [];
-		
-		var step;
-		data.children().each( function() {
-			var step = new Step( $( this ), me.element );
-			me.substeps.push( step );
-		});
-		
+			this.data = $( data );
+			this.command = data.prop( "tagName" ).toLowerCase();
+			this.itemRef = data.attr( "itemRef" );
+			this.delay = parseFloat( data.attr( "delay" ) ) * .001;
+			this.content = data.text();
+			this.substeps = [];
+			
+			var step;
+			data.children().each( function() {
+				var step = new Step( $( this ), "xml", me.parentScore );
+				me.substeps.push( step );
+			});
+
+		}
+
+		this.parseCommand();
+	
+	}
+
+	Step.prototype.parseCommand = function() {
+			
 		switch ( this.command ) {
 		
 			case "speak":
-			this.tone = SpeechTone[ data.attr( "tone" ) != null ? data.attr( "tone" ).toUpperCase() : SpeechTone.NORMAL ];
+			this.tone = SpeechTone[ this.data.attr( "tone" ) != null ? this.data.attr( "tone" ).toUpperCase() : SpeechTone.NORMAL ];
 			break;
 			
 			case "settemperature":
-			this.units = TemperatureUnits[ data.attr( "units" ) != null ? data.attr( "units" ).toUpperCase() : TemperatureUnits.CELSIUS ];
+			this.units = TemperatureUnits[ this.data.attr( "units" ) != null ? this.data.attr( "units" ).toUpperCase() : TemperatureUnits.CELSIUS ];
     		break;
 			
 			case "setweather":
@@ -593,81 +763,81 @@
 			break;
 
 			case "setdate":
+			case "settime":
 			this.date = new Date( this.content );
 			break;
 
 			case "setsequence":
-			this.atDate = data.attr( "atDate" );
-			this.autoStart = data.attr( "autoStart" ) == "true" ? true : false;
+			this.atDate = this.data.attr( "atDate" );
+			this.autoStart = this.data.attr( "autoStart" ) == "true" ? true : false;
 			break;
 		
 		}
-	
+
 	}
 	
-	Step.prototype.init = function() {
+	Step.prototype.init = function( substep ) {
 	
-		var i, n,
-			plugin = $( this.element ).data( "plugin_stepwise" );
+		var i, n;
+
+		if ( substep == null ) {
+			substep = false;
+		}
 	
 		switch ( this.command ) {
 		
 			case "speak":
 			case "think":
-			this.target = plugin.score.getItemForId( "character", this.data.attr( "character" ) );
+			this.target = this.parentScore.getItemForId( "character", this.data.attr( "character" ) );
 			break;
 			
 			case "setlocation":
-			this.target = plugin.score.getItemForId( "location", this.content );
+			this.target = this.parentScore.getItemForId( "location", this.content );
 			break;
 			
 			case "setsequence":
-			this.target = plugin.score.getItemForId( "sequence", this.content );
+			this.target = this.parentScore.getItemForId( "sequence", this.content );
 			break;
 		
 		}
 
 		n = this.substeps.length;
 		for ( i = 0; i < n; i++ ) {
-			this.substeps[ i ].init();
+			this.substeps[ i ].init( true );
 		}
 		
 	}
 		
 	Step.prototype.execute = function() {
-		$( this.element ).trigger( "executeStep", this );
+		$( this.parentScore.element ).trigger( "executeStep", this );
 		return this;
 	}
 	
 	Step.prototype.executeSubsteps = function() {
-		var i;
-		var n = this.substeps.length;
-		var step;
+		var i, step,
+			n = this.substeps.length;
 		for ( i = 0; i < n; i++ ) {
 			step = this.substeps[ i ];
 			step.execute();
 		}
 	}
 	
-	function Character( data, element ) {
-	
+	function Character( data, score ) {	
 		this.data = $( data );
-		this.element = element;
+		this.parentScore = score;
 		this.id = data.attr( "id" );
 		this.firstName = data.attr( "firstName" );
 		this.lastName = data.attr( "lastName" );
-	
+		this.fullName = this.firstName + (( this.lastName == "" ) ? "" : " " + this.lastName );	
 	}
 	
-	function Location( data, element ) {
-	
+	function Location( data, score ) {	
 		this.data = $( data );
-		this.element = element;
+		this.parentScore = score;
 		this.id = data.attr( "id" );
 		this.latitude = parseFloat( data.prop( "lat" ) );
 		this.longitude = parseFloat( data.attr( "lon" ) );
-		this.name = data.text();
-	
+		this.name = data.text();	
 	}
 	
 })( jQuery, window, document );
