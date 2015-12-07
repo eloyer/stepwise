@@ -28,7 +28,7 @@ namespace Opertoon.Stepwise {
 
 			usedIndexes = new List<int>();
 
-			id = "sequence";
+			id = "sequence" + parentScore.sequences.Length;
 			repeat = true;
 
 			string[] lines = text.Split( new string[] { "\r\n", "\n" }, StringSplitOptions.None );
@@ -63,7 +63,7 @@ namespace Opertoon.Stepwise {
 			if ( attr != null ) {
 				id = attr.InnerXml;
 			} else {
-				id = "utterance" + parentScore.sequences.Length;
+				id = "sequence" + parentScore.sequences.Length;
 			}
 
 			attr = xml.Attributes.GetNamedItem( "shuffle" );

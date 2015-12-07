@@ -48,6 +48,26 @@ namespace Opertoon.Stepwise {
 			Init();
 		}
 		
+		public void SetDefaults() {
+
+			version = 1;
+			type = "basic";
+			
+			sequenceQueue = new List<Sequence>();
+			
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml( "<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>" );
+			currentLocation = new Location( doc.DocumentElement );
+			
+			currentTemperature = 24f;
+			currentTemperatureUnits = TemperatureUnits.CELSIUS;
+			
+			currentWeather = WeatherConditions.CLEAR;
+			
+			currentDate = DateTime.Now;
+			
+		}
+
 		public void ParseMetadata( string text ) {
 
 			if ( text != null ) {
@@ -134,15 +154,11 @@ namespace Opertoon.Stepwise {
 				elements = xml.GetElementsByTagName( "version" );
 				if ( elements.Count > 0 ) {
 					version = int.Parse( elements[ 0 ].InnerText );
-				} else {
-					version = 1;
 				}
 				
 				elements = xml.GetElementsByTagName( "type" );
 				if ( elements.Count > 0 ) {
 					type = elements[ 0 ].InnerText;
-				} else {
-					type = "basic";
 				}
 			}
 		}
@@ -209,23 +225,6 @@ namespace Opertoon.Stepwise {
 				}
 
 			}
-
-		}
-
-		public void SetDefaults() {
-			
-			sequenceQueue = new List<Sequence>();
-			
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml( "<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>" );
-			currentLocation = new Location( doc.DocumentElement );
-			
-			currentTemperature = 24f;
-			currentTemperatureUnits = TemperatureUnits.CELSIUS;
-			
-			currentWeather = WeatherConditions.CLEAR;
-			
-			currentDate = DateTime.Now;
 
 		}
 
