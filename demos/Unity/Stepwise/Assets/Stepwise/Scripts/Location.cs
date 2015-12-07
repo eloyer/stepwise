@@ -12,15 +12,15 @@ namespace Opertoon.Stepwise {
 		public float latitude;
 		public float longitude;
 		public string name;
-		
-		public Location( XmlElement xml ) {
+		public Score parentScore;
 
+		public Location( XmlElement xml, Score score ) {
 			data = xml;
+			parentScore = score;
 			id = xml.Attributes.GetNamedItem( "id" ).InnerXml;
 			latitude = float.Parse( xml.Attributes.GetNamedItem( "lat" ).InnerXml );
 			longitude = float.Parse( xml.Attributes.GetNamedItem( "lon" ).InnerXml );
 			name = xml.InnerText; 	
-
 		}
 	}
 }

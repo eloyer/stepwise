@@ -57,7 +57,7 @@ namespace Opertoon.Stepwise {
 			
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml( "<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>" );
-			currentLocation = new Location( doc.DocumentElement );
+			currentLocation = new Location( doc.DocumentElement, this );
 			
 			currentTemperature = 24f;
 			currentTemperatureUnits = TemperatureUnits.CELSIUS;
@@ -216,7 +216,7 @@ namespace Opertoon.Stepwise {
 				locations = new Location[ n ];
 				locationsById = new Hashtable();
 				for ( i = 0; i < n; i++ ) {
-					location = new Location( ( XmlElement ) elements[ i ] );
+					location = new Location( ( XmlElement ) elements[ i ], this );
 					locations[ i ] = location;
 					if ( location.id == null ) {
 						location.id = "location" + i;

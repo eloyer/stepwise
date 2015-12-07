@@ -15,15 +15,12 @@ namespace Opertoon.Stepwise {
 		public Score parentScore;
 		
 		public Character( XmlElement xml, Score score ) {
-
-			parentScore = score;
-
 			data = xml;
+			parentScore = score;
 			id = xml.Attributes.GetNamedItem( "id" ).InnerXml;
 			firstName = xml.Attributes.GetNamedItem( "firstName" ).InnerXml;
 			lastName = xml.Attributes.GetNamedItem( "lastName" ).InnerXml;  
 			fullName = firstName + (( lastName == "" ) ? "" : " " + lastName );
-
 		}
 	}
 }
