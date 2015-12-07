@@ -13,15 +13,17 @@ namespace Opertoon.Stepwise {
 		public string command;
 		public string itemRef;
 		public string content;
-		public long date;
-		public long atDate;
+		public DateTime date;
+		public DateTime atDate;
 		public bool autoStart;
 		public object target;
 		public SpeechTone tone;
 		public TemperatureUnits units;
 		public WeatherConditions weather;
+		public float delay;
 		public List<Step> substeps;
 		public Score parentScore;
+		public bool isSubstep;
 		
 		[HideInInspector]
 		public delegate void StepExecuted( Step step );
@@ -34,6 +36,8 @@ namespace Opertoon.Stepwise {
 
 			command = "narrate";
 			content = text;
+			tone = SpeechTone.NORMAL;
+			delay = 0;
 			substeps = new List<Step>();
 
 			ParseCommand();
@@ -50,6 +54,9 @@ namespace Opertoon.Stepwise {
 			command = data.Name.ToLower();
 			if ( data.Attributes.GetNamedItem( "itemRef" ) != null ) {
 				itemRef = data.Attributes.GetNamedItem( "itemRef" ).InnerXml;
+			}
+			if ( data.Attributes.GetNamedItem( "delay" ) != null ) {
+				delay = float.Parse( data.Attributes.GetNamedItem( "delay" ).InnerXml ) * .001f;
 			}
 			content = data.InnerText;
 			parentScore = score;
@@ -68,15 +75,13 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public virtual void ParseCommand() {
+		public void ParseCommand() {
 
 			switch ( command ) {
 				
 			case "speak":
 				if ( data.Attributes.GetNamedItem( "tone" ) != null ) {
-					tone = (SpeechTone) System.Enum.Parse ( typeof(SpeechTone), data.Attributes.GetNamedItem( "units" ).InnerXml.ToUpper() );
-				} else {
-					tone = SpeechTone.NORMAL;
+					tone = (SpeechTone) System.Enum.Parse ( typeof(SpeechTone), data.Attributes.GetNamedItem( "tone" ).InnerXml.ToUpper() );
 				}
 				break;
 				
@@ -89,16 +94,17 @@ namespace Opertoon.Stepwise {
 				break;
 				
 			case "setweather":
-				weather = content != null ? (WeatherConditions) System.Enum.Parse ( typeof(WeatherConditions), content.ToUpper() ) : WeatherConditions.SUNNY;
+				weather = content != null ? (WeatherConditions) System.Enum.Parse ( typeof(WeatherConditions), content.ToUpper() ) : WeatherConditions.CLEAR;
 				break;
 				
 			case "setdate":
-				date = DateTime.Parse( content ).Ticks;
+			case "settime":
+				date = DateTime.Parse( content );
 				break;
-				
+
 			case "setsequence":
 				if ( data.Attributes.GetNamedItem( "atDate" ) != null ) {
-					atDate = long.Parse( data.Attributes.GetNamedItem( "atDate" ).InnerXml );
+					atDate = DateTime.Parse( data.Attributes.GetNamedItem( "atDate" ).InnerXml );
 				}
 				if ( data.Attributes.GetNamedItem( "autoStart" ) != null ) {
 					autoStart = data.Attributes.GetNamedItem( "autoStart" ).InnerXml == "true" ? true : false;
@@ -109,9 +115,15 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public virtual void Init() {
+		public void Init() {
+			Init ( false );
+		}
+
+		public void Init( bool substep ) {
 
 			int i, n;
+
+			isSubstep = substep;
 			
 			switch ( command ) {
 				
@@ -132,23 +144,23 @@ namespace Opertoon.Stepwise {
 			
 			n = substeps.Count;
 			for ( i = 0; i < n; i++ ) {
-				substeps[ i ].Init();
+				substeps[ i ].Init( true );
 			}
 
 		}
 
-		public virtual Step Execute() {
+		public Step Execute() {
 			HandleStepExecuted( this );  
 			return this;
 		}
 		
-		public virtual void HandleStepExecuted( Step step ) {
+		public void HandleStepExecuted( Step step ) {
 			if ( OnStepExecuted != null ) {
 				OnStepExecuted( step );
 			}
 		} 
 
-		public virtual void ExecuteSubsteps() {
+		public void ExecuteSubsteps() {
 
 			int i;
 			int n = substeps.Count;

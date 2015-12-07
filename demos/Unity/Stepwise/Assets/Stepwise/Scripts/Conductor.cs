@@ -10,8 +10,8 @@ using System;
 namespace Opertoon.Stepwise {
 
 	public enum SpeechTone {
-		WHISPER,
 		NORMAL,
+		WHISPER,
 		SHOUT
 	}
 	
@@ -19,11 +19,20 @@ namespace Opertoon.Stepwise {
 		FAHRENHEIT,
 		CELSIUS
 	}
-	
+
+	// adapted from http://openweathermap.org/weather-conditions
 	public enum WeatherConditions {
-		SUNNY,
-		CLOUDY,
-		RAINY
+		CLEAR,
+		DRIZZLE,
+		LIGHTRAIN,
+		RAIN,
+		HEAVYRAIN,
+		THUNDERSTORM,
+		SNOW,
+		ATMOSPHERE,
+		CLOUDS,
+		EXTREME,
+		ADDITIONAL
 	}   
 
 	public class Conductor : MonoBehaviour {
@@ -46,7 +55,7 @@ namespace Opertoon.Stepwise {
 
 		}
 		
-		public virtual bool Load( TextAsset file ) {
+		public bool Load( TextAsset file ) {
 
 			if ( file != null ) {
 				return Load ( file.text );
@@ -56,7 +65,7 @@ namespace Opertoon.Stepwise {
 		}
 
 		public virtual bool Load( string text ) {
-			
+
 			if ( text != null ) {
 				if ( text.IndexOf( "<stepwise>" ) != -1 ) {
 					xmlDoc = new XmlDocument();
@@ -82,11 +91,11 @@ namespace Opertoon.Stepwise {
 			score.Reset();
 		}
 
-		public virtual Step NextStep() {
+		public Step NextStep() {
 			return score.NextStep();
 		}
 
-		public virtual void HandleStepExecuted( Step step ) {
+		public void HandleStepExecuted( Step step ) {
 			
 			if ( step.parentScore == score ) {
 				switch ( step.command ) {

@@ -19,7 +19,7 @@ namespace Opertoon.Stepwise {
 			id = xml.Attributes.GetNamedItem( "id" ).InnerXml;
 			latitude = float.Parse( xml.Attributes.GetNamedItem( "lat" ).InnerXml );
 			longitude = float.Parse( xml.Attributes.GetNamedItem( "lon" ).InnerXml );
-			name = xml.Attributes.GetNamedItem( "id" ).InnerText; 	
+			name = xml.InnerText; 	
 
 		}
 	}

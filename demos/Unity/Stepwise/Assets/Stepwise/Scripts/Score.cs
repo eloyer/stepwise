@@ -13,7 +13,7 @@ namespace Opertoon.Stepwise {
 		public string description;
 		public string primaryCredits;
 		public string secondaryCredits;
-		public string version;
+		public int version;
 		public Sequence[] sequences;
 		public Hashtable sequencesById;
 		public int sequenceIndex = 0;
@@ -27,44 +27,39 @@ namespace Opertoon.Stepwise {
 		public float currentTemperature;
 		public TemperatureUnits currentTemperatureUnits;
 		public WeatherConditions currentWeather;
-		public long currentDate;
+		public DateTime currentDate;
+		public string type;
 
 		public Score() {
-
 			SetDefaults();
-
+		}
+		
+		public Score( string text ) {
+			SetDefaults();
+			ParseMetadata( text );
+			ParseStory( text );
+			Init();
 		}
 
-		public Score( string text ) {
-
+		public Score( XmlElement xml ) {
 			SetDefaults();
+			ParseMetadata( xml );
+			ParseStory( xml );
+			Init();
+		}
+		
+		public void ParseMetadata( string text ) {
 
 			if ( text != null ) {
 				
 				string[] lines = text.Split( new string[] { "\r\n", "\n" }, StringSplitOptions.None );
-				
-				if ( lines.Length > 0 ) {
-					title = lines[ 0 ].Trim();
-				}
-				if ( lines.Length > 1 ) {
-					primaryCredits = lines[ 1 ].Trim ();
-				}
-				if ( lines.Length > 2 ) {
-					description = lines[ 2 ].Trim ();
-				}
-				
-				if ( title == "" ) {
-					title = "Untitled";
-				}
-				if ( primaryCredits == "" ) {
-					primaryCredits = "Author unknown";
-				}
 				
 				int i;
 				int n = lines.Length;
 				string line;
 				string lineLower;
 				string key;
+				bool isUsingStepwiseKeys = false;
 				for ( i = 0; i < n; i++ ) {
 					
 					line = lines[ i ];
@@ -73,104 +68,151 @@ namespace Opertoon.Stepwise {
 					key = "stepwise.title:";
 					if ( lineLower.StartsWith( key ) ) {
 						title = line.Remove( 0, key.Length );
+						isUsingStepwiseKeys = true;
 					}
 					key = "stepwise.credit:";
 					if ( lineLower.StartsWith( key ) ) {
 						primaryCredits = line.Remove( 0, key.Length );
+						isUsingStepwiseKeys = true;
 					}
 					key = "stepwise.description:";
 					if ( lineLower.StartsWith( key ) ) {
 						description = line.Remove( 0, key.Length );
+						isUsingStepwiseKeys = true;
+					}
+				}
+
+				if ( !isUsingStepwiseKeys ) {
+					if ( lines.Length > 0 ) {
+						title = lines[ 0 ].Trim();
+					}
+					if ( lines.Length > 1 ) {
+						primaryCredits = lines[ 1 ].Trim ();
+					}
+					if ( lines.Length > 2 ) {
+						description = lines[ 2 ].Trim ();
 					}
 				}
 				
+				if ( title == "" ) {
+					title = "Untitled";
+				}
+				if ( primaryCredits == "" ) {
+					primaryCredits = "Author unknown";
+				}
+				version = 1;
+				type = "basic";
+				
+			}
+		}
+		
+		public void ParseMetadata( XmlElement xml ) {
+
+			if ( xml != null ) {
+				XmlNodeList elements;
+				
+				elements = xml.GetElementsByTagName( "title" );
+				if ( elements.Count > 0 ) {
+					title = elements[ 0 ].InnerText;
+				}
+				
+				elements = xml.GetElementsByTagName( "description" );
+				if ( elements.Count > 0 ) {
+					description = elements[ 0 ].InnerText;
+				}
+				
+				elements = xml.GetElementsByTagName( "primaryCredits" );
+				if ( elements.Count > 0 ) {
+					primaryCredits = elements[ 0 ].InnerText;
+				}
+				
+				elements = xml.GetElementsByTagName( "secondaryCredits" );
+				if ( elements.Count > 0 ) {
+					secondaryCredits = elements[ 0 ].InnerText;
+				}
+				
+				elements = xml.GetElementsByTagName( "version" );
+				if ( elements.Count > 0 ) {
+					version = int.Parse( elements[ 0 ].InnerText );
+				} else {
+					version = 1;
+				}
+				
+				elements = xml.GetElementsByTagName( "type" );
+				if ( elements.Count > 0 ) {
+					type = elements[ 0 ].InnerText;
+				} else {
+					type = "basic";
+				}
+			}
+		}
+
+		public void ParseStory( string text ) {
+
+			if ( text != null ) {
 				sequences = new Sequence[ 1 ];
 				Sequence sequence = new Sequence( text, this );
 				sequences[ 0 ] = sequence;
 				sequencesById = new Hashtable();
 				sequencesById[ sequence.id ] = sequence;
-				Init();
 			}
 
 		}
 
-		public Score( XmlElement xml ) {
+		public void ParseStory( XmlElement xml ) {
 
-			int i, n;
-			XmlNodeList elements;
-			Sequence sequence;
-			Character character;
-			Location location;
+			if ( xml != null ) {
 
-			SetDefaults();
+				int i, n;
+				XmlNodeList elements;
+				Sequence sequence;
+				Character character;
+				Location location;
 
-			elements = xml.GetElementsByTagName( "title" );
-			if ( elements.Count > 0 ) {
-				title = elements[ 0 ].InnerText;
-			}
-			
-			elements = xml.GetElementsByTagName( "description" );
-			if ( elements.Count > 0 ) {
-				description = elements[ 0 ].InnerText;
-			}
-			
-			elements = xml.GetElementsByTagName( "primaryCredits" );
-			if ( elements.Count > 0 ) {
-				primaryCredits = elements[ 0 ].InnerText;
-			}
-			
-			elements = xml.GetElementsByTagName( "secondaryCredits" );
-			if ( elements.Count > 0 ) {
-				secondaryCredits = elements[ 0 ].InnerText;
-			}
-			
-			elements = xml.GetElementsByTagName( "version" );
-			if ( elements.Count > 0 ) {
-				version = elements[ 0 ].InnerText;
-			}
-
-			elements = xml.GetElementsByTagName( "sequence" );
-			n = elements.Count;
-			sequences = new Sequence[ n ];
-			sequencesById = new Hashtable();
-			for ( i = 0; i < n; i++ ) {
-				sequence = new Sequence( ( XmlElement ) elements[ i ], this );
-				sequences[ i ] = sequence;
-				if ( sequence.id == null ) {
-					sequence.id = "sequence" + i;
+				elements = xml.GetElementsByTagName( "sequence" );
+				n = elements.Count;
+				sequences = new Sequence[ n ];
+				sequencesById = new Hashtable();
+				for ( i = 0; i < n; i++ ) {
+					sequence = new Sequence( ( XmlElement ) elements[ i ], this );
+					sequences[ i ] = sequence;
+					if ( sequence.id == null ) {
+						sequence.id = "sequence" + i;
+					}
+					sequencesById[ sequence.id ] = sequence;
 				}
-				sequencesById[ sequence.id ] = sequence;
-			}
-			
-			elements = xml.GetElementsByTagName( "character" );
-			n = elements.Count;
-			characters = new Character[ n ];
-			charactersById = new Hashtable();
-			for ( i = 0; i < n; i++ ) {
-				character = new Character( ( XmlElement ) elements[ i ], this );
-				characters[ i ] = character;
-				if ( character.id == null ) {
-					character.id = "character" + i;
+				
+				elements = xml.GetElementsByTagName( "character" );
+				n = elements.Count;
+				characters = new Character[ n ];
+				charactersById = new Hashtable();
+				for ( i = 0; i < n; i++ ) {
+					character = new Character( ( XmlElement ) elements[ i ], this );
+					characters[ i ] = character;
+					if ( character.id == null ) {
+						character.id = "character" + i;
+					}
+					charactersById[ character.id ] = character;
 				}
-				charactersById[ character.id ] = character;
-			}
-			
-			elements = xml.GetElementsByTagName( "location" );
-			n = elements.Count;
-			locations = new Location[ n ];
-			locationsById = new Hashtable();
-			for ( i = 0; i < n; i++ ) {
-				location = new Location( ( XmlElement ) elements[ i ] );
-				locations[ i ] = location;
-				if ( location.id == null ) {
-					location.id = "location" + i;
+				
+				elements = xml.GetElementsByTagName( "location" );
+				n = elements.Count;
+				locations = new Location[ n ];
+				locationsById = new Hashtable();
+				for ( i = 0; i < n; i++ ) {
+					location = new Location( ( XmlElement ) elements[ i ] );
+					locations[ i ] = location;
+					if ( location.id == null ) {
+						location.id = "location" + i;
+					}
+					locationsById[ location.id ] = location;
 				}
-				locationsById[ location.id ] = location;
+
 			}
 
 		}
 
-		public virtual void SetDefaults() {
+		public void SetDefaults() {
 			
 			sequenceQueue = new List<Sequence>();
 			
@@ -181,13 +223,13 @@ namespace Opertoon.Stepwise {
 			currentTemperature = 24f;
 			currentTemperatureUnits = TemperatureUnits.CELSIUS;
 			
-			currentWeather = WeatherConditions.SUNNY;
+			currentWeather = WeatherConditions.CLEAR;
 			
-			currentDate = DateTime.Now.Ticks;
+			currentDate = DateTime.Now;
 
 		}
 
-		public virtual void Init() {
+		public void Init() {
 			int i;
 			int n = sequences.Length;
 			for ( i = 0; i < n; i++ ) {
@@ -208,7 +250,7 @@ namespace Opertoon.Stepwise {
 			sequenceQueue.Clear();
 		}    
 
-		public virtual Step NextStep() {
+		public Step NextStep() {
 
 			Step step = null;
 
@@ -225,7 +267,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public virtual void UpdateCurrentSequence() {
+		public void UpdateCurrentSequence() {
 
 			Sequence sequence;
 
@@ -274,11 +316,11 @@ namespace Opertoon.Stepwise {
 		 * @param atDate		If specified, will attempt to cue up the sequence to the same date.
 		 * @param autoStart		If true, the sequence will automatically play its first step.
 		 */
-		public virtual void SetSequence( Sequence sequence, bool autoStart ) {
-			SetSequence( sequence, 0, autoStart );
+		public void SetSequence( Sequence sequence, bool autoStart ) {
+			SetSequence( sequence, DateTime.Now, autoStart );
 		}
 
-		public virtual void SetSequence( Sequence sequence, long atDate, bool autoStart ) {
+		public void SetSequence( Sequence sequence, DateTime atDate, bool autoStart ) {
 
 			//Debug.Log ( "set sequence: " + sequence.id + " " + autoStart );
 
@@ -286,7 +328,7 @@ namespace Opertoon.Stepwise {
 			if ( index != -1 ) {
 				sequenceIndex = index;
 				currentSequence = sequence;
-				if ( atDate != 0 ) {
+				if ( atDate.Ticks != 0 ) {
 					currentSequence.MatchDate( atDate );
 				}
 				if ( autoStart ) {
@@ -296,7 +338,7 @@ namespace Opertoon.Stepwise {
 
 		}
 
-		public virtual void PlaySequence( Sequence sequence ) {
+		public void PlaySequence( Sequence sequence ) {
 			currentSequence = sequence;
 			sequenceQueue.Add( sequence );
 			sequence.NextStep();
@@ -308,7 +350,7 @@ namespace Opertoon.Stepwise {
 		 * @param	type	The type of item to be retrieved.
 		 * @param	id		The id of the sequence to be retrieved.
 		 */
-		public virtual object GetItemForId( string type, string id ) {
+		public object GetItemForId( string type, string id ) {
 
 			switch ( type ) {
 				
@@ -333,7 +375,7 @@ namespace Opertoon.Stepwise {
 		 *
 		 * @param location		The location to make current.
 		 */
-		public virtual void SetLocation( Location location ) {
+		public void SetLocation( Location location ) {
 			int index = Array.IndexOf( locations, location );
 			if ( index != -1 ) {
 				currentLocation = location;
@@ -345,7 +387,7 @@ namespace Opertoon.Stepwise {
 		 *
 		 * @param temperature		The temperature to make current.
 		 */
-		public virtual void SetTemperature( float temperature, TemperatureUnits units ) {
+		public void SetTemperature( float temperature, TemperatureUnits units ) {
 			currentTemperature = temperature;
 			currentTemperatureUnits = units;
 		}
@@ -355,7 +397,7 @@ namespace Opertoon.Stepwise {
 		 *
 		 * @param weather		The weather conditions to make current.
 		 */
-		public virtual void SetWeather( WeatherConditions weather ) {
+		public void SetWeather( WeatherConditions weather ) {
 			currentWeather = weather;
 		}
 
@@ -364,8 +406,8 @@ namespace Opertoon.Stepwise {
 		 *
 		 * @param date 			The date to make current.
 		 */
-		public virtual void SetDate( long dateTicks ) {
-			currentDate = dateTicks;
+		public void SetDate( DateTime date ) {
+			currentDate = date;
 		}
 
 	}
