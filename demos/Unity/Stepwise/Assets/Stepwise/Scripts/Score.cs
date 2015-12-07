@@ -31,18 +31,66 @@ namespace Opertoon.Stepwise {
 
 		public Score() {
 
-			sequenceQueue = new List<Sequence>();
+			SetDefaults();
 
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml( "<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>" );
-			currentLocation = new Location( doc.DocumentElement );
-			
-			currentTemperature = 24f;
-			currentTemperatureUnits = TemperatureUnits.CELSIUS;
-			
-			currentWeather = WeatherConditions.SUNNY;
-			
-			currentDate = DateTime.Now.Ticks;
+		}
+
+		public Score( string text ) {
+
+			SetDefaults();
+
+			if ( text != null ) {
+				
+				string[] lines = text.Split( new string[] { "\r\n", "\n" }, StringSplitOptions.None );
+				
+				if ( lines.Length > 0 ) {
+					title = lines[ 0 ].Trim();
+				}
+				if ( lines.Length > 1 ) {
+					primaryCredits = lines[ 1 ].Trim ();
+				}
+				if ( lines.Length > 2 ) {
+					description = lines[ 2 ].Trim ();
+				}
+				
+				if ( title == "" ) {
+					title = "Untitled";
+				}
+				if ( primaryCredits == "" ) {
+					primaryCredits = "Author unknown";
+				}
+				
+				int i;
+				int n = lines.Length;
+				string line;
+				string lineLower;
+				string key;
+				for ( i = 0; i < n; i++ ) {
+					
+					line = lines[ i ];
+					lineLower = line.ToLower();
+					
+					key = "stepwise.title:";
+					if ( lineLower.StartsWith( key ) ) {
+						title = line.Remove( 0, key.Length );
+					}
+					key = "stepwise.credit:";
+					if ( lineLower.StartsWith( key ) ) {
+						primaryCredits = line.Remove( 0, key.Length );
+					}
+					key = "stepwise.description:";
+					if ( lineLower.StartsWith( key ) ) {
+						description = line.Remove( 0, key.Length );
+					}
+				}
+				
+				sequences = new Sequence[ 1 ];
+				Sequence sequence = new Sequence( text, this );
+				sequences[ 0 ] = sequence;
+				sequencesById = new Hashtable();
+				sequencesById[ sequence.id ] = sequence;
+				Init();
+			}
 
 		}
 
@@ -54,7 +102,7 @@ namespace Opertoon.Stepwise {
 			Character character;
 			Location location;
 
-			sequenceQueue = new List<Sequence>();
+			SetDefaults();
 
 			elements = xml.GetElementsByTagName( "title" );
 			if ( elements.Count > 0 ) {
@@ -119,6 +167,13 @@ namespace Opertoon.Stepwise {
 				}
 				locationsById[ location.id ] = location;
 			}
+
+		}
+
+		public virtual void SetDefaults() {
+			
+			sequenceQueue = new List<Sequence>();
+			
 			XmlDocument doc = new XmlDocument();
 			doc.LoadXml( "<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>" );
 			currentLocation = new Location( doc.DocumentElement );
