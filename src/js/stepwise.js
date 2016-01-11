@@ -117,7 +117,9 @@
 			case "speak":
 			case "think":
 			case "sing":
-			$( this ).text( step.content );
+			if ( step.target.visible ) {
+				$( this ).text( step.content );
+			}
 			break;
 
 			case "setdate":
@@ -832,7 +834,8 @@
 		this.id = data.attr( "id" );
 		this.firstName = data.attr( "firstName" );
 		this.lastName = data.attr( "lastName" );
-		this.fullName = this.firstName + (( this.lastName == "" ) ? "" : " " + this.lastName );	
+		this.fullName = this.firstName + (( this.lastName == "" ) ? "" : " " + this.lastName );
+		this.visible = ( data.attr( "visible" ) == "false" ) ? false : true;	
 	}
 	
 	function Location( data, score ) {	
