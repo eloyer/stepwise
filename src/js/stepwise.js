@@ -116,6 +116,7 @@
 			case "narrate":
 			case "speak":
 			case "think":
+			case "sing":
 			$( this ).text( step.content );
 			break;
 
@@ -752,6 +753,7 @@
 		switch ( this.command ) {
 		
 			case "speak":
+			case "sing":
 			this.tone = SpeechTone[ this.data.attr( "tone" ) != null ? this.data.attr( "tone" ).toUpperCase() : SpeechTone.NORMAL ];
 			break;
 			
@@ -789,6 +791,7 @@
 		
 			case "speak":
 			case "think":
+			case "sing":
 			this.target = this.parentScore.getItemForId( "character", this.data.attr( "character" ) );
 			break;
 			
