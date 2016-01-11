@@ -163,19 +163,20 @@
 
 	Score.prototype.setDefaults = function() {
 
-		version = 1;
-		type = "basic";
+		this.version = 1;
+		this.type = "basic";
 		
-		sequenceQueue = [];
+		this.sequenceQueue = [];
+		this.sequenceIndex = 0;
 		
-		currentLocation = new Location( $("<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>") );
+		this.currentLocation = new Location( $("<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>") );
 		
-		currentTemperature = 24;
-		currentTemperatureUnits = TemperatureUnits.CELSIUS;
+		this.currentTemperature = 24;
+		this.currentTemperatureUnits = TemperatureUnits.CELSIUS;
 		
-		currentWeather = WeatherConditions.CLEAR;
+		this.currentWeather = WeatherConditions.CLEAR;
 		
-		currentDate = Date.now();
+		this.currentDate = Date.now();
 
 	}
 
@@ -254,12 +255,13 @@
 
 			this.sequences = [];
 			this.sequencesById = {};
+			this.sequenceQueue = [];
 			var sequence;
 
 			if ( dataType != "xml" ) {
 				sequence = new Sequence( data, "text", this );
 				this.sequences.push( sequence );
-				sequencesById[ sequence.id ] = sequence;
+				this.sequencesById[ sequence.id ] = sequence;
 
 			} else {
 				data.find( "sequence" ).each( function() {
@@ -273,7 +275,6 @@
 				
 				this.sequenceIndex = 0;
 				this.currentSequence = null;
-				this.sequenceQueue = [];
 				
 				this.characters = [];
 				this.charactersById = {};
@@ -338,7 +339,7 @@
 		// if the sequence hasn't been exhausted, execute its next step
 		if ( !this.currentSequence.isExhausted ) { 
 			step = this.currentSequence.nextStep(); 
-		} 
+		}
 		
 		return step;
 	
@@ -514,7 +515,7 @@
 				lineLower = line.toLowerCase();
 				if (( lineLower.indexOf( "stepwise.title:" ) != 0 ) && ( lineLower.indexOf( "stepwise.credit:" ) != 0 ) && ( lineLower.indexOf( "stepwise.description:" ) != 0 )) {
 					step = new Step( line, "text", this.parentScore );
-					steps.push( step );
+					this.steps.push( step );
 				}
 			}
 
