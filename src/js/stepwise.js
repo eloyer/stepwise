@@ -117,7 +117,11 @@
 			case "speak":
 			case "think":
 			case "sing":
-			if ( step.target.visible ) {
+			if ( step.target != null ) {
+				if ( step.target.visible ) {
+					$( this ).text( step.content );
+				}
+			} else {
 				$( this ).text( step.content );
 			}
 			break;
@@ -203,41 +207,41 @@
 					
 					key = "stepwise.title:";
 					if ( lineLower.indexOf( key ) == 0 ) {
-						title = line.substr( key.length );
+						this.title = line.substr( key.length );
 						isUsingStepwiseKeys = true;
 					}
 					key = "stepwise.credit:";
 					if ( lineLower.indexOf( key ) == 0 ) {
-						primaryCredits = line.substr( key.length );
+						this.primaryCredits = line.substr( key.length );
 						isUsingStepwiseKeys = true;
 					}
 					key = "stepwise.description:";
 					if ( lineLower.indexOf( key ) == 0 ) {
-						description = line.substr( key.length );
+						this.description = line.substr( key.length );
 						isUsingStepwiseKeys = true;
 					}
 				}
 
 				if ( !isUsingStepwiseKeys ) {
 					if ( lines.length > 0 ) {
-						title = lines[ 0 ].trim();
+						this.title = lines[ 0 ].trim();
 					}
 					if ( lines.length > 1 ) {
-						primaryCredits = lines[ 1 ].trim();
+						this.primaryCredits = lines[ 1 ].trim();
 					}
 					if ( lines.length > 2 ) {
-						description = lines[ 2 ].trim();
+						this.description = lines[ 2 ].trim();
 					}
 				}
 				
 				if ( title == "" ) {
-					title = "Untitled";
+					this.title = "Untitled";
 				}
 				if ( primaryCredits == "" ) {
-					primaryCredits = "Author unknown";
+					this.primaryCredits = "Author unknown";
 				}
-				version = 1;
-				type = "basic";			
+				this.version = 1;
+				this.type = "basic";			
 
 			} else {
 			
@@ -246,6 +250,13 @@
 				this.primaryCredits = data.find( "primaryCredits" ).first().text();
 				this.secondaryCredits = data.find( "secondaryCredits" ).first().text();
 				this.version = parseInt( data.find( "version" ).first().text() );
+				var pulseData = data.find( "pulse" );
+				if ( pulseData.length != 0 ) {
+					this.beatsPerMinute = parseFloat( pulseData.first().attr( "beatsPerMinute" ) );
+					this.pulsesPerBeat = parseFloat( pulseData.first().attr( "pulsesPerBeat" ) );
+					this.pulse = (( 60 * 1000 ) / this.beatsPerMinute ) / this.pulsesPerBeat;			
+				}
+
 			}
 		}
 	}
@@ -734,7 +745,9 @@
 			this.data = $( data );
 			this.command = data.prop( "tagName" ).toLowerCase();
 			this.itemRef = data.attr( "itemRef" );
-			this.delay = parseFloat( data.attr( "delay" ) ) * .001;
+			if ( data.attr( "delay" ) != null ) {
+				this.delay = parseInt( data.attr( "delay" ) );
+			}
 			this.content = data.text();
 			this.substeps = [];
 			
@@ -804,6 +817,10 @@
 			case "setsequence":
 			this.target = this.parentScore.getItemForId( "sequence", this.content );
 			break;
+
+			default:
+			this.target = { visible: true };
+			break;
 		
 		}
 
@@ -815,7 +832,15 @@
 	}
 		
 	Step.prototype.execute = function() {
-		$( this.parentScore.element ).trigger( "executeStep", this );
+		var me = this;
+		if ( this.delay == null ) {
+			$( this.parentScore.element ).trigger( "executeStep", this );
+		} else {
+			var millisecondsToNextPulse = new Date().getMilliseconds() % this.parentScore.pulse;
+			setTimeout( function() {
+				$( me.parentScore.element ).trigger( "executeStep", me );
+			}, /*millisecondsToNextPulse +*/ ( me.delay * me.parentScore.pulse ) );
+		}
 		return this;
 	}
 	
@@ -835,7 +860,7 @@
 		this.firstName = data.attr( "firstName" );
 		this.lastName = data.attr( "lastName" );
 		this.fullName = this.firstName + (( this.lastName == "" ) ? "" : " " + this.lastName );
-		this.visible = ( data.attr( "visible" ) == "false" ) ? false : true;	
+		this.visible = ( data.attr( "visible" ) == "true" ) ? true : false;	
 	}
 	
 	function Location( data, score ) {	
