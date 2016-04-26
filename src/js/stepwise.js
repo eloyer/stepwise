@@ -65,14 +65,21 @@
         
     };
     
-    Stepwise.prototype.load = function( url, dataType ) {
+    Stepwise.prototype.load = function( source, dataType ) {
     
     	var me = this;
     
-    	if ( url != null ) {
-    		$.ajax({
+    	switch (dataType) {
+
+    		case "dom":
+    		this.score = new Score( $( source ), "xml", this.element );
+    		this.score.init();
+    		break;
+
+    		case "xml":
+	    	$.ajax({
     			type: "GET",
-    			url: url,
+    			url: source,
     			dataType: dataType,
     			success: ( dataType == "xml" ) ?
     			function( xml ) {
@@ -95,6 +102,8 @@
     				
     			}
     		});
+	   		break;
+
     	}
 
     }
