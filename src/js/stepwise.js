@@ -59,13 +59,11 @@
  
     Stepwise.prototype.init = function() {
          
-        if ( this.options.url != null ) {
-        	var source = this.options.url;
-        	if (source == null) {
-        		source = this.options.source;
-        	}
-        	this.load( source, this.options.dataType );
-        }
+    	var source = this.options.url;
+    	if (source == null) {
+    		source = this.options.source;
+    	}
+    	this.load( source, this.options.dataType );
         
     };
     
