@@ -64,7 +64,7 @@
         	if (source == null) {
         		source = this.options.source;
         	}
-        	this.load( this.options.url, this.options.dataType );
+        	this.load( source, this.options.dataType );
         }
         
     };
