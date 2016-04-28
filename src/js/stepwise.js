@@ -24,7 +24,7 @@
     // Create the defaults once
     var pluginName = "stepwise",
         defaults = {
-            propertyName: "value"
+            dataType: "xml"
         };
         
     $.fn[pluginName] = function ( options ) {
