@@ -1,6 +1,8 @@
 # Stepwise
 > "Press SPACE BAR to continue."
+
 >"Click to continue."
+
 >"Tap to continue."
 
 These actions are like turning pages in a book. They're digital ways of saying "next, please." They carry an element of suspense, because we don't know exactly what we're going to get next, but also an element of performance, because while the author controls the "what," we control the "when."
