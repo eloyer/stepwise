@@ -19,6 +19,10 @@ Most interactive stories operate at the scale of plot mechanics: "Should this ch
 
 Stepwise is a library for one-button storytelling.
 
+## Powered by Stepwise
++ [I feel the earth move](http://erikloyer.com/einstein/), adaptation of an excerpt from Philip Glass' opera *Einstein on the Beach* (requires Chrome)
++ [Strange Rain 2.0](http://opertoon.com/strange-rain/) for Apple TV, featured by Apple and often at the top of the Apple TV entertainment charts
+
 
 ## How does it work?
 In it's simplest form, working with Stepwise involves two steps:
