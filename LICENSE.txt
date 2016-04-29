@@ -1,5 +1,5 @@
 Stepwise
-Copyright (c) 2015 Erik Loyer
+Copyright (c) 2015-2016 Erik Loyer
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
