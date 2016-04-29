@@ -22,6 +22,7 @@ Stepwise is a library for one-button storytelling.
 
 ## How does it work?
 In it's simplest form, working with Stepwise involves two steps:
+
 1. Load content written in [Stepwise XML](#stepwise-xml) into the library.
 2. Call Stepwise's `nextStep()` command whenever you need a new piece of content.
 
