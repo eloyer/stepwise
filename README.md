@@ -65,5 +65,9 @@ Stepwise content is delivered in Stepwise XML format (though the library will al
 ## Where can I use Stepwise?
 Currently the library includes both JavaScript (as a jQuery plugin) and Unity clients, and the development of additional clients is welcomed and encouraged.
 
+## How can I learn more?
+- Watch [Best Next Step](https://www.twitch.tv/opertoonist), a Twitch stream dedicated to Stepwise.
+- Check out [Stepwise examples](http://codepen.io/eloyer/collections/popular/) on CodePen.
+
 ## License
 Stepwise is released under an MIT License.
