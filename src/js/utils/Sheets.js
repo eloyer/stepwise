@@ -29,6 +29,8 @@
 					id = this.getCharacterIdFromProperty(i);
 					if (characterIds.indexOf(id) == -1) {
 						character = $('<character id="' + id + '"></character>');
+						console.log(i);
+						console.log(this.getCharacterVisibilityFromProperty(i));
 						if (!this.getCharacterVisibilityFromProperty(i)) {
 							character.attr("visible", "false");
 						}
@@ -79,14 +81,13 @@
 		getCharacterIdFromProperty: function(property) {
 			var str = property.substr(4);
 			if (!this.getCharacterVisibilityFromProperty(property)) {
-				str = str.substr(1, str.length-3);
+				str = str.substr(0, str.length-7);
 			}
 			return str;
 		},
 
 		getCharacterVisibilityFromProperty: function(property) {
-			var str = property.substr(4);
-			return !((str[0] == "(") && (str(str.length-1) == ")"));
+			return !(property.indexOf("-hidden") == (property.length - 7));
 		},
 
 		getActionFromCell: function(cell) {
