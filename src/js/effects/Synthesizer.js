@@ -60,7 +60,7 @@
 				}
 				volume = Math.max( 0, Math.min( 1, volume + ( Math.random() * .1 - 0.05 )));
 				volume *= .3;
-				var noteNum = me.noteNameToMidiNoteNum( step.content.toUpperCase() )
+				var noteNum = me.noteNameToMidiNoteNum( step.content )
 				var freq = me.midiNoteNumToFrequency( noteNum );
 				me.synth.noteOn( step.content, {"carrier.freq":freq});
 				switch ( step.target.id.toLowerCase() ) {
