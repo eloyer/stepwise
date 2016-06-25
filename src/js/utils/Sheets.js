@@ -59,13 +59,19 @@
 		getActionsFromEntry: function(entry) {
 			var action,
 				actions = [];
+				me = this;
 			for (var prop in entry) {
 				if (this.propertyIsCharacterId(prop)) {
 					id = this.getCharacterIdFromProperty(prop);
-					action = this.getActionFromCell(entry[prop]);
-					if (action != null) {
-						action.attr("character", id);
-						actions.push(action);
+					if (entry[prop] != null) {
+						var subActions = entry[prop].$t.split("\\");
+						$(subActions).each(function() {
+							action = me.getActionFromCell(this);
+							if (action != null) {
+								action.attr("character", id);
+								actions.push(action);
+							}
+						});
 					}
 				}
 			}
@@ -89,23 +95,21 @@
 		},
 
 		getActionFromCell: function(cell) {
-			if (cell != null) {
-				if (cell.$t != "") {
-					var temp = cell.$t.split("::");
-					command = temp[0];
-					content = temp[temp.length-1];
-					var action;
-					switch (command) {
-						case "sing":
-						action = $('<sing/>');
-						break;
-						default:
-						action = $('<speak/>');
-						break;
-					}
-					action.html(content);
-					return action;
+			if (cell != "") {
+				var temp = cell.split("::");
+				command = temp[0];
+				content = temp[temp.length-1];
+				var action;
+				switch (command) {
+					case "sing":
+					action = $('<sing/>');
+					break;
+					default:
+					action = $('<speak/>');
+					break;
 				}
+				action.html(content);
+				return action;
 			}
 			return null;
 		}
