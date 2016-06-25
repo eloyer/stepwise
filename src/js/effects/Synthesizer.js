@@ -40,7 +40,7 @@
     	var me = this;
     	this.instance = stepwiseInstance;
     	$(this.instance.element).bind("executeStep", function(event, step) {
-	    	if ((step.command == "sing") && (step.content != "")) { 
+	    	if ((me.stepTargetIsInstrument(step) || (step.command == "sing")) && (step.content != "")) { 
 				
 				var volume;
 				switch ( step.tone ) {
@@ -79,6 +79,14 @@
 				}
 			}
 	    });
+    }
+
+    Synthesizer.prototype.stepTargetIsInstrument = function(step) {
+    	if (step.target.id != null) {
+    		var str = step.target.id.toLowerCase();
+    		return ((str == "pad") || (str == "bass"));
+    	}
+    	return false;
     }
 
 	Synthesizer.prototype.noteNameToMidiNoteNum = function( noteName ) {
