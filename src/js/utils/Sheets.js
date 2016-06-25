@@ -22,13 +22,17 @@
 		},
 
 		addCharactersFromEntry: function(script, entry) {
-			var i, id;
+			var i, id, character;
 			var characterIds = [];
 			for (i in entry) {
 				if (i.indexOf("gsx$") != -1) {
-					id = i.substr(4);
+					id = this.getCharacterIdFromProperty(i);
 					if (characterIds.indexOf(id) == -1) {
-						script.append('<character id="' + id + '"></character>')
+						character = $('<character id="' + id + '"></character>');
+						if (!this.getCharacterVisibilityFromProperty(i)) {
+							character.attr("visible", "false");
+						}
+						script.append(character);
 						characterIds.push(id);
 					}
 				}
@@ -73,13 +77,35 @@
 		},
 
 		getCharacterIdFromProperty: function(property) {
-			return property.substr(4);
+			var str = property.substr(4);
+			if (!this.getCharacterVisibilityFromProperty(property)) {
+				str = str.substr(1, str.length-3);
+			}
+			return str;
+		},
+
+		getCharacterVisibilityFromProperty: function(property) {
+			var str = property.substr(4);
+			return !((str[0] == "(") && (str(str.length-1) == ")"));
 		},
 
 		getActionFromCell: function(cell) {
 			if (cell != null) {
 				if (cell.$t != "") {
-					return $('<speak>' + cell.$t + '</speak>');
+					var temp = cell.$t.split("::");
+					command = temp[0];
+					content = temp[temp.length-1];
+					var action;
+					switch (command) {
+						case "sing":
+						action = $('<sing/>');
+						break;
+						default:
+						action = $('<speak/>');
+						break;
+					}
+					action.html(content);
+					return action;
 				}
 			}
 			return null;
