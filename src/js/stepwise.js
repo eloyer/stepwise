@@ -413,9 +413,9 @@
 	}
 	
 	/**
-	 * Given a sequence, makes it the current sequence.
+	 * Given a sequence id, makes it the current sequence.
 	 *
-	 * @param sequence		The sequence to make current.
+	 * @param sequence		Id of the sequence to make current.
 	 * @param atDate		If specified, will attempt to cue up the sequence to the same date.
 	 * @param autoStart		If true, the sequence will automatically play its first step.
 	 */
@@ -871,7 +871,7 @@
 		this.firstName = data.attr( "firstName" );
 		this.lastName = data.attr( "lastName" );
 		this.fullName = this.firstName + (( this.lastName == "" ) ? "" : " " + this.lastName );
-		this.visible = ( data.attr( "visible" ) == "true" ) ? true : false;	
+		this.visible = (( data.attr( "visible" ) == "true" ) || ( data.attr( "visible" ) == null )) ? true : false;	
 	}
 	
 	function Location( data, score ) {	
