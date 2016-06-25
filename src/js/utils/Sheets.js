@@ -29,8 +29,6 @@
 					id = this.getCharacterIdFromProperty(i);
 					if (characterIds.indexOf(id) == -1) {
 						character = $('<character id="' + id + '"></character>');
-						console.log(i);
-						console.log(this.getCharacterVisibilityFromProperty(i));
 						if (!this.getCharacterVisibilityFromProperty(i)) {
 							character.attr("visible", "false");
 						}
