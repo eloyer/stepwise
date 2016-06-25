@@ -35,6 +35,8 @@
         });
     }
 
+    $.fn[pluginName].effects = {};
+
     // The actual plugin constructor
     function Stepwise( element, options ) {
     
