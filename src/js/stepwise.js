@@ -172,11 +172,10 @@
 	}
 
 	Stepwise.prototype.displayStepContent = function(step) {
-		if (step.append) {
-			$(this.element).text($(this.element).text() + step.content);
-		} else {
-			$(this.element).text(step.content);
+		if (!step.append) {
+			$(this.element).empty();
 		}
+		$(this.element).append(step.content);
 	}
 	 
 	function Score( data, dataType, element ) {
