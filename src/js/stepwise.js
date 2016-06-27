@@ -132,10 +132,10 @@
 			case "sing":
 			if ( step.target != null ) {
 				if ( step.target.visible ) {
-					$( this ).text( step.content );
+					stepwise.displayStepContent( step );
 				}
 			} else {
-				$( this ).text( step.content );
+				stepwise.displayStepContent( step );
 			}
 			break;
 
@@ -169,6 +169,14 @@
 			stepwise.options.success( event, step );
 		}
 	
+	}
+
+	Stepwise.prototype.displayStepContent = function(step) {
+		if (step.append) {
+			$(this.element).text($(this.element).text() + step.content);
+		} else {
+			$(this.element).text(step.content);
+		}
 	}
 	 
 	function Score( data, dataType, element ) {
@@ -758,9 +766,11 @@
 			this.data = $( data );
 			this.command = data.prop( "tagName" ).toLowerCase();
 			this.itemRef = data.attr( "itemRef" );
+			this.append = ( data.attr( "append" ) == "true" ) ? true : false;
 			if ( data.attr( "delay" ) != null ) {
 				this.delay = parseInt( data.attr( "delay" ) );
 			}
+
 			this.content = data.text();
 			this.substeps = [];
 			

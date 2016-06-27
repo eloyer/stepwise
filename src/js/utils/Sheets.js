@@ -96,9 +96,14 @@
 
 		getActionFromCell: function(cell) {
 			if (cell != "") {
-				var temp = cell.split("::");
+				var append = false,
+					temp = cell.split("::");
 				command = temp[0];
 				content = temp[temp.length-1];
+				if (content[0] == "&") {
+					append = true;
+					content = content.substr(1);
+				}
 				var action;
 				switch (command) {
 					case "sing":
@@ -109,6 +114,9 @@
 					break;
 				}
 				action.html(content);
+				if (append) {
+					action.attr("append","true");
+				}
 				return action;
 			}
 			return null;
