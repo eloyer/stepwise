@@ -85,13 +85,13 @@
 		getCharacterIdFromProperty: function(property) {
 			var str = property.substr(4);
 			if (!this.getCharacterVisibilityFromProperty(property)) {
-				str = str.substr(0, str.length-1);
+				str = str.substr(0, str.length-7);
 			}
 			return str;
 		},
 
 		getCharacterVisibilityFromProperty: function(property) {
-			return !(property.indexOf("*") == (property.length - 1));
+			return !(property.indexOf("-hidden") == (property.length - 7));
 		},
 
 		getActionFromCell: function(cell) {
