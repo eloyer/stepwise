@@ -59,7 +59,7 @@
 						temp = entry[i].$t.split("/");
 						script.append('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
 						break;
-						
+
 					}
 				}
 			}
@@ -105,7 +105,7 @@
 		},
 
 		propertyIsCharacterId: function(property) {
-			return (property.indexOf("gsx$") != -1);
+			return ((property.indexOf("gsx$") != -1) && !this.characterIdIsRestricted(property.substr(4)));
 		},
 
 		getCharacterIdFromProperty: function(property) {
@@ -122,13 +122,22 @@
 
 		getActionFromCell: function(cell) {
 			if (cell != "") {
-				var append = false,
-					temp = cell.split("::");
+				var temp,
+					append = false;
+				temp = cell.split("::");
 				command = temp[0];
 				content = temp[temp.length-1];
 				if (content[0] == "&") {
 					append = true;
 					content = content.substr(1);
+				}
+				if (content.indexOf("+") != -1) { 
+					temp = content.split("+");
+					var delay = parseInt(temp[temp.length-1]);
+					if (!isNaN(delay)) {
+						temp.pop();
+					}
+					content = temp.join("+");
 				}
 				var action;
 				switch (command) {
@@ -142,6 +151,9 @@
 				action.html(content);
 				if (append) {
 					action.attr("append","true");
+				}
+				if (!isNaN(delay)) {
+					action.attr("delay", delay);
 				}
 				return action;
 			}
