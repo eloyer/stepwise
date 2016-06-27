@@ -64,7 +64,7 @@
 				if (this.propertyIsCharacterId(prop)) {
 					id = this.getCharacterIdFromProperty(prop);
 					if (entry[prop] != null) {
-						var subActions = entry[prop].$t.split("\\");
+						var subActions = entry[prop].$t.split("\n");
 						$(subActions).each(function() {
 							action = me.getActionFromCell(this);
 							if (action != null) {
