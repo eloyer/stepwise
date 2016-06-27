@@ -15,6 +15,7 @@
 			var script = $('<stepwise><title>Untitled</title><description></description><primaryCredits></primaryCredits><secondaryCredits></secondaryCredits><version>1</version><sequence repeat="+"></sequence></stepwise>');
 			$.getJSON(url, function(data) {
 				var entry = data.feed.entry;
+				me.addMetadataFromEntry(script, entry[0]);
 				me.addCharactersFromEntry(script, entry[0]);
 				me.addActionsFromEntries(script, entry);
 				success(script[0]);
@@ -25,15 +26,40 @@
 			var i, id, character;
 			var characterIds = [];
 			for (i in entry) {
-				if (i.indexOf("gsx$") != -1) {
+				if (this.propertyIsColumnHeader(i)) {
 					id = this.getCharacterIdFromProperty(i);
-					if (characterIds.indexOf(id) == -1) {
+					if ((characterIds.indexOf(id) == -1) && !this.characterIdIsRestricted(id)) {
 						character = $('<character id="' + id + '"></character>');
 						if (!this.getCharacterVisibilityFromProperty(i)) {
 							character.attr("visible", "false");
 						}
 						script.append(character);
 						characterIds.push(id);
+					}
+				}
+			}
+		},
+
+		propertyIsColumnHeader: function(property) {
+			return (property.indexOf("gsx$") != -1);
+		},
+
+		characterIdIsRestricted: function(id) {
+			return (["pulse"].indexOf(id.toLowerCase()) != -1);
+		},
+
+		addMetadataFromEntry: function(script, entry) {
+			var i, temp;
+			for (i in entry) {
+				if (this.propertyIsColumnHeader(i)) {
+					var str = i.substr(4);
+					switch (str) {
+
+						case "pulse":
+						temp = entry[i].$t.split("/");
+						script.append('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
+						break;
+						
 					}
 				}
 			}
