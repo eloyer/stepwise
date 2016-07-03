@@ -119,6 +119,14 @@
 	Stepwise.prototype.nextStep = function() {
 		return this.score.nextStep();
 	}  
+	
+	Stepwise.prototype.play = function() {
+		this.score.play();
+	} 
+	
+	Stepwise.prototype.stop = function() {
+		this.score.stop();
+	} 
 		
 	Stepwise.prototype.handleExecuteStep = function( event, step ) {
 	
@@ -181,6 +189,7 @@
 	function Score( data, dataType, element ) {
 
 		this.element = element;
+		this.isPlaying = false;
 		this.setDefaults();
 		this.parseMetadata( data, dataType );
 		this.parseStory( data, dataType );
@@ -274,6 +283,10 @@
 				if ( pulseData.length != 0 ) {
 					this.beatsPerMinute = parseFloat( pulseData.first().attr( "beatsPerMinute" ) );
 					this.pulsesPerBeat = parseFloat( pulseData.first().attr( "pulsesPerBeat" ) );
+					this.swing = parseFloat( pulseData.first().attr( "swing" ) );
+					if (isNaN(this.swing)) {
+						this.swing = 1;
+					}
 					this.pulse = (( 60 * 1000 ) / this.beatsPerMinute ) / this.pulsesPerBeat;			
 				}
 
@@ -374,10 +387,25 @@
 		if ( !this.currentSequence.isExhausted ) { 
 			step = this.currentSequence.nextStep(); 
 		}
+
+		var me = this;
+		if (this.isPlaying) {
+			this.timeout = setTimeout(function() { me.nextStep(); }, this.pulse * step.duration * this.swing);
+		}
 		
 		return step;
 	
-	}   	
+	}   
+
+	Score.prototype.play = function() {
+		this.isPlaying = true;
+		this.nextStep();
+	}	
+
+	Score.prototype.stop = function() {
+		this.isPlaying = false;
+		clearTimeout(this.timeout);
+	}
 	
 	Score.prototype.updateCurrentSequence = function() {
 	
@@ -752,6 +780,7 @@
 	
 		var me = this;
 		this.parentScore = score;
+		this.duration = 1;
 
 		if ( dataType != "xml" ) {
 			this.command = "narrate";
@@ -768,6 +797,7 @@
 			this.append = ( data.attr( "append" ) == "true" ) ? true : false;
 			if ( data.attr( "delay" ) != null ) {
 				this.delay = parseInt( data.attr( "delay" ) );
+				this.duration = Math.max(this.duration, this.delay + 1);
 			}
 
 			this.content = data.text();
@@ -777,6 +807,7 @@
 			data.children().each( function() {
 				var step = new Step( $( this ), "xml", me.parentScore );
 				me.substeps.push( step );
+				me.duration = Math.max(me.duration, step.duration);
 			});
 
 		}
