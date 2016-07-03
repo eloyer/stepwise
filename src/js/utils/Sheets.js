@@ -57,7 +57,11 @@
 
 						case "pulse":
 						temp = entry[i].$t.split("/");
-						script.append('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
+						var element = $('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
+						if (temp.length > 2) {
+							element.attr("swing", temp[2]);
+						}
+						script.append(element);
 						break;
 
 					}
