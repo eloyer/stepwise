@@ -147,6 +147,10 @@
 			}
 			break;
 
+			case "sample":
+			step.target.nextStep();
+			break;
+
 			case "setdate":
 			stepwise.score.setDate( step.date );
 			break;
@@ -868,6 +872,7 @@
 			break;
 			
 			case "setsequence":
+			case "sample":
 			this.target = this.parentScore.getItemForId( "sequence", this.content );
 			break;
 
