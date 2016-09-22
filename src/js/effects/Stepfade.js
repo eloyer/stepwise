@@ -8,60 +8,41 @@
 
     var extensionMethods = {
 
-	 	Stepfade: new Stepfade()
+	 	Stepfade: Stepfade
 
     };
 
     $.extend(true, $.fn.stepwise.effects, extensionMethods);
 
     function Stepfade() {
+        $.fn.stepwise.effects.AbstractEffect.call(this);
     }
 
-    Stepfade.prototype.bindToInstance = function(stepwiseInstance) {
-    	var me = this;
-    	this.instance = stepwiseInstance;
-    	$(this.instance.element).bind("executeStep", function(event, step) {
-    		switch (step.command) {
+    Stepfade.prototype = Object.create($.fn.stepwise.effects.AbstractEffect.prototype, {
 
-    			case "speak":
-    			case "narrate":
-	    		if (me.element != null) {
-	    			if (me.character != null) {
-	    				if (step.target.id == me.character.id) {
-	    					me.displayStep(step);
-	    				}
-	    			} else {
-	    				me.displayStep(step);
-	    			}
-	    		}
-    			break;
+        displayStep: {
+            value: function(step, element) {
+                var okToDisplay = true;
+                if (step.target != null) {
+                    okToDisplay = step.target.visible;
+                }
+                if (okToDisplay) {
+                    if (!step.append) {
+                        $(element).empty();
+                    }
+                    var text = step.content.replace(/(?:\\r\\n|\\r|\\n)/g, '<br />');
+                    var content = $('<span>' + text + '</span>');
+                    $(element).append(content);
+                    content.css('opacity',0).animate({left: '+=25px',opacity: 1}, 250);
+                }
+            },
+            enumerable: true,
+            configurable: true,
+            writable: true
+        }
 
-    		}
-	    });
-    }
+    });
 
-    Stepfade.prototype.bindToElement = function(element) {
-    	this.element = element;
-    }
-
-    Stepfade.prototype.bindToCharacter = function(character) {
-    	this.character = character;
-    }
-
-    Stepfade.prototype.displayStep = function(step) {
-    	var okToDisplay = true;
-    	if (step.target != null) {
-    		okToDisplay = step.target.visible;
-    	}
-    	if (okToDisplay) {
-	    	if (!step.append) {
-	    		$(this.element).empty();
-	    	}
-            var text = step.content.replace(/(?:\\r\\n|\\r|\\n)/g, '<br />');
-            var content = $('<span>' + text + '</span>');
-	    	$(this.element).append(content);
-            content.css('opacity',0).animate({left: '+=25px',opacity: 1}, 250);
-    	}
-    }
+    Stepfade.prototype.constructor = Stepfade;
 
 })(jQuery);
