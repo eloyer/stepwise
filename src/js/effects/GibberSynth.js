@@ -1,5 +1,5 @@
 /**
- * Creates a flocking.js synthesizer that can play notes.
+ * Creates a Gibber synthesizer that can play notes.
  *
  * @author Erik Loyer / http://erikloyer.com
  */
@@ -75,6 +75,7 @@
 					break;
 
 					case "bass":
+					case "pad":
 					me.synth.note(freq);
 					break;
 				}
