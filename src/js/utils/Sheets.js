@@ -15,6 +15,7 @@
 			var script = $('<stepwise><title>Untitled</title><description></description><primaryCredits></primaryCredits><secondaryCredits></secondaryCredits><version>1</version><sequence repeat="+"></sequence></stepwise>');
 			$.getJSON(url, function(data) {
 				script.find('title').text(data.feed.title.$t);
+				script.find('primaryCredits').text(data.feed.author[0].name.$t);
 				var entry = data.feed.entry;
 				me.addMetadataFromEntry(script, entry[0]);
 				me.addCharactersFromEntry(script, entry[0]);
