@@ -76,6 +76,7 @@
 
 					case "bass":
 					case "pad":
+					case "lead":
 					me.synth.note(freq);
 					break;
 				}
