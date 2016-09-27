@@ -14,6 +14,7 @@
 			var url = "https://spreadsheets.google.com/feeds/list/" + sheetId +"/1/public/values?alt=json";
 			var script = $('<stepwise><title>Untitled</title><description></description><primaryCredits></primaryCredits><secondaryCredits></secondaryCredits><version>1</version><sequence repeat="+"></sequence></stepwise>');
 			$.getJSON(url, function(data) {
+				script.find('title').text(data.feed.title.$t);
 				var entry = data.feed.entry;
 				me.addMetadataFromEntry(script, entry[0]);
 				me.addCharactersFromEntry(script, entry[0]);
