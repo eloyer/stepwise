@@ -9,10 +9,17 @@
 
     var extensionMethods = {
 
+    	sequencesByCharacter: {},
+
 	 	getXMLFromSheet: function(sheetId, success) {
 	 		var me = this;
-			var url = "https://spreadsheets.google.com/feeds/list/" + sheetId +"/1/public/values?alt=json";
-			var script = $('<stepwise><title>Untitled</title><description></description><primaryCredits></primaryCredits><secondaryCredits></secondaryCredits><version>1</version><sequence repeat="+"></sequence></stepwise>');
+	 		var url;
+	 		if (sheetId.indexOf('https://') == -1) {
+				url = "https://spreadsheets.google.com/feeds/list/" + sheetId +"/1/public/values?alt=json";
+	 		} else {
+	 			url = sheetId;
+	 		}
+			var script = $('<stepwise><title>Untitled</title><description></description><primaryCredits></primaryCredits><secondaryCredits></secondaryCredits><version>1</version><sequence id="global" repeat="+"></sequence></stepwise>');
 			$.getJSON(url, function(data) {
 				script.find('title').text(data.feed.title.$t);
 				script.find('primaryCredits').text(data.feed.author[0].name.$t);
@@ -31,7 +38,7 @@
 				if (this.propertyIsColumnHeader(i)) {
 					id = this.getCharacterIdFromProperty(i);
 					if ((characterIds.indexOf(id) == -1) && !this.characterIdIsRestricted(id)) {
-						character = $('<character id="' + id + '"></character>');
+						character = $('<character id="' + id + '" firstName="' + id + '" lastName=""></character>');
 						if (!this.getCharacterVisibilityFromProperty(i)) {
 							character.attr("visible", "false");
 						}
@@ -75,39 +82,88 @@
 			var me = this;
 			var actions, group;
 			$(entries).each(function() {
-				actions = me.getActionsFromEntry(this);
-				if (actions.length > 1) {
-					group = $("<group></group>");
-					$(actions).each(function() {
-						group.append(this);
-					})
-					script.find("sequence").append(group);
-				} else if (actions.length == 1) {
-					script.find("sequence").append(actions[0]);
+				var globalGroup = $("<group></group>");
+				actionsByCharacter = me.getActionsFromEntry(script, this);
+				for (var prop in actionsByCharacter) {
+					sequence = me.sequencesByCharacter[prop];
+					if (sequence == null) {
+						sequence = script.find('#global');
+						group = globalGroup;
+					} else {
+						group = $("<group></group>");
+					}
+					actions = actionsByCharacter[prop];
+					if (actions.length > 1) {
+						$(actions).each(function() {
+							group.append(this);
+						})
+					} else if (actions.length == 1) {
+						group.append(actions[0]);
+					}
+					if (group.children().length > 0) {
+						sequence.append(group);
+					}
 				}
-			});	
+
+			});
+			// if the first character's actions are part of a custom sequence, then make sure that sequence
+			// is the first to be executed by moving the global sequence to the end of the script
+			var firstCharacterId = script.find('character').eq(0).attr('id');
+			if (me.sequencesByCharacter[firstCharacterId] != null) {
+				script.append(script.find('#global'));
+			}
 		},
 
-		getActionsFromEntry: function(entry) {
+		getActionsFromEntry: function(script, entry) {
 			var action,
-				actions = [];
+				actionsByCharacter = {},
 				me = this;
 			for (var prop in entry) {
 				if (this.propertyIsCharacterId(prop)) {
 					id = this.getCharacterIdFromProperty(prop);
+					actionsByCharacter[id] = [];
 					if (entry[prop] != null) {
-						var subActions = entry[prop].$t.split("\n");
-						$(subActions).each(function() {
-							action = me.getActionFromCell(this);
-							if (action != null) {
-								action.attr("character", id);
-								actions.push(action);
-							}
-						});
+						if (entry[prop].$t == ' ') {
+							actionsByCharacter[id].push($('<nothing character="'+id+'"/>'));
+						} else {
+							var subActions = entry[prop].$t.split("\n");
+							$(subActions).each(function() {
+								action = me.getActionFromCell(this);
+								if (action != null) {
+									switch (action.type) {
+										case 'config':
+										me.sequencesByCharacter[id] = $('<sequence></sequence>').appendTo(script);
+										if (action.payload.shuffle) {
+											me.sequencesByCharacter[id].attr('shuffle', 'true');
+										}
+										if (action.payload.visible != null) {
+											script.find('#'+id).attr('visible', action.payload.visible?'true':'false');
+										} 
+										if (action.payload.repeat != null) {
+											me.sequencesByCharacter[id].attr('repeat', action.payload.repeat);
+										}
+										if (action.payload.grouping != null) {
+											me.sequencesByCharacter[id].attr('grouping', action.payload.grouping);
+										}
+										if (action.payload.id != null) {
+											me.sequencesByCharacter[id].attr('id', action.payload.id);
+										}
+										break;
+										case 'command':
+										actionsByCharacter[id].push(action.payload);
+										break;
+										case 'utterance':
+										action.payload.attr("character", id);
+										actionsByCharacter[id].push(action.payload);
+										break;
+									}
+								}
+							});
+						}
 					}
 				}
 			}
-			return actions;
+			return actionsByCharacter;
 		},
 
 		propertyIsCharacterId: function(property) {
@@ -128,42 +184,131 @@
 
 		getActionFromCell: function(cell) {
 			if (cell != "") {
-				var temp,
+				var temp, command, content, source,
 					append = false;
-				temp = cell.split("::");
-				command = temp[0];
-				content = temp[temp.length-1];
+				if (cell[0] == '$') {
+					temp = cell.split(':');
+					command = temp.shift();
+					content = source = temp.join(':');
+				} else {
+					command = '$speak';
+					content = source = cell;
+				}
+				var contentMatch = /[^+@]*/g;
+				var contentResults = contentMatch.exec(content);
+				if (contentResults != null) {
+					content = contentResults[0];
+				}
 				if (content[0] == "&") {
 					append = true;
 					content = content.substr(1);
 				}
-				if (content.indexOf("+") != -1) { 
-					temp = content.split("+");
-					var delay = parseInt(temp[temp.length-1]);
-					if (!isNaN(delay)) {
-						temp.pop();
-					}
-					content = temp.join("+");
+				var delayMatch = /\+[\d](?![^+@])/g;
+				var delayResults = delayMatch.exec(source);
+				if (delayResults != null) {
+					var delay = parseInt(delayResults);
 				}
-				var action;
+				var toneMatch = /@[^@+]+/g;
+				var toneResults = toneMatch.exec(source);
+				if (toneResults != null) {
+					var tone = toneResults[0].substr(1);
+				}
+				var script,
+					action = {};
 				switch (command) {
-					case "sing":
-					action = $('<sing/>');
+					case '$sequence':
+					temp = content.split(',');
+					config = {
+						shuffle: false
+					};
+					$(temp).each(function() {
+						temp = this.trim().split(':');
+						param = temp[0]
+						switch (param) {
+							case 'shuffle':
+							config.shuffle = true;
+							break;
+							case 'hidden':
+							config.visible = false;
+							break;
+							case 'repeat':
+							config.repeat = temp[1].trim();
+							break;
+							case 'grouping':
+							config.grouping = temp[1].trim();
+							break;
+							case 'id':
+							config.id = temp[1].trim();
+							break;
+						}
+					});
+					action.type = 'config';
+					action.payload = config;
 					break;
-					default:
-					action = $('<speak/>');
+					case '$sample':
+					script = $('<sample>' + content + '</sample>');
+					action.type = 'command';
+					break;
+					case '$sing':
+					script = $('<sing/>');
+					action.type = 'utterance';
+					break;
+					case '$speak':
+					script = $('<speak/>');
+					action.type = 'utterance';
+					break;
+					case '$nothing':
+					script = $('<nothing/>');
+					action.type = 'utterance';
 					break;
 				}
-				action.html(content);
-				if (append) {
-					action.attr("append","true");
-				}
-				if (!isNaN(delay)) {
-					action.attr("delay", delay);
+				if (script != null) {
+					script.html(content);
+					if (append) {
+						script.attr("append","true");
+					}
+					if (!isNaN(delay)) {
+						script.attr("delay", delay);
+					}
+					if (tone != null) {
+						tone = this.parseTone(tone);
+						script.attr("tone", tone);
+					}
+					action.payload = script;
 				}
 				return action;
 			}
 			return null;
+		},
+
+		parseTone: function(tone) {
+			switch (tone) {
+
+				case "pp":
+				case "ppp":
+				tone = "whisper";
+				break;
+
+				case "p":
+				tone = "murmur";
+				break;
+
+				case "mp":
+				case "mf":
+				tone = "normal";
+				break;
+
+				case "f":
+				tone = "shout";
+				break;
+
+				case "ff":
+				case "fff":
+				tone = "scream";
+				break;
+
+			}
+			return tone;
 		}
 
     };
