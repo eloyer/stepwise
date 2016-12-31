@@ -78,6 +78,13 @@
     		case "dom":
     		this.score = new Score( $( source ), "xml", this.element );
     		this.score.init();
+    		this.doOnLoadCallback(this);
+    		break;
+
+    		case "text":
+    		this.score = new Score( source, "text", this.element );
+    		this.score.init();
+    		this.doOnLoadCallback(this);
     		break;
 
     		case "xml":
@@ -89,10 +96,12 @@
     			function( xml ) {
 			    	me.score = new Score( $( xml ).find( "stepwise" ).first(), "xml", me.element );
 			    	me.score.init();
+			    	me.doOnLoadCallback(this);
     			} :
     			function( text ) {
  			    	me.score = new Score( text, "text", me.element );
 			    	me.score.init();
+			    	me.doOnLoadCallback(this);
     			},
     			error: function( request, status, error ) {
     			
@@ -110,6 +119,12 @@
 
     	}
 
+    }
+
+    Stepwise.prototype.doOnLoadCallback = function() {
+		if ( this.options.onLoad != null ) {
+			this.options.onLoad(this);
+		}
     }
 
     Stepwise.prototype.reset = function() {
@@ -205,6 +220,7 @@
 
 		this.version = 1;
 		this.type = "basic";
+		this.timeScale = 1.0;
 		
 		this.sequenceQueue = [];
 		this.sequenceIndex = 0;
@@ -267,10 +283,10 @@
 					}
 				}
 				
-				if ( title == "" ) {
+				if ( this.title == "" ) {
 					this.title = "Untitled";
 				}
-				if ( primaryCredits == "" ) {
+				if ( this.primaryCredits == "" ) {
 					this.primaryCredits = "Author unknown";
 				}
 				this.version = 1;
@@ -394,7 +410,7 @@
 
 		var me = this;
 		if (this.isPlaying) {
-			this.timeout = setTimeout(function() { me.nextStep(); }, this.pulse * step.duration * this.swing);
+			this.timeout = setTimeout(function() { me.nextStep(); }, (this.pulse * step.duration * this.swing * (1.0 / (this.timeScale + .0001))));
 		}
 		
 		return step;
@@ -599,12 +615,54 @@
 					this.count = -1; // repeat infinitely
 				}
 			}
-			
+			this.grouping = $( data ).attr( "grouping" );
+
 			var step;
-			data.children().each( function() {
-				var step = new Step( $( this ), "xml", me.parentScore );
-				me.steps.push( step );
-			});
+			// construct groupings
+			if (this.grouping != null) {
+				var stepData, groupingInstruction,
+					stepIndex = 0,
+					groupingStepIndex = 0,
+					groupedData = $('<data/>'),
+					group = $('<group/>'),
+					steps = data.children(),
+					stepCount = steps.length;
+				while (stepIndex < stepCount) {
+					groupingInstruction = this.grouping[groupingStepIndex].toLowerCase();
+					switch (groupingInstruction) {
+						case 'x':
+						case '&':
+						stepData = steps.eq(stepIndex).clone();
+						if (groupingStepIndex > 0) {
+							stepData.attr('delay', groupingStepIndex);
+						}
+						if (groupingInstruction == '&') {
+							stepData.attr('append', 'true');
+							stepData.children().attr('append', 'true');
+						}
+						group.append(stepData);
+						stepIndex++;
+						break;
+					}
+					groupingStepIndex++;
+					if ((groupingStepIndex == this.grouping.length) || (stepIndex == stepCount)) {
+						groupingStepIndex = 0;
+						console.log(group);
+						groupedData.append(group);
+						group = $('<group/>');
+					}
+				}
+				groupedData.children().each( function() {
+					step = new Step( $( this ), "xml", me.parentScore );
+					me.steps.push( step );
+				});
+
+			} else {
+				data.children().each( function() {
+					step = new Step( $( this ), "xml", me.parentScore );
+					me.steps.push( step );
+				});
+			}
 		}
 		
 	}
@@ -756,8 +814,10 @@
 	
 	var SpeechTone = {
 		NORMAL: "normal",
+		MURMUR: "murmur",
 		WHISPER: "whisper",
-		SHOUT: "shout"
+		SHOUT: "shout",
+		SCREAM: "scream"
 	}
 	
 	var TemperatureUnits = {
@@ -897,7 +957,7 @@
 			var millisecondsToNextPulse = new Date().getMilliseconds() % this.parentScore.pulse;
 			setTimeout( function() {
 				$( me.parentScore.element ).trigger( "executeStep", me );
-			}, /*millisecondsToNextPulse +*/ ( me.delay * me.parentScore.pulse ) );
+			}, /*millisecondsToNextPulse +*/ me.delay * me.parentScore.pulse * (1.0 / (me.parentScore.timeScale + .0001)) );
 		}
 		return this;
 	}
