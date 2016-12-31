@@ -14,26 +14,34 @@
 
     $.extend(true, $.fn.stepwise.effects, extensionMethods);
 
-    function Stepfade() {
+    function Stepfade(options) {
         $.fn.stepwise.effects.AbstractEffect.call(this);
+        var localOptions = {
+            fadeDuration: 250,
+            appendOnly: false
+        };
+        $.extend(this.options, localOptions);
+        $.extend(this.options, options);
     }
 
     Stepfade.prototype = Object.create($.fn.stepwise.effects.AbstractEffect.prototype, {
 
         displayStep: {
-            value: function(step, element) {
+            value: function(step, element, processedContent) {
                 var okToDisplay = true;
-                if (step.target != null) {
+                if ((step.target != null) && (step.target.visible != null)) {
                     okToDisplay = step.target.visible;
                 }
                 if (okToDisplay) {
-                    if (!step.append) {
+                    if (!step.append && !this.options.appendOnly) {
                         $(element).empty();
                     }
-                    var text = step.content.replace(/(?:\\r\\n|\\r|\\n)/g, '<br />');
-                    var content = $('<span>' + text + '</span>');
+                    var content = $('<span>' + processedContent + '</span>');
+                    if (step.tone != "normal") {
+                        content.addClass('tone-'+step.tone);
+                    }
                     $(element).append(content);
-                    content.css('opacity',0).animate({left: '+=25px',opacity: 1}, 250);
+                    content.css('opacity',0).animate({left: '+=25px',opacity: 1}, this.options.fadeDuration);
                 }
             },
             enumerable: true,
