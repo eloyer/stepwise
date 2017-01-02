@@ -10,6 +10,7 @@
     var extensionMethods = {
 
     	sequencesByCharacter: {},
+    	restrictedCharacterIds: ['metadata','pulse'],
 
 	 	getXMLFromSheet: function(sheetId, success) {
 	 		var me = this;
@@ -54,7 +55,13 @@
 		},
 
 		characterIdIsRestricted: function(id) {
-			return (["pulse"].indexOf(id.toLowerCase()) != -1);
+			var isRestricted = false;
+			$(this.restrictedCharacterIds).each(function() {
+				if (this.indexOf(id.toLowerCase()) != -1) {
+					isRestricted = true;
+				}
+			});
+			return isRestricted;
 		},
 
 		addMetadataFromEntry: function(script, entry) {
@@ -63,6 +70,39 @@
 				if (this.propertyIsColumnHeader(i)) {
 					var str = i.substr(4);
 					switch (str) {
+
+						case "metadata":
+						temp = entry[i].$t.split(",");
+						$(temp).each(function() {
+							temp = this.trim().split(':');
+							param = temp[0];
+							switch (param) {
+								case 'title':
+								script.find('title').text(temp[1].trim());
+								break;
+								case 'primaryCredits':
+								script.find('primaryCredits').text(temp[1].trim());
+								break;
+								case 'secondaryCredits':
+								script.find('secondaryCredits').text(temp[1].trim());
+								break;
+								case 'description':
+								script.find('description').text(temp[1].trim());
+								break;
+								case 'version':
+								script.find('version').text(temp[1].trim());
+								break;
+								case 'pulse':
+								temp = temp[1].split("/");
+								var element = $('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
+								if (temp.length > 2) {
+									element.attr("swing", temp[2]);
+								}
+								script.append(element);
+								break;
+							}
+						});
+						break;
 
 						case "pulse":
 						temp = entry[i].$t.split("/");
@@ -225,7 +265,7 @@
 					};
 					$(temp).each(function() {
 						temp = this.trim().split(':');
-						param = temp[0]
+						param = temp[0];
 						switch (param) {
 							case 'shuffle':
 							config.shuffle = true;
@@ -275,6 +315,12 @@
 					script = $('<' + command.substr(1) + '/>');
 					action.type = 'utterance';
 					break;
+
+					default:
+					script = $('<' + command.substr(1) + '/>');
+					action.type = 'command';
+					break;
+
 				}
 				if (script != null) {
 					script.html(content);
