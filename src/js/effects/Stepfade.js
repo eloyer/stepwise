@@ -32,16 +32,20 @@
                 if ((step.target != null) && (step.target.visible != null)) {
                     okToDisplay = step.target.visible;
                 }
+                if (processedContent == null) {
+                    okToDisplay = false;
+                }
                 if (okToDisplay) {
                     if (!step.append && !this.options.appendOnly) {
                         $(element).empty();
                     }
                     var content = $('<span>' + processedContent + '</span>');
-                    if (step.tone != "normal") {
+                    if ((step.tone != "normal") && (step.tone != null)) {
                         content.addClass('tone-'+step.tone);
                     }
                     $(element).append(content);
                     content.css('opacity',0).animate({left: '+=25px',opacity: 1}, this.options.fadeDuration);
+                    this.callDisplayStepHandlers(step, content);
                 }
             },
             enumerable: true,

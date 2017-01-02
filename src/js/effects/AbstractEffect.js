@@ -24,6 +24,7 @@
         };
         $.extend(this.options, options);
         this.bindings = [];
+        this.displayStepHandlers = [];
         this.lastCharacter = null;
     }
 
@@ -42,6 +43,12 @@
                     case "narrate":
                     case "think":
                     me.displayStep(step, bindings[i].element, me.parseCharacterAction(step));
+                    break;
+
+                    case "setbackcolor":
+                    case "setmidcolor":
+                    case "setforecolor":
+                    me.displayStep(step, bindings[i].element, null);
                     break;
 
                     case "setlocation":
@@ -184,6 +191,24 @@
         return eligibleBindings;
     }
 
+    AbstractEffect.prototype.addDisplayStepListener = function(handler) {
+        this.displayStepHandlers.push(handler);
+    }
+
+    AbstractEffect.prototype.removeDisplayStepListener = function(handler) {
+        var index = this.displayStepHandlers.indexOf(handler);
+        if (index != -1) {
+            this.displayStepHandlers.splice(index, 1);
+        }
+    }
+
+    AbstractEffect.prototype.callDisplayStepHandlers = function(step, element) {
+        var i, n = this.displayStepHandlers.length;
+        for (i=0; i<n; i++) {
+            this.displayStepHandlers[i](step, element);
+        }
+    }
+
     AbstractEffect.prototype.displayStep = function(step, element, processedContent) {
     	var okToDisplay = true;
     	if (step.target != null) {
@@ -194,6 +219,7 @@
 	    		$(element).empty();
 	    	}
 	    	$(element).append(processedContent);
+            this.callDisplayStepHandlers(step, element);
     	}
     }
 
