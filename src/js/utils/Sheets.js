@@ -100,8 +100,10 @@
 					} else if (actions.length == 1) {
 						group.append(actions[0]);
 					}
-					if (group.children().length > 0) {
+					if (group.children().length > 1) {
 						sequence.append(group);
+					} else if (group.children().length == 1) {
+						sequence.append(group.children());
 					}
 				}
 
