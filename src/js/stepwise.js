@@ -24,7 +24,8 @@
     // Create the defaults once
     var pluginName = "stepwise",
         defaults = {
-            dataType: "xml"
+            dataType: "xml",
+            outputToElement: true
         };
         
     $.fn[pluginName] = function ( options ) {
@@ -153,12 +154,14 @@
 			case "speak":
 			case "think":
 			case "sing":
-			if ( step.target != null ) {
-				if ( step.target.visible ) {
+			if (stepwise.options.outputEnabled) {
+				if ( step.target != null ) {
+					if ( step.target.visible ) {
+						stepwise.displayStepContent( step );
+					}
+				} else {
 					stepwise.displayStepContent( step );
 				}
-			} else {
-				stepwise.displayStepContent( step );
 			}
 			break;
 
@@ -166,12 +169,24 @@
 			step.target.nextStep();
 			break;
 
+			case "setbackcolor":
+			stepwise.score.setBackColor( step.content );
+			break;
+
 			case "setdate":
 			stepwise.score.setDate( step.date );
+			break;
+
+			case "setforecolor":
+			stepwise.score.setForeColor( step.content );
 			break;
 			
 			case "setlocation":
 			stepwise.score.setLocation( step.target );
+			break;
+
+			case "setmidcolor":
+			stepwise.score.setMidColor( step.content );
 			break;
 			
 			case "setsequence":
@@ -192,8 +207,8 @@
 			
 		}
 		
-		if ( stepwise.options.success != null ) {
-			stepwise.options.success( event, step );
+		if ( stepwise.options.onStep != null ) {
+			stepwise.options.onStep( event, step );
 		}
 	
 	}
@@ -233,6 +248,10 @@
 		this.currentWeather = WeatherConditions.CLEAR;
 		
 		this.currentDate = Date.now();
+
+		this.backColor = '#ffffff';
+		this.midColor = '#888888';
+		this.foreColor = '#000000';
 
 	}
 
@@ -320,6 +339,8 @@
 				
 		if ( data != null ) {
 
+			this.characters = [];
+			this.charactersById = {};
 			this.sequences = [];
 			this.sequencesById = {};
 			this.sequenceQueue = [];
@@ -343,8 +364,6 @@
 				this.sequenceIndex = 0;
 				this.currentSequence = null;
 				
-				this.characters = [];
-				this.charactersById = {};
 				var character;
 				data.find( "character" ).each( function() {
 					character = new Character( $( this ), me );
@@ -525,11 +544,18 @@
 		return null;
 	}
 	
-	/**
-	 * Given a location, makes it the current location.
-	 *
-	 * @param location		The location to make current.
-	 */
+	Score.prototype.setBackColor = function( color ) {
+		this.backColor = color;
+	}
+	
+	Score.prototype.setForeColor = function( color ) {
+		this.foreColor = color;
+	}
+	
+	Score.prototype.setMidColor = function( color ) {
+		this.midColor = color;
+	}
+	
 	Score.prototype.setLocation = function( location ) {
 	
 		var index = this.locations.indexOf( location );
@@ -539,30 +565,15 @@
 		
 	}
 	
-	/**
-	 * Given a temperature, makes it the current temperature.
-	 *
-	 * @param temperature		The temperature to make current.
-	 */
 	Score.prototype.setTemperature = function( temperature, units ) {
 		this.currentTemperature = temperature;
 		this.currentTemperatureUnits = units;
 	}
 	
-	/**
-	 * Given weather conditions, makes them the current weather conditions.
-	 *
-	 * @param weather		The weather conditions to make current.
-	 */
 	Score.prototype.setWeather = function( weather ) {
 		this.currentWeather = weather;
 	}
 
-	/**
-	 * Given a date, makes it the current date.
-	 *
-	 * @param date 			The date to make current.
-	 */
 	Score.prototype.setDate = function( date ) {
 		this.currentDate = date;
 	}

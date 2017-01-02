@@ -188,7 +188,7 @@
 					append = false;
 				if (cell[0] == '$') {
 					temp = cell.split(':');
-					command = temp.shift();
+					command = temp.shift().toLowerCase();
 					content = source = temp.join(':');
 				} else {
 					command = '$speak';
@@ -249,16 +249,28 @@
 					script = $('<sample>' + content + '</sample>');
 					action.type = 'command';
 					break;
+
+					case '$setbackcolor':
+					case '$setdate':
+					case '$setforecolor':
+					case '$setmidcolor':
+					case '$settime':
+					case '$setweather':
+					script = $('<' + command.substr(1) + '/>');
+					action.type = 'command';
+					break;
+
+					/*
+					case '$setsequence':
+					script = $('<setsequence/>');
+					action.type = 'config';
+					break;
+					*/
+
 					case '$sing':
-					script = $('<sing/>');
-					action.type = 'utterance';
-					break;
 					case '$speak':
-					script = $('<speak/>');
-					action.type = 'utterance';
-					break;
 					case '$nothing':
-					script = $('<nothing/>');
+					script = $('<' + command.substr(1) + '/>');
 					action.type = 'utterance';
 					break;
 				}
