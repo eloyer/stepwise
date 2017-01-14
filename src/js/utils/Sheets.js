@@ -39,7 +39,7 @@
 				if (this.propertyIsColumnHeader(i)) {
 					id = this.getCharacterIdFromProperty(i);
 					if ((characterIds.indexOf(id) == -1) && !this.characterIdIsRestricted(id)) {
-						character = $('<character id="' + id + '" firstName="' + id + '" lastName=""></character>');
+						character = $('<character id="' + id + '" firstName="' + id + '"></character>');
 						if (!this.getCharacterVisibilityFromProperty(i)) {
 							character.attr("visible", "false");
 						}
@@ -65,32 +65,34 @@
 		},
 
 		addMetadataFromEntry: function(script, entry) {
-			var i, temp;
+			var i, temp, param, value;
 			for (i in entry) {
 				if (this.propertyIsColumnHeader(i)) {
 					var str = i.substr(4);
 					switch (str) {
 
 						case "metadata":
-						temp = entry[i].$t.split(",");
+						temp = entry[i].$t.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/g); // split on commas outside of double quotes
 						$(temp).each(function() {
 							temp = this.trim().split(':');
-							param = temp[0];
+							param = temp.shift();
+							value = temp.join(':');
+							value = value.replace(/^"|"$/g, '');
 							switch (param) {
 								case 'title':
-								script.find('title').text(temp[1].trim());
+								script.find('title').text(value.trim());
 								break;
 								case 'primaryCredits':
-								script.find('primaryCredits').text(temp[1].trim());
+								script.find('primaryCredits').text(value.trim());
 								break;
 								case 'secondaryCredits':
-								script.find('secondaryCredits').text(temp[1].trim());
+								script.find('secondaryCredits').text(value.trim());
 								break;
 								case 'description':
-								script.find('description').text(temp[1].trim());
+								script.find('description').text(value.trim());
 								break;
 								case 'version':
-								script.find('version').text(temp[1].trim());
+								script.find('version').text(value.trim());
 								break;
 								case 'pulse':
 								temp = temp[1].split("/");
@@ -140,10 +142,8 @@
 					} else if (actions.length == 1) {
 						group.append(actions[0]);
 					}
-					if (group.children().length > 1) {
+					if (group.children().length > 0) {
 						sequence.append(group);
-					} else if (group.children().length == 1) {
-						sequence.append(group.children());
 					}
 				}
 
@@ -154,6 +154,11 @@
 			if (me.sequencesByCharacter[firstCharacterId] != null) {
 				script.append(script.find('#global'));
 			}
+			script.find('group').each(function() {
+				if ($(this).children().length == 1) {
+					$(this).children().unwrap();
+				}
+			})
 		},
 
 		getActionsFromEntry: function(script, entry) {
@@ -226,7 +231,7 @@
 
 		getActionFromCell: function(cell) {
 			if (cell != "") {
-				var temp, command, content, source,
+				var temp, command, param, value, content, source,
 					append = false;
 				if (cell[0] == '$') {
 					temp = cell.split(':');
@@ -236,7 +241,8 @@
 					command = '$speak';
 					content = source = cell;
 				}
-				var contentMatch = /[^+@]*/g;
+
+				var contentMatch = /[^+@=]*/g;
 				var contentResults = contentMatch.exec(content);
 				if (contentResults != null) {
 					content = contentResults[0];
@@ -245,16 +251,25 @@
 					append = true;
 					content = content.substr(1);
 				}
-				var delayMatch = /\+[\d](?![^+@])/g;
+
+				var delayMatch = /\+([\d])*(.[\d]*)(?![^+@=])/g;
 				var delayResults = delayMatch.exec(source);
 				if (delayResults != null) {
-					var delay = parseInt(delayResults);
+					var delay = parseFloat(delayResults);
 				}
-				var toneMatch = /@[^@+]+/g;
+
+				var toneMatch = /@[^+@=]+/g;
 				var toneResults = toneMatch.exec(source);
 				if (toneResults != null) {
 					var tone = toneResults[0].substr(1);
 				}
+
+				var durationMatch = /=[^@+=]+/g;
+				var durationResults = durationMatch.exec(source);
+				if (durationResults != null) {
+					var duration = durationResults[0].substr(1);
+				}
+
 				var script,
 					action = {};
 				switch (command) {
@@ -265,7 +280,8 @@
 					};
 					$(temp).each(function() {
 						temp = this.trim().split(':');
-						param = temp[0];
+						param = temp.shift();
+						value = temp.join(':');
 						switch (param) {
 							case 'shuffle':
 							config.shuffle = true;
@@ -274,13 +290,16 @@
 							config.visible = false;
 							break;
 							case 'repeat':
-							config.repeat = temp[1].trim();
+							config.repeat = value.trim();
+							if (config.repeat == 'forever') {
+								config.repeat = '+';
+							}
 							break;
 							case 'grouping':
-							config.grouping = temp[1].trim();
+							config.grouping = value.trim();
 							break;
 							case 'id':
-							config.id = temp[1].trim();
+							config.id = value.trim();
 							break;
 						}
 					});
@@ -333,6 +352,9 @@
 					if (tone != null) {
 						tone = this.parseTone(tone);
 						script.attr("tone", tone);
+					}
+					if (duration != null) {
+						script.attr("duration", duration);
 					}
 					action.payload = script;
 				}
