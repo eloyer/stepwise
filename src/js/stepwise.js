@@ -236,6 +236,10 @@
 		this.version = 1;
 		this.type = "basic";
 		this.timeScale = 1.0;
+		this.beatsPerMinute = 120;
+		this.pulsesPerBeat = 4;
+		this.durationPerBeat = 4;
+		this.swing = 1;
 		
 		this.sequenceQueue = [];
 		this.sequenceIndex = 0;
@@ -320,11 +324,17 @@
 				this.version = parseInt( data.find( "version" ).first().text() );
 				var pulseData = data.find( "pulse" );
 				if ( pulseData.length != 0 ) {
-					this.beatsPerMinute = parseFloat( pulseData.first().attr( "beatsPerMinute" ) );
-					this.pulsesPerBeat = parseFloat( pulseData.first().attr( "pulsesPerBeat" ) );
-					this.swing = parseFloat( pulseData.first().attr( "swing" ) );
-					if (isNaN(this.swing)) {
-						this.swing = 1;
+					if (pulseData.first().attr( "beatsperminute" ) != null) {
+						this.beatsPerMinute = parseFloat( pulseData.first().attr( "beatsperminute" ) );
+					}
+					if (pulseData.first().attr( "pulsesperbeat" ) != null) {
+						this.pulsesPerBeat = parseFloat( pulseData.first().attr( "pulsesperbeat" ) );
+					}
+					if (pulseData.first().attr( "durationperbeat" ) != null) {
+						this.durationPerBeat = parseInt( pulseData.first().attr( "durationperbeat" ) );
+					}
+					if (pulseData.first().attr( "swing" ) != null) {
+						this.swing = parseFloat( pulseData.first().attr( "swing" ) );
 					}
 					this.pulse = (( 60 * 1000 ) / this.beatsPerMinute ) / this.pulsesPerBeat;			
 				}
@@ -778,7 +788,6 @@
 					if ( this.usedIndexes.length >= this.steps.length ) {
 						//console.log( 'used up all of the steps; starting over' );
 						this.usedIndexes = [];
-						this.usedIndexes.push( this.stepIndex );
 					}
 					this.completions++;
 					this.isCompleted = true;
@@ -871,9 +880,12 @@
 			this.itemRef = data.attr( "itemRef" );
 			this.append = ( data.attr( "append" ) == "true" ) ? true : false;
 			if ( data.attr( "delay" ) != null ) {
-				this.delay = parseInt( data.attr( "delay" ) );
+				this.delay = parseFloat( data.attr( "delay" ) );
 				this.duration = Math.max(this.duration, this.delay + 1);
 			}
+			/*if ( data.attr( "duration" ) != null ) {
+				this.duration = this.parseDuration( data.attr( "duration" ) );
+			}*/
 
 			this.content = data.text();
 			this.substeps = [];
@@ -920,6 +932,30 @@
 		
 		}
 
+	}
+
+	Step.prototype.parseDuration = function( durationString ) {
+		var duration = 1;
+		var fractionMatch = /([\d]+[^\/.]*)*/g;
+		var fractionResults = fractionMatch.exec(durationString);
+		if (fractionResults != null) {
+			var tuplet;
+			var fraction = parseInt(fractionResults[0]);
+			var tupletMatch = /\/[^.]+/g;
+			var tupletResults = tupletMatch.exec(durationString);
+			if (tupletResults != null) {
+				tuplet = parseInt(tupletResults[0].substr(1));
+			}
+			var hasDot = durationString[durationString.length-1] == '.';
+			var duration = this.parentScore.durationPerBeat / float(fraction);
+			if (tuplet != null) {
+				duration *= .667;
+			}
+			if (hasDot) {
+				duration *= 1.5;
+			}
+		}
+		return duration;
 	}
 	
 	Step.prototype.init = function( substep ) {
@@ -986,8 +1022,8 @@
 		this.data = $( data );
 		this.parentScore = score;
 		this.id = data.attr( "id" );
-		this.firstName = data.attr( "firstName" );
-		this.lastName = data.attr( "lastName" );
+		this.firstName = data.attr( "firstname" );
+		this.lastName = data.attr( "lastname" );
 		this.fullName = this.firstName + (( this.lastName == "" ) ? "" : " " + this.lastName );
 		this.visible = (( data.attr( "visible" ) == "true" ) || ( data.attr( "visible" ) == null )) ? true : false;	
 	}
