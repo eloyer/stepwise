@@ -145,8 +145,11 @@
         this.bindings.push({ character: "*", element: element });
     }
 
-    AbstractEffect.prototype.bindCharacterToElement = function(character, element) {
-    	this.bindings.push({ character: character, element: element });
+    AbstractEffect.prototype.bindCharacterToElement = function(characterId, element) {
+        var character = this.instance.score.charactersById[characterId];
+        if (character != null) {
+            this.bindings.push({ character: character, element: $(element) });
+        }
     }
 
     AbstractEffect.prototype.unbindFromElement = function(element) {
@@ -161,11 +164,14 @@
 
     AbstractEffect.prototype.unbindCharacterFromElement = function(character, element) {
         var i, binding,
-            n = this.bindings.length;
-        for (i=(n-1); i>=0; i--) {
-            binding = this.bindings[i];
-            if ((binding.character == character) && (binding.element == element)) {
-                this.bindings.splice(i, 1);
+            n = this.bindings.length,
+            var character = this.instance.score.charactersById[characterId];
+        if (character != null) {
+            for (i=(n-1); i>=0; i--) {
+                binding = this.bindings[i];
+                if ((binding.character == character) && (binding.element == element)) {
+                    this.bindings.splice(i, 1);
+                }
             }
         }
     }
