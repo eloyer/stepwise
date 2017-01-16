@@ -116,7 +116,7 @@
 	   		break;
 
     		case "xml":
-    		this.score = new Score($(source).find("stepwise").first(), "xml", this.element);
+    		this.score = new Score($(source), "xml", this.element);
     		this.score.init();
     		this.doOnLoadCallback(this);
     		break;
@@ -1046,7 +1046,7 @@
 		this.id = data.attr("id");
 		this.firstName = data.attr("firstname");
 		this.lastName = data.attr("lastname");
-		this.fullName = this.firstName + ((this.lastName == "") ? "" : " " + this.lastName);
+		this.fullName = this.firstName + (((this.lastName == "") || (this.lastName == null)) ? "" : " " + this.lastName);
 		this.visible = ((data.attr("visible") == "true") || (data.attr("visible") == null)) ? true : false;	
 	}
 	
@@ -1072,7 +1072,10 @@
 
     $.extend(true, $.fn.stepwise.effects, extensionMethods);
 
-    function AbstractEffect(options) {
+    function AbstractEffect(instance, options) {
+    	if (instance != null) {
+    		this.bindToInstance(instance);
+    	}
         this.options = {
             useCharacterNames: true,
             createBreakTags: true,
@@ -1220,10 +1223,10 @@
         }
     }
 
-    AbstractEffect.prototype.unbindCharacterFromElement = function(character, element) {
+    AbstractEffect.prototype.unbindCharacterFromElement = function(characterId, element) {
         var i, binding,
             n = this.bindings.length,
-            var character = this.instance.score.charactersById[characterId];
+            character = this.instance.score.charactersById[characterId];
         if (character != null) {
             for (i=(n-1); i>=0; i--) {
                 binding = this.bindings[i];

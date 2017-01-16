@@ -14,8 +14,8 @@
 
     $.extend(true, $.fn.stepwise.effects, extensionMethods);
 
-    function Stepfade(options) {
-        $.fn.stepwise.effects.AbstractEffect.call(this);
+    function Stepfade(instance, options) {
+        $.fn.stepwise.effects.AbstractEffect.call(this, instance, options);
         var localOptions = {
             fadeDuration: 250,
             appendOnly: false
