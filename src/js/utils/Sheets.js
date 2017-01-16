@@ -15,8 +15,14 @@
 	 	getXMLFromSheet: function(sheetId, success) {
 	 		var me = this;
 	 		var url;
+	 		// sheetId contains a Google Sheets id
 	 		if (sheetId.indexOf('https://') == -1) {
 				url = "https://spreadsheets.google.com/feeds/list/" + sheetId +"/1/public/values?alt=json";
+			// or a Google Sheets edit URL
+	 		} else if (sheetId.indexOf('edit#') != -1) {
+				var temp = sheetId.split('/');
+				url = "https://spreadsheets.google.com/feeds/list/" + temp[5] +"/1/public/values?alt=json";
+			// otherwise, assume this is a correctly formed Google Sheets JSON URL
 	 		} else {
 	 			url = sheetId;
 	 		}
