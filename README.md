@@ -1,4 +1,7 @@
 # Stepwise
+
+**Note: The documentation below is currently out of date. A major update should be posted within the next week or two.**
+
 > "Press SPACE BAR to continue."
 
 >"Click to continue."
