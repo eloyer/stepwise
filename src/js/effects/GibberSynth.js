@@ -15,7 +15,10 @@
     function GibberSynth(instance, options) {
     	$.fn.stepwise.effects.AbstractEffect.call(this, instance, options);
         $.extend(this.options, options);
-    	Gibber.init();
+        if (!window.gibberHasBeenInitialized) {
+			Gibber.init();
+        }
+		window.gibberHasBeenInitialized = true;
     	this.unpitchedInstruments = [
     		"gibberdrumkick", 
     		"gibberdrumsnare", 
@@ -50,7 +53,7 @@
     		'gibbermononoise',
     		'gibbermonolead',
 
-    		'gibberfmbass2',
+    		'gibberfmbass',
     		'gibberfmstabs',
     		'gibberfmgong',
     		'gibberfmdrum',
@@ -307,56 +310,53 @@
 					this.ensemble[instrumentName] = instrument;
 					instrument.send(this.bus, 1);
 				}
+				instrument.amp = amplitude;
 				if (this.unpitchedInstruments.indexOf(instrumentName) != -1) {
-					instrument.amp = amplitude;
 					instrument.note();
 				} else {
-					instrument.amp = amplitude;
 					instrument.note(note);
 				}
 		   	}
 		},
 
-	    bindToInstance: {
-	    	value: function(stepwiseInstance) {
-		    	var me = this;
-		    	this.instance = stepwiseInstance;
-		    	$(this.instance.element).bind("executeStep", function(event, step) {
-			    	//if ((me.stepTargetIsInstrument(step) || (step.command == "sing")) && (step.content != "")) { 
-		    		var instrumentName = me.getInstrumentNameForStep(step);
-			    	if ((instrumentName != null) && me.isValidNoteName(step.content)) {
-						
-						var amplitude;
-						switch (step.tone) {
+		displayStep: {
+            value: function(step, element, processedContent) {
+                var instrumentName = this.getInstrumentNameForStep(step);
+		    	if ((instrumentName != null) && this.isValidNoteName(step.content)) {
+					
+					var amplitude;
+					switch (step.tone) {
 
-							case "whisper":
-							amplitude = 0.125;
-							break;
+						case "whisper":
+						amplitude = 0.125;
+						break;
 
-							case "murmur":
-							amplitude = 0.25;
-							break;
+						case "murmur":
+						amplitude = 0.25;
+						break;
 
-							case "shout":
-							amplitude = 0.75;
-							break;
+						case "shout":
+						amplitude = 0.75;
+						break;
 
-							case "scream":
-							amplitude = 0.875;
-							break;
+						case "scream":
+						amplitude = 0.875;
+						break;
 
-							default:
-							amplitude = 0.5;
-							break;
+						default:
+						amplitude = 0.5;
+						break;
 
-						}
-						me.playNoteWithInstrument(step.content, instrumentName, amplitude);
 					}
-			    });
-		    }
-		},
+					this.playNoteWithInstrument(step.content, instrumentName, amplitude);
+				}
+            },
+            enumerable: true,
+            configurable: true,
+            writable: true
+        },
 
-		addInstrument: {
+		setInstrument: {
 			value: function(instrumentName, instrument, isUnpitched) {
 				if (isUnpitched == null) {
 					isUnpitched = false;
@@ -364,11 +364,10 @@
 				if (isUnpitched) {
 					this.unpitchedInstruments[instrumentName] = instrumentName;
 				}
-				console.log(instrumentName);
-				console.log(instrument);
-				this.gibberInstruments.push(instrumentName);
+				if (this.gibberInstruments.indexOf(instrumentName) == -1) {
+					this.gibberInstruments.push(instrumentName);
+				}
 				this.ensemble[instrumentName] = instrument;
-				console.log(this);
 			}
 		},
 
@@ -424,5 +423,7 @@
 			}   
 		}
 	});
+
+    GibberSynth.prototype.constructor = GibberSynth;
 
 })(jQuery);

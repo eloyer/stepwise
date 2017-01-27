@@ -246,16 +246,15 @@
 				} else {
 					command = '$speak';
 					content = source = cell;
-				}
-
-				var contentMatch = /[^+@=]*/g;
-				var contentResults = contentMatch.exec(content);
-				if (contentResults != null) {
-					content = contentResults[0];
-				}
-				if (content[0] == "&") {
-					append = true;
-					content = content.substr(1);
+					var contentMatch = /[^+@=]*/g;
+					var contentResults = contentMatch.exec(content);
+					if (contentResults != null) {
+						content = contentResults[0];
+					}
+					if (content[0] == "&") {
+						append = true;
+						content = content.substr(1);
+					}
 				}
 
 				var delayMatch = /\+([\d])*(.[\d]*)(?![^+@=])/g;

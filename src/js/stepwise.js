@@ -7,7 +7,7 @@
             delimiter: " ",
             inputElement: null,
             keyInput: true,
-            keyCodesToIgnore: [9, 20, 16, 17, 18, 224, 91, 93],
+            keyCodesToIgnore: [9, 16, 17, 18, 20, 27, 224, 91, 93],
             outputToElement: true,
             tapInput: true
         };
@@ -28,6 +28,8 @@
     
     	if (typeof config === 'object') {
     		if (!Array.isArray(config)) {
+    			if config == 'newline'
+    				config = /\r?\n/
     			this.options = $.extend({}, defaults, config);
     		} else {
     			this.options = $.extend({}, defaults, {});
@@ -103,7 +105,7 @@
 	    	$.ajax({
     			type: "GET",
     			url: source,
-    			dataType: dataType,
+    			dataType: 'text',
     			success: function(text) {
  			    	me.score = new Score(text, "text", me.element, this.options.delimiter);
 			    	me.score.init();
@@ -125,7 +127,7 @@
 	    	$.ajax({
     			type: "GET",
     			url: source,
-    			dataType: dataType,
+    			dataType: 'xml',
     			success: function(xml) {
 			    	me.score = new Score($(xml).find("stepwise").first(), "xml", me.element);
 			    	me.score.init();
@@ -690,7 +692,6 @@
 					groupingStepIndex++;
 					if ((groupingStepIndex == this.grouping.length) || (stepIndex == stepCount)) {
 						groupingStepIndex = 0;
-						console.log(group);
 						groupedData.append(group);
 						group = $('<group/>');
 					}
@@ -1096,8 +1097,10 @@
     	this.instance = stepwiseInstance;
         this.visibleCharacterCount = this.getVisibleCharacterCount();
         $(this.instance.element).bind("executeStep", function(event, step) {
+        	var i;
             var bindings = me.eligibleBindingsForStep(step);
-            for (var i in bindings) {
+            var n = bindings.length;
+            for (i=0; i<n; i++) {
                 switch (step.command) {
 
                     case "speak":
@@ -1254,6 +1257,9 @@
             if (characterMatch) {         
                 eligibleBindings.push(binding);
             }
+        }
+        if (eligibleBindings.length == 0) {
+        	eligibleBindings.push({});
         }
         return eligibleBindings;
     }

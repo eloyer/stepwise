@@ -7,9 +7,7 @@
 (function($) {
 
     var extensionMethods = {
-
 	 	Stepfade: Stepfade
-
     };
 
     $.extend(true, $.fn.stepwise.effects, extensionMethods);
