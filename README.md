@@ -1,8 +1,6 @@
 # Stepwise
 
-**Note: The documentation below is currently out of date. A major update should be posted within the next week or two.**
-
-> "Press SPACE BAR to continue."
+>"Press SPACE BAR to continue."
 
 >"Click to continue."
 
@@ -20,39 +18,27 @@ This is what Stepwise does. Because it's simple, it can easily be used to power 
 
 Most interactive stories operate at the scale of plot mechanics: "Should this character do X or Y?" with the results apparent over the course of minutes or hours. Stepwise operates at the scale of musical performance: "When does it feel right to move ahead?" with the results apparent in seconds.
 
-Stepwise is a library for one-button storytelling.
+Stepwise is a multimodal content sequencer—a library for one-button storytelling. 
 
 ## Powered by Stepwise
-+ [Stepwise Stories](http://stepwisestories.com), a collection of experiments in one-button storytelling
++ [Stepworks](http://step.works), a collection of experiments in one-button storytelling
 + [Strange Rain 2.0](http://opertoon.com/strange-rain/) for Apple TV, which uses the Unity version of the library
 + [I feel the earth move](http://erikloyer.com/einstein/), adaptation of an excerpt from Philip Glass' opera *Einstein on the Beach* (requires Chrome)
 
 
 ## How does it work?
-In it's simplest form, working with Stepwise involves two steps:
-
-1. Load content written in [Stepwise XML](#stepwise-xml) into the library.
-2. Call Stepwise's `nextStep()` command whenever you need a new piece of content.
-
-Here's a simple example using the library in its jQuery plugin form:
+Simple. Call the plugin with the content you want to display in steps, and the DOM element where you want it to be displayed:
 
 ```javascript
-// load the Stepwise document "story.xml" into the plugin and direct output to a div called "output"
-$("div#output").stepwise({source:"story.xml"});
-
-// store an instance of the plugin
-var stepwise = $("div#output").data("plugin_stepwise");
-
-// advance to the next step in the content whenever the mouse is clicked
-$(document).mousedown(function() { stepwise.nextStep(); });
+$("div#output").stepwise("1 2 3 4");
 ```
 
-Now, whenever the mouse is clicked, `<div id="output">` will be updated with the content of the next step.
+Now, whenever a key is pressed or `<div id="output">` is clicked, `<div id="output">` will be successively updated with `1`, `2`, `3`, and `4`.
 
-[View demo on CodePen](http://cdpn.io/XdxKMm)
+[View demo on CodePen](http://codepen.io/eloyer/pen/XdxKMm)
 
 ## Stepwise XML
-Stepwise content is delivered in Stepwise XML format (though the library will also accept plaintext, converting each line into a separate Stepwise XML step). Better documentation is coming, but for now here's a simple "hello world" example to get you started. What's shown here is just a subset of all of the features available--the current spec (which is constantly evolving) supports randomness, flow control, simple character and location modeling, narration, time & date, weather, geolocation, step groups, delayed action, music and more...
+Stepwise content is delivered in [Stepwise XML](wiki/Stepwise-XML-Reference) format (though the library will also various other input formats that it parses into Stepwise XML, as in the string example above). Here's a "hello world" example:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -67,10 +53,16 @@ Stepwise content is delivered in Stepwise XML format (though the library will al
 [View demo on CodePen](http://codepen.io/eloyer/pen/KzBbMW)
 
 ## Where can I use Stepwise?
-Currently the library includes both JavaScript (as a jQuery plugin) and Unity clients, and the development of additional clients is welcomed and encouraged.
+Currently the library includes both a jQuery plugin and a Unity client (though the Unity client is currently far behind the plugin). The development of additional clients is welcomed and encouraged.
 
 ## How can I learn more?
-- Check out [Stepwise examples](http://codepen.io/eloyer/collections/popular/) on CodePen.
+Explore these links from the wiki:
+
+- [Getting started with the Stepwise jQuery plugin](wiki/Getting-started-with-the-Stepwise-jQuery-plugin)
+- [Loading content](wiki/Loading-content)
+- [Creating Stepwise content in Google Sheets](wiki/Creating-Stepwise-content-in-Google-Sheets)
+- [Working with output](wiki/Working-with-output)
+- [Stepwise XML Reference](wiki/Stepwise-XML-Reference)
 
 ## License
 Stepwise is released under an MIT License.
