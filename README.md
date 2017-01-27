@@ -38,7 +38,7 @@ Now, whenever a key is pressed or `<div id="output">` is clicked, `<div id="outp
 [View demo on CodePen](http://codepen.io/eloyer/pen/XdxKMm)
 
 ## Stepwise XML
-Stepwise content is delivered in [Stepwise XML](wiki/Stepwise-XML-Reference) format (though the library will also various other input formats that it parses into Stepwise XML, as in the string example above). Here's a "hello world" example:
+Stepwise content is delivered in [Stepwise XML](https://github.com/eloyer/stepwise/wiki/Stepwise-XML-Reference) format (though the library will also various other input formats that it parses into Stepwise XML, as in the string example above). Here's a "hello world" example:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -58,11 +58,11 @@ Currently the library includes both a jQuery plugin and a Unity client (though t
 ## How can I learn more?
 Explore these links from the wiki:
 
-- [Getting started with the Stepwise jQuery plugin](wiki/Getting-started-with-the-Stepwise-jQuery-plugin)
-- [Loading content](wiki/Loading-content)
-- [Creating Stepwise content in Google Sheets](wiki/Creating-Stepwise-content-in-Google-Sheets)
-- [Working with output](wiki/Working-with-output)
-- [Stepwise XML Reference](wiki/Stepwise-XML-Reference)
+- [Getting started with the Stepwise jQuery plugin](https://github.com/eloyer/stepwise/wiki/Getting-started-with-the-Stepwise-jQuery-plugin)
+- [Loading content](https://github.com/eloyer/stepwise/wiki/Loading-content)
+- [Creating Stepwise content in Google Sheets](https://github.com/eloyer/stepwise/wiki/Creating-Stepwise-content-in-Google-Sheets)
+- [Working with output](https://github.com/eloyer/stepwise/wiki/Working-with-output)
+- [Stepwise XML Reference](https://github.com/eloyer/stepwise/wiki/Stepwise-XML-Reference)
 
 ## License
 Stepwise is released under an MIT License.
