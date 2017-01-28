@@ -246,6 +246,9 @@
 				} else {
 					command = '$speak';
 					content = source = cell;
+				}
+
+				if (command != '$sequence') {
 					var contentMatch = /[^+@=]*/g;
 					var contentResults = contentMatch.exec(content);
 					if (contentResults != null) {
