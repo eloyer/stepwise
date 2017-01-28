@@ -28,8 +28,9 @@
     
     	if (typeof config === 'object') {
     		if (!Array.isArray(config)) {
-    			if config == 'newline'
-    				config = /\r?\n/
+    			if (config.delimiter == 'newline') {
+    				config.delimiter = /\r?\n/;
+    			}
     			this.options = $.extend({}, defaults, config);
     		} else {
     			this.options = $.extend({}, defaults, {});
