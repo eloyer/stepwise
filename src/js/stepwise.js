@@ -991,6 +991,10 @@
 		}
 	
 		switch (this.command) {
+
+			case "narrate":
+			this.target = { visible: true };
+			break;
 		
 			case "speak":
 			case "think":
@@ -1008,7 +1012,7 @@
 			break;
 
 			default:
-			this.target = { visible: true };
+			this.target = { visible: false };
 			break;
 		
 		}
