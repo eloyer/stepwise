@@ -20,7 +20,7 @@
             fontRatio: .78,
             maxFontSize: 999,
             minCharsPerLine: 5,
-            viewportBreakpoint: 600
+            viewportBreakpoint: null
         };
         $.extend(this.options, localOptions);
         $.extend(this.options, options);
