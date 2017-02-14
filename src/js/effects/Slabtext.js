@@ -44,7 +44,7 @@
                         }   
                     }
                     this.contentBuffer += processedContent;
-                    $(element).text(this.contentBuffer);
+                    $(element).html(this.contentBuffer);
                     $(element).slabText({
                         fontRatio: this.options.fontRatio,
                         maxFontSize: this.options.maxFontSize,
