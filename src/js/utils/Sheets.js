@@ -101,7 +101,7 @@
 								script.find('version').text(value.trim());
 								break;
 								case 'pulse':
-								temp = temp[1].split("/");
+								temp = value.split("/");
 								var element = $('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
 								if (temp.length > 2) {
 									element.attr("swing", temp[2]);
