@@ -35,7 +35,7 @@
                 var i;
                 pathData = {}
                 for (i=0; i<octaveCount; i++) {
-                    pathData[i] = path + "UIowaPiano/" + pitchClass + i + ".wav";
+                    pathData[i] = path + pitchClass + i + ".wav";
                 }
                 this.samplePaths[pitchClass] = pathData;
             },
