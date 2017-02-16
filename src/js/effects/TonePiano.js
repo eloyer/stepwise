@@ -15,6 +15,10 @@
 
     function TonePiano(instance, options) {
         $.fn.stepwise.effects.AbstractEffect.call(this, instance, options);
+        var localOptions = {
+            supportsGeneralMIDI: false
+        };
+        $.extend(this.options, localOptions);
         $.extend(this.options, options);
     	var reverb = new Tone.Freeverb(.7, 10000).toMaster();
         this.samplePaths = {};
@@ -26,6 +30,115 @@
         this.buildSamplePathsForPitchClass("Gb", this.options.pathToSamples, 6);
         this.piano = new Tone.PolySynth(48, Tone.Sampler, this.samplePaths).toMaster();
         this.piano.volume.value = 15;
+        this.supportedGeneralMIDIInstruments = [
+            "accordion",
+            "acousticbass",
+            "acousticgrandpiano",
+            "acousticguitarnylon",
+            "acousticguitarsteel",
+            "altosax",
+            "bagpipe",
+            "banjo",
+            "baritonesax",
+            "bassoon",
+            "blownbottle",
+            "brasssection",
+            "brightacousticpiano",
+            "celesta",
+            "cello",
+            "choiraahs",
+            "churchorgan",
+            "clarinet",
+            "clavinet",
+            "contrabass",
+            "distortionguitar",
+            "drawbarorgan",
+            "dulcimer",
+            "electricbassfinger",
+            "electricbasspick",
+            "electricgrandpiano",
+            "electricguitarclean",
+            "electricguitarjazz",
+            "electricguitarmuted",
+            "electricpiano1",
+            "electricpiano2",
+            "englishhorn",
+            "fiddle",
+            "flute",
+            "frenchhorn",
+            "fretlessbass",
+            "glockenspiel",
+            "guitarharmonics",
+            "harmonica",
+            "harpsichord",
+            "honkytonkpiano",
+            "kalimba",
+            "koto",
+            "lead1square",
+            "lead2sawtooth",
+            "lead3calliope",
+            "lead4chiff",
+            "lead5charang",
+            "lead6voice",
+            "lead7fifths",
+            "lead8basslead",
+            "marimba",
+            "musicbox",
+            "mutedtrumpet",
+            "oboe",
+            "ocarina",
+            "orchestrahit",
+            "orchestralharp",
+            "overdrivenguitar",
+            "pad1newage",
+            "pad2warm",
+            "pad3polysynth",
+            "pad4choir",
+            "pad5bowed",
+            "pad6metallic",
+            "pad7halo",
+            "pad8sweep",
+            "panflute",
+            "percussiveorgan",
+            "piccolo",
+            "pizzicatostrings",
+            "recorder",
+            "reedorgan",
+            "rockorgan",
+            "seashore",
+            "shakuhachi",
+            "shamisen",
+            "shanai",
+            "sitar",
+            "slapbass1",
+            "slapbass2",
+            "sopranosax",
+            "steeldrums",
+            "stringensemble1",
+            "stringensemble2",
+            "synthbass1",
+            "synthbass2",
+            "synthbrass1",
+            "synthbrass2",
+            "synthchoir",
+            "synthstrings1",
+            "synthstrings2",
+            "tangoaccordion",
+            "tenorsax",
+            "timpani",
+            "tinklebell",
+            "tremolostrings",
+            "trombone",
+            "trumpet",
+            "tuba",
+            "tubularbells",
+            "vibraphone",
+            "viola",
+            "violin",
+            "voiceoohs",
+            "whistle",
+            "xylophone"
+        ];
    }
 
     TonePiano.prototype = Object.create($.fn.stepwise.effects.AbstractEffect.prototype, {
@@ -48,7 +161,13 @@
             value: function(step) {
             	if (step.target.id != null) {
             		var str = step.target.id.toLowerCase();
-            		return (str == "piano");
+                    if (str == "piano") {
+                        return true;
+                    } else if (this.options.supportsGeneralMIDI && (this.supportedGeneralMIDIInstruments.indexOf(str) != -1)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
             	}
             	return false;
             },
