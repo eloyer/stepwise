@@ -373,6 +373,7 @@
 	Score.prototype.parseStory = function(data, dataType, delimiter) {
 
 		var me = this;
+		this.xmlData = null;
 				
 		if (data != null) {
 
@@ -389,6 +390,7 @@
 				this.sequencesById[sequence.id] = sequence;
 
 			} else {
+				this.xmlData = data;
 				data.find("sequence").each(function() {
 					sequence = new Sequence($(this), "xml", me);
 					if (sequence.id == null) {
