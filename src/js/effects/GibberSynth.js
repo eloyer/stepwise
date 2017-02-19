@@ -14,6 +14,10 @@
 
     function GibberSynth(instance, options) {
     	$.fn.stepwise.effects.AbstractEffect.call(this, instance, options);
+        var localOptions = {
+            instrumentsToIgnore: []
+        };
+        $.extend(this.options, localOptions);
         $.extend(this.options, options);
         if (!window.gibberHasBeenInitialized) {
 			Gibber.init();
@@ -348,7 +352,7 @@
 						break;
 
 					}
-					this.playNoteWithInstrument(step.content, instrumentName, amplitude);
+					this.playNoteWithInstrument(this.transposeNoteNameByOctaves(step.content, 1), instrumentName, amplitude);
 				}
             },
             enumerable: true,
@@ -371,19 +375,36 @@
 			}
 		},
 
+		transposeNoteNameByOctaves: {
+			value: function(noteName, octaves) {
+				var octavePortionLength;
+				if (noteName.length == 4) {
+					octavePortionLength = 2;
+				} else {
+					octavePortionLength = 1;
+				}
+				var name = noteName.substring(0, noteName.length - octavePortionLength);
+				var octave = parseInt(noteName.substring(name.length));
+				octave += octaves;
+				return name + octave;
+			}
+		},
+
 	    getInstrumentNameForStep: {
 	    	value: function(step) {
 		    	if (step.target.id != null) {
 		    		var str = step.target.id.toLowerCase();
-		    		if (this.generalMIDIFamilyToGibberInstrumentMap[str] != null) {
-						return this.generalMIDIFamilyToGibberInstrumentMap[str];
-					} else if (this.generalMIDIInstrumentToFamilyMap[str] != null) {
-						return this.generalMIDIFamilyToGibberInstrumentMap[this.generalMIDIInstrumentToFamilyMap[str]];
-		    		} else if (this.gibberInstruments.indexOf(str) != -1) {
-		    			return str;
-					} else {
-						return null;
-					}
+		    		if (this.options.instrumentsToIgnore.indexOf(str) == -1) {
+			    		if (this.generalMIDIFamilyToGibberInstrumentMap[str] != null) {
+							return this.generalMIDIFamilyToGibberInstrumentMap[str];
+						} else if (this.generalMIDIInstrumentToFamilyMap[str] != null) {
+							return this.generalMIDIFamilyToGibberInstrumentMap[this.generalMIDIInstrumentToFamilyMap[str]];
+			    		} else if (this.gibberInstruments.indexOf(str) != -1) {
+			    			return str;
+						} else {
+							return null;
+						}
+		    		}
 		    	}
 		    	return null;
 		    }  
