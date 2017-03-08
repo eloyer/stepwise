@@ -1002,6 +1002,7 @@
 			case "think":
 			case "sing":
 			this.target = this.parentScore.getItemForId("character", this.data.attr("character"));
+			this.target.setVisibilityForStep(this);
 			break;
 			
 			case "setlocation":
@@ -1055,7 +1056,19 @@
 		this.firstName = data.attr("firstname");
 		this.lastName = data.attr("lastname");
 		this.fullName = this.firstName + (((this.lastName == "") || (this.lastName == null)) ? "" : " " + this.lastName);
-		this.visible = ((data.attr("visible") == "true") || (data.attr("visible") == null)) ? true : false;	
+		this.visible = (data.attr("visible") == "true") ? true : false;	
+	}
+
+	Character.prototype.setVisibilityForStep = function(step) {
+		if (this.data.attr("visible") != "false") {
+			switch (step.command) {
+				case "speak":
+				case "think":
+				case "sing":
+				this.visible = true;
+				break;
+			}
+		}
 	}
 	
 	function Location(data, score) {	
