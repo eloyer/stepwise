@@ -34,6 +34,9 @@
                 if ((step.target != null) && (step.target.visible != null)) {
                     okToDisplay = step.target.visible;
                 }
+                if (processedContent == null) {
+                    okToDisplay = false;
+                }
                 if (okToDisplay) {
                     if (!step.append && !this.options.appendOnly) {
                         this.contentBuffer = "";

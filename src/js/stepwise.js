@@ -1184,7 +1184,7 @@
         var text = step.content;
         if (this.options.useCharacterNames && (this.visibleCharacterCount > 1)) {
             var currentCharacter = step.target;
-            if (currentCharacter.visible) {
+            if (currentCharacter.visible && (text.trim() != '')) {
                 var isNewCharacter = (currentCharacter != this.lastCharacter);
                 if (isNewCharacter) {
                     switch (step.command) {
@@ -1201,6 +1201,8 @@
                     }
                     this.lastCharacter = currentCharacter;
                 }
+            } else {
+            	return null;
             }
         }
         if (this.options.createBreakTags) {
@@ -1307,6 +1309,9 @@
     	if (step.target != null) {
     		okToDisplay = step.target.visible;
     	}
+        if (processedContent == null) {
+            okToDisplay = false;
+        }
     	if (okToDisplay) {
 	    	if (!step.append) {
 	    		$(element).empty();
