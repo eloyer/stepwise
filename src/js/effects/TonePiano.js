@@ -16,18 +16,21 @@
     function TonePiano(instance, options) {
         $.fn.stepwise.effects.AbstractEffect.call(this, instance, options);
         var localOptions = {
-            supportsGeneralMIDI: false
+            supportsGeneralMIDI: false,
+            sampleCount: 1 // number of sample pitch classes to use for interpolation
         };
         $.extend(this.options, localOptions);
         $.extend(this.options, options);
     	var reverb = new Tone.Freeverb(.7, 10000).toMaster();
         this.samplePaths = {};
+        this.samplePitchClasses = ["C", "Gb", "A", "Eb"];
     	this.pitchClassNumbers = { "C":0, "C#":1, "Db":1, "D":2, "D#":3, "Eb":3, "E":4, "F":5, "F#":6, "Gb":6, "G":7, "G#":8, "Ab":8, "A":9, "A#":10, "Bb":10, "B":11 };
-    	this.samplePitchClasses = [ "A", "C", "Eb", "Gb" ];
-        this.buildSamplePathsForPitchClass("A", this.options.pathToSamples, 7);
-        this.buildSamplePathsForPitchClass("C", this.options.pathToSamples, 8);
-        this.buildSamplePathsForPitchClass("Eb", this.options.pathToSamples, 7);
-        this.buildSamplePathsForPitchClass("Gb", this.options.pathToSamples, 6);
+        this.pitchClassSampleOctaveCounts = {"A":7, "C":8, "Eb":7, "Gb":6};
+        var i;
+        var n = Math.min(this.options.sampleCount, this.samplePitchClasses.length);
+        for (i=0; i<n; i++) {
+            this.buildSamplePathsForPitchClass(this.samplePitchClasses[i], this.options.pathToSamples, this.pitchClassSampleOctaveCounts[this.samplePitchClasses[i]]);
+        }
         this.piano = new Tone.PolySynth(48, Tone.Sampler, this.samplePaths).toMaster();
         this.piano.volume.value = 15;
         this.supportedGeneralMIDIInstruments = [
@@ -209,7 +212,7 @@
             value:  function(pitchClass) {
             	var i, pitchDistance, invertedPitchDistance,
             		data = { pitchClass: null, distance: 999 },
-            		n = this.samplePitchClasses.length;
+            		n = Math.min(this.options.sampleCount, this.samplePitchClasses.length);
             	for (i=0; i<n; i++) {
             		pitchDistance = this.pitchClassNumbers[pitchClass] - this.pitchClassNumbers[this.samplePitchClasses[i]];
             		if (pitchDistance > 0) {
