@@ -1180,6 +1180,19 @@
         return count;
     }
 
+    AbstractEffect.prototype.getVisibleCharacters = function() {
+        var character,
+        	characters = []
+        var i, n = this.instance.score.characters.length;
+        for (i=0; i<n; i++) {
+        	character = this.instance.score.characters[i];
+            if (character.visible) {
+                characters.push(character);
+            }
+        }
+        return characters;
+    }
+
     AbstractEffect.prototype.parseCharacterAction = function(step) {
         var text = step.content;
         if (this.options.useCharacterNames && (this.visibleCharacterCount > 1)) {
@@ -1229,6 +1242,10 @@
 
     AbstractEffect.prototype.bindToElement = function(element) {
         this.bindings.push({ character: "*", element: element });
+    }
+
+    AbstractEffect.prototype.removeAllBindings = function() {
+    	this.bindings = [];
     }
 
     AbstractEffect.prototype.bindCharacterToElement = function(characterId, element) {
