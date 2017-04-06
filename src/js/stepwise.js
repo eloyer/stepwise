@@ -194,6 +194,10 @@
 			}
 			break;
 
+			case "reset":
+			step.target.reset();
+			break;
+
 			case "sample":
 			step.target.nextStep();
 			break;
@@ -1011,11 +1015,16 @@
 			
 			case "setsequence":
 			case "sample":
+			case "reset":
 			this.target = this.parentScore.getItemForId("sequence", this.content);
 			break;
 
 			default:
-			this.target = { visible: false };
+			if (this.data.attr("character") != null) {
+				this.target = this.parentScore.getItemForId("character", this.data.attr("character"));
+			} else {
+				this.target = { visible: false };
+			}
 			break;
 		
 		}
@@ -1102,11 +1111,13 @@
             createBreakTags: true,
             includeTemporal: true,
             includeEnvironmental: true,
-            includeGeographic: true
+            includeGeographic: true,
+            ignoreFilenames: true
         };
         $.extend(this.options, options);
         this.bindings = [];
         this.displayStepHandlers = [];
+        this.fileExtensions = ['gif','jpg','png','mp3','wav','ogg'];
         this.lastCharacter = null;
     }
 
@@ -1126,7 +1137,9 @@
                     case "speak":
                     case "narrate":
                     case "think":
-                    me.displayStep(step, bindings[i].element, me.parseCharacterAction(step));
+                    if (!me.options.ignoreFilenames || (me.options.ignoreFilenames && !me.hasMediaFileExtension(step.content))) {
+                    	me.displayStep(step, bindings[i].element, me.parseCharacterAction(step));
+                    }
                     break;
 
                     case "setbackcolor":
@@ -1168,6 +1181,11 @@
 
 	    });
     }
+
+    AbstractEffect.prototype.hasMediaFileExtension = function(str) {
+    	temp = str.split('.');
+    	return (this.fileExtensions.indexOf(temp[temp.length - 1]) != -1);
+ 	}
 
     AbstractEffect.prototype.getVisibleCharacterCount = function() {
         var count = 0;

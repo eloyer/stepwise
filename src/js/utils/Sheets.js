@@ -203,6 +203,7 @@
 										}
 										break;
 										case 'command':
+										action.payload.attr("character", id);
 										actionsByCharacter[id].push(action.payload);
 										break;
 										case 'utterance':
@@ -314,8 +315,10 @@
 					action.type = 'config';
 					action.payload = config;
 					break;
+
 					case '$sample':
-					script = $('<sample>' + content + '</sample>');
+					case '$reset':
+					script = $('<' + command.substr(1) + '>' + content + '</' + command.substr(1) + '>');
 					action.type = 'command';
 					break;
 
@@ -329,12 +332,36 @@
 					action.type = 'command';
 					break;
 
-					/*
 					case '$setsequence':
-					script = $('<setsequence/>');
-					action.type = 'config';
+					temp = content.split(',');
+					content = temp[0]
+					script = $('<' + command.substr(1) + '>' + content + '</' + command.substr(1) + '>');
+					config = {
+						atdate: null,
+						autostart: false
+					};
+					$(temp).each(function() {
+						temp = this.trim().split(':');
+						param = temp.shift();
+						value = temp.join(':');
+						switch (param) {
+							case 'atdate':
+							config.atdate = value;
+							break;
+							case 'autostart':
+							config.autostart = true;
+							break;
+						}
+					});
+					if (config.autostart) {
+						script.attr('autostart', config.autostart);
+					}
+					if (config.atdate != null) {
+						script.attr('atdate', config.atdate);
+					}
+					action.type = 'command';
+					action.payload = config;
 					break;
-					*/
 
 					case '$sing':
 					case '$speak':
