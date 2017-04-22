@@ -1117,7 +1117,7 @@
         $.extend(this.options, options);
         this.bindings = [];
         this.displayStepHandlers = [];
-        this.fileExtensions = ['gif','jpg','png','mp3','wav','ogg'];
+        this.fileExtensions = ['gif','jpg','png','mp3','wav','ogg','mp4','m4a'];
         this.lastCharacter = null;
     }
 
@@ -1182,9 +1182,31 @@
 	    });
     }
 
+	AbstractEffect.prototype.basename = function(path, suffix) {
+		var b = path.replace(/^.*[\/\\]/g, '');
+		if ((typeof(suffix) == 'string') && (b.substr(b.length - suffix.length) == suffix)) {
+			b = b.substr(0, b.length - suffix.length);
+		}
+		return b;
+	}
+
     AbstractEffect.prototype.hasMediaFileExtension = function(str) {
-    	temp = str.split('.');
-    	return (this.fileExtensions.indexOf(temp[temp.length - 1]) != -1);
+		var array = str.split('?');
+		str = array[0];
+		array = str.split('#');
+		str = array[0]
+		var b = this.basename(str);
+		if (b.indexOf('.') == -1) {
+			return false;
+		}
+		ext = b.substr(b.indexOf('.') + 1);
+		if (ext == parseFloat(ext)) {
+			return false;
+		}
+		if (ext.charAt(ext.length - 1) == '#') {
+			ext = ext.substr(0, ext.length - 1);
+		}
+		return (this.fileExtensions.indexOf(ext) != -1);
  	}
 
     AbstractEffect.prototype.getVisibleCharacterCount = function() {
