@@ -162,7 +162,7 @@
     }
 	
 	Stepwise.prototype.nextStep = function() {
-		return this.score.nextStep();
+		return this.score.nextStep(true);
 	}  
 	
 	Stepwise.prototype.play = function() {
@@ -457,9 +457,17 @@
 		this.sequenceQueue = [];
 	}
 
-	Score.prototype.nextStep = function() {
+	Score.prototype.nextStep = function(setTriggerTime) {
 
 		var step = null;
+
+		if (setTriggerTime == null) {
+			setTriggerTime = false;
+		}
+
+		if (setTriggerTime) {
+			this.triggerTime = new Date().getTime();
+		}
 	
 		this.updateCurrentSequence();
 		 
@@ -902,6 +910,7 @@
 			this.tone = SpeechTone.NORMAL;
 			this.delay = 0;
 			this.substeps = [];
+			this.type = null;
 
 		} else {
 	
@@ -913,6 +922,7 @@
 				this.delay = parseFloat(data.attr("delay"));
 				this.duration = Math.max(this.duration, this.delay + 1);
 			}
+			this.type = data.attr("type");
 			/*if (data.attr("duration") != null) {
 				this.duration = this.parseDuration(data.attr("duration"));
 			}*/
@@ -1019,6 +1029,13 @@
 			this.target = this.parentScore.getItemForId("sequence", this.content);
 			break;
 
+			case "option":
+			this.target = this.parentScore.getItemForId("character", this.data.attr("character"));
+			if (this.type == "sequence") {
+				this.destination = this.parentScore.getItemForId("sequence", this.data.attr("destination"));
+			}
+			break;
+
 			default:
 			if (this.data.attr("character") != null) {
 				this.target = this.parentScore.getItemForId("character", this.data.attr("character"));
@@ -1074,6 +1091,7 @@
 				case "speak":
 				case "think":
 				case "sing":
+				case "option":
 				this.visible = true;
 				break;
 			}
@@ -1140,6 +1158,16 @@
                     if (!me.options.ignoreFilenames || (me.options.ignoreFilenames && !me.hasMediaFileExtension(step.content))) {
                     	me.displayStep(step, bindings[i].element, me.parseCharacterAction(step));
                     }
+                    break;
+
+                    case "option":
+                    var element = $('<a class="option" href="javascript:;">' + step.content + '</a>');
+                    element.data("step", step);
+                    element.click(function() {
+                    	stepwise.score.setSequence(step.target, step.atDate, step.autoStart);
+                    	$(this).data("step").execute();
+                    });
+                	me.displayStep(step, bindings[i].element, element);
                     break;
 
                     case "setbackcolor":

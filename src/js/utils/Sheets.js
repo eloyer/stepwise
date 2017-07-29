@@ -332,6 +332,37 @@
 					action.type = 'command';
 					break;
 
+					case '$option':
+					temp = content.split(',');
+					content = temp[0]
+					script = $('<' + command.substr(1) + '>' + content + '</' + command.substr(1) + '>');
+					config = {
+						type: null,
+						destination: null
+					};
+					$(temp).each(function() {
+						temp = this.trim().split(':');
+						param = temp.shift();
+						value = temp.join(':');
+						switch (param) {
+							case 'type':
+							config.type = value;
+							break;
+							case 'destination':
+							config.destination = value;
+							break;
+						}
+					});
+					if (config.type) {
+						script.attr('type', config.type);
+					}
+					if (config.destination != null) {
+						script.attr('destination', config.destination);
+					}
+					action.type = 'command';
+					action.payload = config;
+					break;
+
 					case '$setsequence':
 					temp = content.split(',');
 					content = temp[0]
