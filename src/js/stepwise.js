@@ -1031,8 +1031,16 @@
 
 			case "option":
 			this.target = this.parentScore.getItemForId("character", this.data.attr("character"));
-			if (this.type == "sequence") {
+			switch (this.type) {
+
+				case "sequence":
 				this.destination = this.parentScore.getItemForId("sequence", this.data.attr("destination"));
+				break;
+
+				case "url":
+				this.destination = this.data.attr("destination");
+				break;
+
 			}
 			break;
 
@@ -1164,8 +1172,11 @@
                     var element = $('<a class="option" href="javascript:;">' + step.content + '</a>');
                     element.data("step", step);
                     element.click(function() {
-                    	stepwise.score.setSequence(step.target, step.atDate, step.autoStart);
-                    	$(this).data("step").execute();
+						var step = $(this).data("step");
+						if (step.type == "sequence") {
+							step.parentScore.triggerTime = new Date().getTime()
+	                    	stepwise.score.setSequence(step.destination, step.atDate, step.autoStart);
+						}
                     });
                 	me.displayStep(step, bindings[i].element, element);
                     break;
