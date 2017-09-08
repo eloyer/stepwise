@@ -9,7 +9,8 @@
             keyInput: true,
             keyCodesToIgnore: [9, 16, 17, 18, 20, 27, 224, 91, 93],
             outputToElement: true,
-            tapInput: true
+            tapInput: true,
+            gamepadInput: true
         };
         
     $.fn[pluginName] = function (config) {
@@ -49,6 +50,9 @@
 	        $(this.element).bind("executeStep", this.handleExecuteStep);
 	        this._defaults = defaults;
 	        this._name = pluginName;
+	        this._haveGamepadEvents = 'ongamepadconnected' in window;
+	        this._controllers = {};
+	        this._pressedControllerButtons = [];
 	 		this.init();
      	}
     }
@@ -81,7 +85,96 @@
 				me.nextStep();
 			});   	
     	}
+    	if (this.options.gamepadInput) {
+
+		   var scanGamepads = function() {
+				var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
+				for (var i = 0; i < gamepads.length; i++) {
+					if (gamepads[i]) {
+						if (gamepads[i].index in me._controllers) {
+							me._controllers[gamepads[i].index] = gamepads[i];
+						} else {
+							me.addGamepad(gamepads[i]);
+						}
+					}
+				}
+			}
+
+    		window.addEventListener("gamepadconnected", this.gamepadConnectHandler);
+			window.addEventListener("gamepaddisconnected", this.gamepadDisconnectHandler);
+			if (!this._haveGamepadEvents) {
+				setInterval(scanGamepads, 500);
+			}
+    	}
     }
+
+    Stepwise.prototype.gamepadConnectHandler = function() {
+    	requestAnimationFrame(this.updateGamepadStatus);
+    }
+
+    Stepwise.prototype.gamepadDisconnectHandler = function(e) {
+    	this.removeGamepad(e.gamepad);
+    }
+
+	Stepwise.prototype.addGamepad = function(gamepad) {
+
+    	var me = this;
+
+	    function scanGamepads() {
+			var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
+			for (var i = 0; i < gamepads.length; i++) {
+				if (gamepads[i]) {
+					if (gamepads[i].index in me._controllers) {
+						me._controllers[gamepads[i].index] = gamepads[i];
+					} else {
+						me.addGamepad(gamepads[i]);
+					}
+				}
+			}
+		}
+
+	    function updateGamepadStatus() {
+
+			if (!me._haveGamepadEvents) {
+				scanGamepads();
+			}
+
+			var i = 0;
+			var j;
+			for (j in me._controllers) {
+				var controller = me._controllers[j];
+				for (i = 0; i < controller.buttons.length; i++) {
+					var val = controller.buttons[i];
+					var pressed = val == 1.0;
+					if (typeof(val) == "object") {
+						pressed = val.pressed;
+						val = val.value;
+					}
+					if (pressed) {
+						if (me._pressedControllerButtons.indexOf(i) == -1) {
+							console.log("pressed");
+							me.nextStep();
+							me._pressedControllerButtons.push(i);
+						}
+					} else {
+						var index = me._pressedControllerButtons.indexOf(i);
+						if (index != -1) {
+							me._pressedControllerButtons.splice(index, 1);
+						}
+					}
+				}
+			}
+
+			requestAnimationFrame(updateGamepadStatus);
+	    }
+
+		this._controllers[gamepad.index] = gamepad;
+		requestAnimationFrame(updateGamepadStatus);
+	}
+
+	Stepwise.prototype.removeGamepad = function(gamepad) {
+		delete this._controllers[gamepad.index];
+	}
     
     Stepwise.prototype.load = function(source, dataType) {
     
@@ -899,7 +992,6 @@
 	}
 		
 	function Step(data, dataType, score) {
-	
 		var me = this;
 		this.parentScore = score;
 		this.duration = 1;
