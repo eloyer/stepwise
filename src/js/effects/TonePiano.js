@@ -8,7 +8,7 @@
 (function($) {
 
     var extensionMethods = {
-	 	TonePiano: TonePiano
+        TonePiano: TonePiano
     };
 
     $.extend(true, $.fn.stepwise.effects, extensionMethods);
@@ -17,21 +17,22 @@
         $.fn.stepwise.effects.AbstractEffect.call(this, instance, options);
         var localOptions = {
             supportsGeneralMIDI: false,
-            sampleCount: 1 // number of sample pitch classes to use for interpolation
+            sampleCount: 1, // number of sample pitch classes to use for interpolation
+            fileExtension: "wav"
         };
         $.extend(this.options, localOptions);
         $.extend(this.options, options);
-    	var reverb = new Tone.Freeverb(.7, 10000).toMaster();
+        var reverb = new Tone.Freeverb(.7, 10000).toMaster();
         this.samplePaths = {};
         this.samplePitchClasses = ["C", "Gb", "A", "Eb"];
-    	this.pitchClassNumbers = { "C":0, "C#":1, "Db":1, "D":2, "D#":3, "Eb":3, "E":4, "F":5, "F#":6, "Gb":6, "G":7, "G#":8, "Ab":8, "A":9, "A#":10, "Bb":10, "B":11 };
+        this.pitchClassNumbers = { "C":0, "C#":1, "Db":1, "D":2, "D#":3, "Eb":3, "E":4, "F":5, "F#":6, "Gb":6, "G":7, "G#":8, "Ab":8, "A":9, "A#":10, "Bb":10, "B":11 };
         this.pitchClassSampleOctaveCounts = {"A":7, "C":8, "Eb":7, "Gb":6};
         var i;
         var n = Math.min(this.options.sampleCount, this.samplePitchClasses.length);
         for (i=0; i<n; i++) {
             this.buildSamplePathsForPitchClass(this.samplePitchClasses[i], this.options.pathToSamples, this.pitchClassSampleOctaveCounts[this.samplePitchClasses[i]]);
         }
-        this.piano = new Tone.PolySynth(48, Tone.Sampler, this.samplePaths).toMaster();
+        this.piano = new Tone.Sampler(this.samplePaths, {'baseUrl': this.options.pathToSamples, 'onload': function() { console.log('loaded'); }}).toMaster();
         this.piano.volume.value = 15;
         this.supportedGeneralMIDIInstruments = [
             "accordion",
@@ -149,11 +150,9 @@
         buildSamplePathsForPitchClass: {
             value: function(pitchClass, path, octaveCount) {
                 var i;
-                pathData = {}
                 for (i=0; i<octaveCount; i++) {
-                    pathData[i] = path + pitchClass + i + ".wav";
+                    this.samplePaths[pitchClass+i] = pitchClass + i + "." + this.options.fileExtension;
                 }
-                this.samplePaths[pitchClass] = pathData;
             },
             enumerable: true,
             configurable: true,
@@ -162,8 +161,8 @@
 
         stepTargetIsInstrument: {
             value: function(step) {
-            	if (step.target.id != null) {
-            		var str = step.target.id.toLowerCase();
+                if (step.target.id != null) {
+                    var str = step.target.id.toLowerCase();
                     if (str == "piano") {
                         return true;
                     } else if (this.options.supportsGeneralMIDI && (this.supportedGeneralMIDIInstruments.indexOf(str) != -1)) {
@@ -171,8 +170,8 @@
                     } else {
                         return false;
                     }
-            	}
-            	return false;
+                }
+                return false;
             },
             enumerable: true,
             configurable: true,
@@ -181,27 +180,27 @@
 
         noteNameToPitchedSampleName: {
             value: function(noteName) {
-        		var octavePortionLength, adjustedSamplePitchClass,
-        			data = {};
-        		if ( noteName.length == 4 ) {
-        			octavePortionLength = 2;
-        		} else {
-        			octavePortionLength = 1;
-        		}
-        		var pitchClass = noteName.substring( 0, noteName.length - octavePortionLength );
-        		var octave = parseInt( noteName.substring( noteName.length - octavePortionLength ) );
-        		//octave++;
-        		adjustedSamplePitchClass = this.pitchClassToAdjustedSamplePitchClass(pitchClass);
-        		if (Math.abs(this.pitchClassNumbers[pitchClass] - this.pitchClassNumbers[adjustedSamplePitchClass.pitchClass]) >  Math.abs(adjustedSamplePitchClass.distance)) {
-        			if (adjustedSamplePitchClass.distance < 0) {
-        				octave++;
-        			} else {
-        				octave--;
-        			}
-        		}
-        		data.sample = adjustedSamplePitchClass.pitchClass + "." + octave;
-        		data.pitch = adjustedSamplePitchClass.distance;
-        		return data;
+                var octavePortionLength, adjustedSamplePitchClass,
+                    data = {};
+                if ( noteName.length == 4 ) {
+                    octavePortionLength = 2;
+                } else {
+                    octavePortionLength = 1;
+                }
+                var pitchClass = noteName.substring( 0, noteName.length - octavePortionLength );
+                var octave = parseInt( noteName.substring( noteName.length - octavePortionLength ) );
+                //octave++;
+                adjustedSamplePitchClass = this.pitchClassToAdjustedSamplePitchClass(pitchClass);
+                if (Math.abs(this.pitchClassNumbers[pitchClass] - this.pitchClassNumbers[adjustedSamplePitchClass.pitchClass]) >  Math.abs(adjustedSamplePitchClass.distance)) {
+                    if (adjustedSamplePitchClass.distance < 0) {
+                        octave++;
+                    } else {
+                        octave--;
+                    }
+                }
+                data.sample = adjustedSamplePitchClass.pitchClass + "." + octave;
+                data.pitch = adjustedSamplePitchClass.distance;
+                return data;
             },
             enumerable: true,
             configurable: true,
@@ -210,27 +209,27 @@
 
         pitchClassToAdjustedSamplePitchClass: {
             value:  function(pitchClass) {
-            	var i, pitchDistance, invertedPitchDistance,
-            		data = { pitchClass: null, distance: 999 },
-            		n = Math.min(this.options.sampleCount, this.samplePitchClasses.length);
-            	for (i=0; i<n; i++) {
-            		pitchDistance = this.pitchClassNumbers[pitchClass] - this.pitchClassNumbers[this.samplePitchClasses[i]];
-            		if (pitchDistance > 0) {
-            			invertedPitchDistance = pitchDistance - 12;
-            		} else if (pitchDistance < 0) {
-            			invertedPitchDistance = pitchDistance + 12;
-            		} else {
-            			invertedPitchDistance = 0;
-            		}
-            		if (Math.abs(invertedPitchDistance) < Math.abs(pitchDistance)) {
-            			pitchDistance = invertedPitchDistance;
-            		}
-            		if (Math.abs(pitchDistance) < Math.abs(data.distance)) {
-            			data.pitchClass = this.samplePitchClasses[i];
-            			data.distance = pitchDistance;
-            		}
-            	}
-            	return data;
+                var i, pitchDistance, invertedPitchDistance,
+                    data = { pitchClass: null, distance: 999 },
+                    n = Math.min(this.options.sampleCount, this.samplePitchClasses.length);
+                for (i=0; i<n; i++) {
+                    pitchDistance = this.pitchClassNumbers[pitchClass] - this.pitchClassNumbers[this.samplePitchClasses[i]];
+                    if (pitchDistance > 0) {
+                        invertedPitchDistance = pitchDistance - 12;
+                    } else if (pitchDistance < 0) {
+                        invertedPitchDistance = pitchDistance + 12;
+                    } else {
+                        invertedPitchDistance = 0;
+                    }
+                    if (Math.abs(invertedPitchDistance) < Math.abs(pitchDistance)) {
+                        pitchDistance = invertedPitchDistance;
+                    }
+                    if (Math.abs(pitchDistance) < Math.abs(data.distance)) {
+                        data.pitchClass = this.samplePitchClasses[i];
+                        data.distance = pitchDistance;
+                    }
+                }
+                return data;
             },
             enumerable: true,
             configurable: true,
@@ -240,12 +239,6 @@
         displayStep: {
             value: function(step, element, processedContent) {
                 if ((this.stepTargetIsInstrument(step) || (step.command == "sing")) && (step.content != "")) { 
-                    var pitchedSampleName = this.noteNameToPitchedSampleName(step.content);
-                    var i,
-                        n = this.piano._freeVoices.length;
-                    for (i=0; i<n; i++) {
-                        this.piano._freeVoices[i].pitch = pitchedSampleName.pitch;
-                    }
                     var amplitude;
                     switch (step.tone) {
 
@@ -270,7 +263,7 @@
                         break;
 
                     }
-                    this.piano.triggerAttackRelease(pitchedSampleName.sample, "2", null, amplitude);
+                    this.piano.triggerAttackRelease(step.content, "2", null, amplitude);
                 }
             },
             enumerable: true,
