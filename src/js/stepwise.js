@@ -992,6 +992,7 @@
 	}
 		
 	function Step(data, dataType, score) {
+		
 		var me = this;
 		this.parentScore = score;
 		this.duration = 1;

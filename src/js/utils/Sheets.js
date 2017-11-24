@@ -10,7 +10,7 @@
     var extensionMethods = {
 
     	sequencesByCharacter: {},
-    	restrictedCharacterIds: ['metadata','pulse'],
+    	restrictedCharacterIds: ['metadata','pulse','comments','instructions'],
 
 	 	getXMLFromSheet: function(sheetId, success) {
 	 		var me = this;
@@ -176,7 +176,7 @@
 					id = this.getCharacterIdFromProperty(prop);
 					actionsByCharacter[id] = [];
 					if (entry[prop] != null) {
-						if (entry[prop].$t == ' ') {
+						if ((entry[prop].$t == ' ') || (entry[prop].$t == '')) {
 							actionsByCharacter[id].push($('<nothing character="'+id+'"/>'));
 						} else {
 							var subActions = entry[prop].$t.split("\n");
