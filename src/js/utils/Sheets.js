@@ -34,26 +34,32 @@
 				me.addMetadataFromEntry(script, entry[0]);
 				me.addCharactersFromEntry(script, entry[0]);
 				me.addActionsFromEntries(script, entry);
+				me.trimTrailingEmptySteps(script);
 				success(script[0]);
 			});
 		},
 
-		addCharactersFromEntry: function(script, entry) {
-			var i, id, character;
-			var characterIds = [];
-			for (i in entry) {
-				if (this.propertyIsColumnHeader(i)) {
-					id = this.getCharacterIdFromProperty(i);
-					if ((characterIds.indexOf(id) == -1) && !this.characterIdIsRestricted(id)) {
-						character = $('<character id="' + id + '" firstName="' + id + '"></character>');
-						if (!this.getCharacterVisibilityFromProperty(i)) {
-							character.attr("visible", "false");
+		trimTrailingEmptySteps: function(script) {
+			var me = this;
+			script.find('sequence').each(function() {
+				var children = $(this).children();
+				var element;
+				var i, n = children.length;
+				var indexOfFirstTrailingEmptyStep = -1;
+				for (i=0; i<n; i++) {
+					element = children.eq(i);
+					if (me.isStepEmpty(element)) {
+						if (indexOfFirstTrailingEmptyStep == -1) {
+							indexOfFirstTrailingEmptyStep = i;
 						}
-						script.append(character);
-						characterIds.push(id);
+					} else {
+						indexOfFirstTrailingEmptyStep = -1;
 					}
 				}
-			}
+				if (indexOfFirstTrailingEmptyStep != -1) {
+					children.slice(indexOfFirstTrailingEmptyStep).remove();
+				}
+			});
 		},
 
 		propertyIsColumnHeader: function(property) {
@@ -176,7 +182,9 @@
 					id = this.getCharacterIdFromProperty(prop);
 					actionsByCharacter[id] = [];
 					if (entry[prop] != null) {
-						if ((entry[prop].$t == ' ') || (entry[prop].$t == '')) {
+						if (entry[prop].$t == ' ') {
+							actionsByCharacter[id].push($('<nothing character="'+id+'" explicit="true"/>'));
+						} else if (entry[prop].$t == '') {
 							actionsByCharacter[id].push($('<nothing character="'+id+'"/>'));
 						} else {
 							var subActions = entry[prop].$t.split("\n");
@@ -427,6 +435,42 @@
 				return action;
 			}
 			return null;
+		},
+
+		isStepEmpty: function(step) {
+			var isEmpty = false;
+			var me = this;
+			if (step.is('nothing') && step.attr('explicit') != 'true') {
+				isEmpty = true;
+			} else if (step.is('group')) {
+				isEmpty = true;
+				var i, n = step.children().length;
+				for (i=0; i<n; i++) {
+					if (!me.isStepEmpty(step.children().eq(i))) {
+						isEmpty = false;
+						break;
+					}
+				}
+			}
+			return isEmpty;
+		},
+
+		addCharactersFromEntry: function(script, entry) {
+			var i, id, character;
+			var characterIds = [];
+			for (i in entry) {
+				if (this.propertyIsColumnHeader(i)) {
+					id = this.getCharacterIdFromProperty(i);
+					if ((characterIds.indexOf(id) == -1) && !this.characterIdIsRestricted(id)) {
+						character = $('<character id="' + id + '" firstName="' + id + '"></character>');
+						if (!this.getCharacterVisibilityFromProperty(i)) {
+							character.attr("visible", "false");
+						}
+						script.append(character);
+						characterIds.push(id);
+					}
+				}
+			}
 		},
 
 		parseTone: function(tone) {
