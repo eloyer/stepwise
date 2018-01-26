@@ -53,6 +53,7 @@
 	        this._haveGamepadEvents = 'ongamepadconnected' in window;
 	        this._controllers = {};
 	        this._pressedControllerButtons = [];
+	        this._isActive = true;
 	 		this.init();
      	}
     }
@@ -60,6 +61,12 @@
     Stepwise.prototype.init = function() {
     	this.setupInput();
     	this.load(this.options.source, this.options.dataType);
+    };
+ 
+    Stepwise.prototype.deactivate = function() {
+    	$(this.element).data('plugin_stepwise', null).unbind('executeStep');
+    	clearInterval(this._gamepadInterval);
+    	this._isActive = false;
     };
 
     Stepwise.prototype.setupInput = function() {
@@ -103,13 +110,13 @@
     		window.addEventListener("gamepadconnected", this.gamepadConnectHandler);
 			window.addEventListener("gamepaddisconnected", this.gamepadDisconnectHandler);
 			if (!this._haveGamepadEvents) {
-				setInterval(scanGamepads, 500);
+				this._gamepadInterval = setInterval(scanGamepads, 500);
 			}
     	}
     }
 
     Stepwise.prototype.gamepadConnectHandler = function() {
-    	requestAnimationFrame(this.updateGamepadStatus);
+    	// nothing
     }
 
     Stepwise.prototype.gamepadDisconnectHandler = function(e) {
@@ -152,7 +159,6 @@
 					}
 					if (pressed) {
 						if (me._pressedControllerButtons.indexOf(i) == -1) {
-							console.log("pressed");
 							me.nextStep();
 							me._pressedControllerButtons.push(i);
 						}
@@ -165,7 +171,9 @@
 				}
 			}
 
-			requestAnimationFrame(updateGamepadStatus);
+			if (me._isActive) {
+				requestAnimationFrame(updateGamepadStatus);
+			}
 	    }
 
 		this._controllers[gamepad.index] = gamepad;
@@ -1338,6 +1346,7 @@
 		if (ext.charAt(ext.length - 1) == '#') {
 			ext = ext.substr(0, ext.length - 1);
 		}
+		ext = ext.toLowerCase();
 		return (this.fileExtensions.indexOf(ext) != -1);
  	}
 
