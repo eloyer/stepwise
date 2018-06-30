@@ -53,7 +53,7 @@ Stepwise content is delivered in [Stepwise XML](https://github.com/eloyer/stepwi
 [View demo on CodePen](http://codepen.io/eloyer/pen/KzBbMW)
 
 ## Where can I use Stepwise?
-Currently the library includes both a jQuery plugin and a Unity client (though the Unity client is currently far behind the plugin). The development of additional clients is welcomed and encouraged.
+Currently the library includes both a jQuery plugin and a Unity client. The development of additional clients is welcomed and encouraged.
 
 ## How can I learn more?
 Explore these links from the wiki:
