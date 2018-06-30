@@ -1,10 +1,10 @@
 # =============== #
 # Unity generated #
 # =============== #
-[Tt]emp/
-[Oo]bj/
-[Bb]uild
-/[Ll]ibrary/
+demos/Unity/Stepwise/[Tt]emp/
+demos/Unity/Stepwise/[Oo]bj/
+demos/Unity/Stepwise/[Bb]uild
+demos/Unity/Stepwise/[Ll]ibrary/
 sysinfo.txt
 *.stackdump
 # ============================================= #
@@ -12,15 +12,15 @@ sysinfo.txt
 # ============================================= #
 [Ee]xported[Oo]bj/
 .vs/
-/*.userprefs
-/*.csproj
-/*.pidb
-/*.suo
-/*.sln*
-/*.user
-/*.unityproj
-/*.booproj
-/.idea*/
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln*
+*.user
+*.unityproj
+*.booproj
+.idea*/
 # ============ #
 # OS generated #
 # ============ #
@@ -35,3 +35,4 @@ ehthumbs.db
 # Project specific #
 # ============ #
 src/js/effects/samples/*
+resources/*

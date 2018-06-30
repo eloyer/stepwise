@@ -7,7 +7,7 @@ using System.Text;
 using System.Xml;
 
 namespace Opertoon.Stepwise {
-	public class Sequence {
+	public class Sequence /*: MonoBehaviour*/ {
 
 		public string id;
 		public bool shuffle = false;
@@ -21,6 +21,7 @@ namespace Opertoon.Stepwise {
 		public List<int> usedIndexes;
 		public Score parentScore;
 		public float percentCompleted = 0f;
+		public string grouping;
 
 		public Sequence( string text, Score score ) {
 
@@ -56,6 +57,7 @@ namespace Opertoon.Stepwise {
 			XmlNode attr;
 			XmlNodeList elements;
 			Step step;
+			usedIndexes = new List<int>();
 
 			parentScore = score;
 
@@ -79,16 +81,63 @@ namespace Opertoon.Stepwise {
 				}
 			}
 
-			usedIndexes = new List<int>();
+			XmlNode grouping = xml.Attributes.GetNamedItem("grouping");
 
-			elements = xml.ChildNodes;
-			n = elements.Count;
-			steps = new List<Step>();
-			for ( i = 0; i < n; i++ ) {
-				step = new Step( ( XmlElement ) elements[ i ], parentScore );
-				steps.Add ( step );
+			if (grouping != null) {
+				XmlElement stepData;
+				XmlDocument doc = xml.OwnerDocument;
+				XmlAttribute attribute;
+				string groupingInstruction;
+				int stepIndex = 0;
+				int groupingStepIndex = 0;
+				List<XmlElement> groupedData = new List<XmlElement>();
+				XmlElement group = doc.CreateElement("group");
+				XmlNodeList childSteps = xml.ChildNodes;
+				int stepCount = childSteps.Count;
+				while (stepIndex < stepCount) {
+					groupingInstruction = grouping.ChildNodes[groupingStepIndex].ToString().ToLower();
+					switch (groupingInstruction) {
+					case "x":
+					case "&":
+						stepData = (XmlElement)childSteps[stepIndex].Clone();
+						if (groupingStepIndex > 0) {
+							attribute = doc.CreateAttribute("delay");
+							attribute.Value = groupingStepIndex.ToString();
+							stepData.Attributes.Append(attribute);
+						}
+						if (groupingInstruction == "&") {
+							attribute = doc.CreateAttribute("append");
+							attribute.Value = "true";
+							n = stepData.ChildNodes.Count;
+							for (i=0; i<n; i++) {
+								stepData.ChildNodes[n].Attributes.Append(attribute);
+							}
+						}
+						group.AppendChild(stepData);
+						stepIndex++;
+						break;
+					}
+					groupingStepIndex++;
+					if (groupingStepIndex == grouping.ChildNodes.Count || stepIndex == stepCount) {
+						groupingStepIndex = 0;
+						groupedData.Add(group);
+						group = doc.CreateElement("group");
+					}
+				}
+				n = groupedData.Count;
+				for (i=0; i<n; i++) {
+					step = new Step(groupedData[i], parentScore);
+					steps.Add(step);
+				}
+			} else {
+				elements = xml.ChildNodes;
+				n = elements.Count;
+				steps = new List<Step>();
+				for ( i = 0; i < n; i++ ) {
+					step = new Step((XmlElement)elements[i], parentScore);
+					steps.Add(step);
+				}				
 			}
-
 		}
 
 		public void Init() {
@@ -182,25 +231,29 @@ namespace Opertoon.Stepwise {
 
 						// shuffled playback
 					} else {
-						//Debug.Log( "this is a shuffled sequence" );
-						do {
-							stepIndex = ( int ) Mathf.Floor( UnityEngine.Random.value * steps.Count );
-						} while ( usedIndexes.IndexOf( stepIndex ) != -1 );
-						usedIndexes.Add( stepIndex );
-						if ( usedIndexes.Count >= steps.Count ) {
-							//Debug.Log( "used up all of the steps; starting over" );
-							usedIndexes.Clear();
+						if (steps.Count > 1) {
+							//Debug.Log( "this is a shuffled sequence" );
+							do {
+								stepIndex = ( int ) Mathf.Floor( UnityEngine.Random.value * steps.Count );
+							} while ( usedIndexes.IndexOf( stepIndex ) != -1 );
 							usedIndexes.Add( stepIndex );
-						}
-						completions++;
-						isCompleted = true;
-						if (( count != -1 ) && ( completions >= count )) {
-							//Debug.Log( "the count has been exhausted" );
-							isExhausted = true;
-						}
-						result = steps[ stepIndex ].Execute(); 
+							if ( usedIndexes.Count >= steps.Count ) {
+								//Debug.Log( "used up all of the steps; starting over" );
+								usedIndexes.Clear();
+								usedIndexes.Add( stepIndex );
+							}
+							completions++;
+							isCompleted = true;
+							if (( count != -1 ) && ( completions >= count )) {
+								//Debug.Log( "the count has been exhausted" );
+								isExhausted = true;
+							}
+							result = steps[ stepIndex ].Execute(); 
 
-						// TODO: Implement percentCompleted for shuffle memory (see Strange Rain source)
+							// TODO: Implement percentCompleted for shuffle memory (see Strange Rain source)
+						} else {
+							result = steps[0].Execute();
+						}
 					}
 					
 				}

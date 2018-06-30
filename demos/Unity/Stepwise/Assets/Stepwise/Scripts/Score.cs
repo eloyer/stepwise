@@ -28,7 +28,18 @@ namespace Opertoon.Stepwise {
 		public TemperatureUnits currentTemperatureUnits;
 		public WeatherConditions currentWeather;
 		public DateTime currentDate;
+		public Color backColor;
+		public Color midColor;
+		public Color foreColor;
 		public string type;
+		public float timeScale;
+		public float beatsPerMinute;
+		public float pulsesPerBeat;
+		public float durationPerBeat;
+		public float swing;
+		public float pulse;
+		public float triggerTime;
+		public Conductor parentConductor;
 
 		public Score() {
 			SetDefaults();
@@ -52,6 +63,11 @@ namespace Opertoon.Stepwise {
 
 			version = 1;
 			type = "basic";
+			timeScale = 1;
+			beatsPerMinute = 120;
+			pulsesPerBeat = 4;
+			durationPerBeat = 4;
+			swing = 1;
 			
 			sequenceQueue = new List<Sequence>();
 			
@@ -65,7 +81,15 @@ namespace Opertoon.Stepwise {
 			currentWeather = WeatherConditions.CLEAR;
 			
 			currentDate = DateTime.Now;
+
+			backColor = Color.white;
+			midColor = Color.gray;
+			foreColor = Color.black;
 			
+		}
+
+		public void SetConductor(Conductor conductor) {
+			parentConductor = conductor;
 		}
 
 		public void ParseMetadata( string text ) {
@@ -160,6 +184,23 @@ namespace Opertoon.Stepwise {
 				if ( elements.Count > 0 ) {
 					type = elements[ 0 ].InnerText;
 				}
+					
+				elements = xml.GetElementsByTagName( "pulse" );
+				if ( elements.Count > 0 ) {
+					if ( elements[ 0 ].Attributes.GetNamedItem( "beatsperminute" ) != null ) {
+						beatsPerMinute = float.Parse( elements[ 0 ].Attributes.GetNamedItem( "beatsperminute" ).InnerXml );
+					}
+					if ( elements[ 0 ].Attributes.GetNamedItem( "pulsesperbeat" ) != null ) {
+						pulsesPerBeat = float.Parse( elements[ 0 ].Attributes.GetNamedItem( "pulsesperbeat" ).InnerXml );
+					}
+					if ( elements[ 0 ].Attributes.GetNamedItem( "durationperbeat" ) != null ) {
+						durationPerBeat = float.Parse( elements[ 0 ].Attributes.GetNamedItem( "durationperbeat" ).InnerXml );
+					}
+					if ( elements[ 0 ].Attributes.GetNamedItem( "swing" ) != null ) {
+						swing = float.Parse( elements[ 0 ].Attributes.GetNamedItem( "swing" ).InnerXml );
+					}
+					pulse = ((60 * 1000) / beatsPerMinute) / pulsesPerBeat;
+				}
 			}
 		}
 
@@ -249,9 +290,13 @@ namespace Opertoon.Stepwise {
 			sequenceQueue.Clear();
 		}    
 
-		public Step NextStep() {
+		public Step NextStep(bool setTriggerTime = false) {
 
 			Step step = null;
+
+			if (setTriggerTime) {
+				triggerTime = Time.time;
+			}
 
 			UpdateCurrentSequence();
 
@@ -367,6 +412,46 @@ namespace Opertoon.Stepwise {
 				
 			}
 
+		}
+
+		public List<Character> GetVisibleCharacters() {
+			Character character;
+			List<Character> visibleCharacters = new List<Character>();
+			int n = characters.Length;
+			for (int i = 0; i < n; i++) {
+				character = characters[i];
+				if (character.visible) {
+					visibleCharacters.Add(character);
+				}
+			}
+			return visibleCharacters;
+		}
+
+		/**
+		 * Given a color, makes it the current background color.
+		 *
+		 * @param color		The new background color.
+		 */
+		public void SetBackColor(Color color) {
+			backColor = color;
+		}
+
+		/**
+		 * Given a color, makes it the current foreground color.
+		 *
+		 * @param color		The new foreground color.
+		 */
+		public void SetForeColor(Color color) {
+			backColor = color;
+		}
+
+		/**
+		 * Given a color, makes it the current medium ground color.
+		 *
+		 * @param color		The new medium ground color.
+		 */
+		public void SetMidColor(Color color) {
+			backColor = color;
 		}
 
 		/**

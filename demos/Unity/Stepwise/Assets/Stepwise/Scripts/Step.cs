@@ -6,9 +6,13 @@ using System.Text;
 using System.Xml;
 
 namespace Opertoon.Stepwise {
+
+	[Serializable]
 	public class Step {
 		
 		public string id;
+		public Score parentScore;
+		public string type;
 		public XmlNode data;
 		public string command;
 		public string itemRef;
@@ -22,8 +26,9 @@ namespace Opertoon.Stepwise {
 		public WeatherConditions weather;
 		public float delay;
 		public List<Step> substeps;
-		public Score parentScore;
 		public bool isSubstep;
+		public bool append;
+		public object destination;
 		
 		[HideInInspector]
 		public delegate void StepExecuted( Step step );
@@ -55,9 +60,16 @@ namespace Opertoon.Stepwise {
 			if ( data.Attributes.GetNamedItem( "itemRef" ) != null ) {
 				itemRef = data.Attributes.GetNamedItem( "itemRef" ).InnerXml;
 			}
+			if ( data.Attributes.GetNamedItem( "append" ) != null ) {
+				append = data.Attributes.GetNamedItem( "append" ).InnerXml == "true" ? true : false;
+			}
 			if ( data.Attributes.GetNamedItem( "delay" ) != null ) {
 				delay = float.Parse( data.Attributes.GetNamedItem( "delay" ).InnerXml ) * .001f;
 			}
+			if ( data.Attributes.GetNamedItem( "type" ) != null ) {
+				type = data.Attributes.GetNamedItem( "type" ).InnerXml;
+			}
+
 			content = data.InnerText;
 			parentScore = score;
 
@@ -80,8 +92,11 @@ namespace Opertoon.Stepwise {
 			switch ( command ) {
 				
 			case "speak":
+			case "sing":
 				if ( data.Attributes.GetNamedItem( "tone" ) != null ) {
 					tone = (SpeechTone) System.Enum.Parse ( typeof(SpeechTone), data.Attributes.GetNamedItem( "tone" ).InnerXml.ToUpper() );
+				} else {
+					tone = SpeechTone.NORMAL;
 				}
 				break;
 				
@@ -126,10 +141,16 @@ namespace Opertoon.Stepwise {
 			isSubstep = substep;
 			
 			switch ( command ) {
+
+			case "narrate":
+				target = new Character(); // perhaps this should be changed to actual narrator character?
+				break;
 				
 			case "speak":
 			case "think":
+			case "sing":
 				target = parentScore.GetItemForId( "character", data.Attributes.GetNamedItem( "character" ).InnerXml );
+				(target as Character).SetVisibilityForStep(this);
 				break;
 				
 			case "setlocation":
@@ -137,9 +158,33 @@ namespace Opertoon.Stepwise {
 				break;
 
 			case "setsequence":
+			case "sample":
+			case "reset":
 				target = parentScore.GetItemForId( "sequence", content );
 				break;
-				
+
+			case "option":
+				target = parentScore.GetItemForId( "character", data.Attributes.GetNamedItem( "character" ).InnerXml);
+				switch (type) {
+
+				case "sequence":
+					destination = parentScore.GetItemForId( "sequence", data.Attributes.GetNamedItem( "destination" ).InnerXml);
+					break;
+
+				case "url":
+					destination = data.Attributes.GetNamedItem( "destination" ).InnerXml;
+					break;
+
+				}
+				break;
+
+			default:
+				if ( data.Attributes.GetNamedItem( "character" ) != null ) {
+					target = parentScore.GetItemForId( "character", data.Attributes.GetNamedItem( "character" ).InnerXml);
+				} else {
+					target = new Character();
+				}
+				break;
 			}
 			
 			n = substeps.Count;
@@ -150,7 +195,11 @@ namespace Opertoon.Stepwise {
 		}
 
 		public Step Execute() {
-			HandleStepExecuted( this );  
+			if (delay == 0) {
+				HandleStepExecuted( this ); 
+			} else {
+				parentScore.parentConductor.ScheduleDelayedStep(this, (delay * parentScore.pulse * (1.0f / (parentScore.timeScale + .0001f))));
+			}
 			return this;
 		}
 		
@@ -161,14 +210,9 @@ namespace Opertoon.Stepwise {
 		} 
 
 		public void ExecuteSubsteps() {
-
-			int i;
 			int n = substeps.Count;
-			Step step;
-
-			for ( i = 0; i < n; i++ ) {
-				step = substeps[ i ];
-				step.Execute();
+			for (int i = 0; i < n; i++) {
+				substeps[i].Execute();
 			}
 		}
 	}
