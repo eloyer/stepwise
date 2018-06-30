@@ -59,9 +59,7 @@ Currently the library includes both a jQuery plugin and a Unity client. The deve
 Explore these links from the wiki:
 
 - [Getting started with the Stepwise jQuery plugin](https://github.com/eloyer/stepwise/wiki/Getting-started-with-the-Stepwise-jQuery-plugin)
-- [Loading content](https://github.com/eloyer/stepwise/wiki/Loading-content)
-- [Creating Stepwise content in Google Sheets](https://github.com/eloyer/stepwise/wiki/Creating-Stepwise-content-in-Google-Sheets)
-- [Working with output](https://github.com/eloyer/stepwise/wiki/Working-with-output)
+- [Getting started with Stepwise for Unity](https://github.com/eloyer/stepwise/wiki/Getting-started-with-Stepwise-for-Unity)
 - [Stepwise XML Reference](https://github.com/eloyer/stepwise/wiki/Stepwise-XML-Reference)
 
 ## License
