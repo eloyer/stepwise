@@ -579,7 +579,7 @@
 
 		var me = this;
 		if (this.isPlaying) {
-			this.timeout = setTimeout(function() { me.nextStep(); }, (this.pulse * step.duration * this.swing * (1.0 / (this.timeScale + .0001))));
+			this.timeout = setTimeout(function() { me.nextStep(); }, (this.pulse * this.swing * (1.0 / (this.timeScale + .0001))));
 		}
 		
 		return step;
@@ -1003,7 +1003,6 @@
 		
 		var me = this;
 		this.parentScore = score;
-		this.duration = 1;
 
 		if (dataType != "xml") {
 			this.command = "narrate";
@@ -1021,12 +1020,8 @@
 			this.append = (data.attr("append") == "true") ? true : false;
 			if (data.attr("delay") != null) {
 				this.delay = parseFloat(data.attr("delay"));
-				this.duration = Math.max(this.duration, this.delay + 1);
 			}
 			this.type = data.attr("type");
-			/*if (data.attr("duration") != null) {
-				this.duration = this.parseDuration(data.attr("duration"));
-			}*/
 
 			this.content = data.text();
 			this.substeps = [];
@@ -1035,7 +1030,6 @@
 			data.children().each(function() {
 				var step = new Step($(this), "xml", me.parentScore);
 				me.substeps.push(step);
-				me.duration = Math.max(me.duration, step.duration);
 			});
 
 		}
@@ -1058,7 +1052,7 @@
     		break;
 			
 			case "setweather":
-			this.weather = WeatherConditions[this.content != null ? this.content.toUpperCase() : WeatherConditions.SUNNY]; 
+			this.weather = WeatherConditions[this.content != null ? this.content.toUpperCase() : WeatherConditions.CLEAR]; 
 			break;
 
 			case "setdate":
@@ -1073,30 +1067,6 @@
 		
 		}
 
-	}
-
-	Step.prototype.parseDuration = function(durationString) {
-		var duration = 1;
-		var fractionMatch = /([\d]+[^\/.]*)*/g;
-		var fractionResults = fractionMatch.exec(durationString);
-		if (fractionResults != null) {
-			var tuplet;
-			var fraction = parseInt(fractionResults[0]);
-			var tupletMatch = /\/[^.]+/g;
-			var tupletResults = tupletMatch.exec(durationString);
-			if (tupletResults != null) {
-				tuplet = parseInt(tupletResults[0].substr(1));
-			}
-			var hasDot = durationString[durationString.length-1] == '.';
-			var duration = this.parentScore.durationPerBeat / float(fraction);
-			if (tuplet != null) {
-				duration *= .667;
-			}
-			if (hasDot) {
-				duration *= 1.5;
-			}
-		}
-		return duration;
 	}
 	
 	Step.prototype.init = function(substep) {
@@ -1167,10 +1137,9 @@
 		if (this.delay == null) {
 			$(this.parentScore.element).trigger("executeStep", this);
 		} else {
-			var millisecondsToNextPulse = new Date().getMilliseconds() % this.parentScore.pulse;
 			setTimeout(function() {
 				$(me.parentScore.element).trigger("executeStep", me);
-			}, /*millisecondsToNextPulse +*/ me.delay * me.parentScore.pulse * (1.0 / (me.parentScore.timeScale + .0001)));
+			}, me.delay * me.parentScore.pulse * (1.0 / (me.parentScore.timeScale + .0001)));
 		}
 		return this;
 	}
@@ -1244,7 +1213,7 @@
         $.extend(this.options, options);
         this.bindings = [];
         this.displayStepHandlers = [];
-        this.fileExtensions = ['gif','jpg','png','mp3','wav','ogg','mp4','m4a'];
+        this.fileExtensions = ['gif','jpg','png','mp3','wav','ogg','mp4','m4a','m4v','obj'];
         this.lastCharacter = null;
     }
 
@@ -1339,14 +1308,14 @@
 		if (b.indexOf('.') == -1) {
 			return false;
 		}
-		ext = b.substr(b.indexOf('.') + 1);
+		var temp = b.split('.');
+		ext = temp[temp.length - 1];
 		if (ext == parseFloat(ext)) {
 			return false;
 		}
 		if (ext.charAt(ext.length - 1) == '#') {
 			ext = ext.substr(0, ext.length - 1);
 		}
-		ext = ext.toLowerCase();
 		return (this.fileExtensions.indexOf(ext) != -1);
  	}
 
