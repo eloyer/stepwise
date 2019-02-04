@@ -29,11 +29,6 @@ namespace Opertoon.Stepwise {
 		public bool isSubstep;
 		public bool append;
 		public object destination;
-		
-		[HideInInspector]
-		public delegate void StepExecuted( Step step );
-		[HideInInspector]
-		public static event StepExecuted OnStepExecuted;
 
 		public Step( string text, Score score ) {
 
@@ -194,18 +189,12 @@ namespace Opertoon.Stepwise {
 
 		public Step Execute() {
 			if (delay == 0) {
-				HandleStepExecuted( this ); 
+				parentScore.parentConductor.HandleStepExecuted (this);
 			} else {
 				parentScore.parentConductor.ScheduleDelayedStep(this, (delay * parentScore.pulse * (1.0f / (parentScore.timeScale + .0001f))));
 			}
 			return this;
 		}
-		
-		public void HandleStepExecuted( Step step ) {
-			if ( OnStepExecuted != null ) {
-				OnStepExecuted( step );
-			}
-		} 
 
 		public void ExecuteSubsteps() {
 			int n = substeps.Count;

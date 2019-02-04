@@ -51,20 +51,23 @@ namespace Opertoon.Stepwise {
 		[HideInInspector]
 		public delegate void ScoreLoading( Conductor conductor );
 		[HideInInspector]
-		public static event ScoreLoading OnScoreLoading;
+		public event ScoreLoading OnScoreLoading;
 
 		[HideInInspector]
 		public delegate void ScorePrepared( Score score );
 		[HideInInspector]
-		public static event ScorePrepared OnScorePrepared;
+		public event ScorePrepared OnScorePrepared;
+
+		[HideInInspector]
+		public delegate void StepExecuted ( Step step );
+		[HideInInspector]
+		public event StepExecuted OnStepExecuted;
 
 		// Use this for initialization
 		void Start () {
 
 			delayedSteps = new Dictionary<float, List<Step>>();
 			delayedStepsToRemove = new List<float>();
-
-			Step.OnStepExecuted += HandleStepExecuted;
 
 			StartCoroutine(Init());
 
@@ -139,7 +142,9 @@ namespace Opertoon.Stepwise {
 		}
 
 		public void HandleStepExecuted( Step step ) {
-			
+
+			OnStepExecuted (step);
+
 			if ( step.parentScore == score ) {
 				switch ( step.command ) {
 
@@ -198,7 +203,7 @@ namespace Opertoon.Stepwise {
 				if (Time.time >= p.Key) {
 					n = p.Value.Count;
 					for (i=0; i<n; i++) {
-						p.Value[i].HandleStepExecuted(p.Value[i]);
+						HandleStepExecuted(p.Value[i]);
 					}
 					delayedStepsToRemove.Add(p.Key);
 				}

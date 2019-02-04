@@ -18,25 +18,25 @@ public class StepLogger : MonoBehaviour {
 		
 		_conductor = gameObject.GetComponent<Conductor>();
 
-		Step.OnStepExecuted += HandleStepExecuted;
-		Conductor.OnScoreLoading += HandleScoreLoading;
-		Conductor.OnScorePrepared += HandleScorePrepared;
+		_conductor.OnStepExecuted += HandleStepExecuted;
+		_conductor.OnScoreLoading += HandleScoreLoading;
+		_conductor.OnScorePrepared += HandleScorePrepared;
 	}
 
-	public virtual void HandleScoreLoading(Conductor conductor) {
+	public void HandleScoreLoading(Conductor conductor) {
 		Debug.Log("loading");
 		messageField.text = "[ Loading story... ]";
 		_scoreIsPrepared = false;
 	}
 
-	public virtual void HandleScorePrepared(Score score) {
+	public void HandleScorePrepared(Score score) {
 		Debug.Log("score prepared");
 		StartCoroutine(DelayedMessage("[ Story loaded. Click to continue. ]", .5f));
 		_scoreIsPrepared = true;
 		textField.text = "";
 	}
 
-	public virtual void HandleStepExecuted( Step step ) {
+	public void HandleStepExecuted( Step step ) {
 		//Debug.Log(step.command+" "+step.target+" "+step.content);
 		switch (step.command) {
 		case "speak":
