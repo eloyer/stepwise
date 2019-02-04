@@ -193,6 +193,9 @@
 								if (action != null) {
 									switch (action.type) {
 										case 'config':
+										for (var index in me.sequencesByCharacter) {
+											me.sequencesByCharacter[index].find('nothing').attr('explicit', 'true');
+										}
 										me.sequencesByCharacter[id] = $('<sequence></sequence>').appendTo(script);
 										if (action.payload.shuffle) {
 											me.sequencesByCharacter[id].attr('shuffle', 'true');
