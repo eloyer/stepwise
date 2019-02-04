@@ -42,7 +42,7 @@
                         content.addClass('tone-'+step.tone);
                     }
                     $(element).append(content);
-                    content.css('opacity',0).animate({left: '+=25px',opacity: 1}, this.options.fadeDuration);
+                    content.css('opacity',0).animate({opacity: 1}, this.options.fadeDuration);
                     this.callDisplayStepHandlers(step, content);
                 }
             },
