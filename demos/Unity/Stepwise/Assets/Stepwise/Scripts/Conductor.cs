@@ -76,7 +76,7 @@ namespace Opertoon.Stepwise {
 				Debug.Log(Load(dataFile));
 			}
 		}
-		
+
 		public bool Load( TextAsset file ) {
 			if (file != null) {
 				return Load (file.text);

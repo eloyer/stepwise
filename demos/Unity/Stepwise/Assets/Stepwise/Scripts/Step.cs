@@ -82,9 +82,7 @@ namespace Opertoon.Stepwise {
 					substeps.Add( step );
 				}
 			}
-
 			ParseCommand();
-
 		}
 
 		public void ParseCommand() {

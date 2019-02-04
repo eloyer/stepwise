@@ -53,10 +53,10 @@ namespace Opertoon.Stepwise {
 		}
 
 		public Score( XmlElement xml ) {
-			SetDefaults();
-			ParseMetadata( xml );
-			ParseStory( xml );
-			Init();
+			SetDefaults ();
+			ParseMetadata ( xml );
+			ParseStory ( xml );
+			Init ();
 		}
 		
 		public void SetDefaults() {
