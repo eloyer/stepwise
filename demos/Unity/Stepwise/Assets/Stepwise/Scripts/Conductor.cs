@@ -123,7 +123,9 @@ namespace Opertoon.Stepwise {
 		}
 
 		public virtual void Reset() {
-			score.Reset();
+			if (score != null) {
+				score.Reset ();
+			}
 		}
 
 		public void ScheduleDelayedStep(Step step, float delayInSeconds) {
