@@ -442,7 +442,7 @@ public class CanvasWriter : MonoBehaviour
 		int n = _panels.Count;
 		for (int i = 0; i < n; i++) {
 			int row = (int)Mathf.Floor ((float)i / grid.x);
-			int col = (int)((float)i % grid.y);
+			int col = (int)((float)i % grid.x);
 			SetPanelLayout (_panels [i], new Rect (col, row, 1, 1));
 		}
 	}
@@ -478,9 +478,6 @@ public class CanvasWriter : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-		if (_scoreIsPrepared && EventSystem.current.currentSelectedGameObject == null && Input.anyKeyDown) {
-			conductor.NextStep ();
-		}
 		if (_rectTransform != null) {
 			unitSize.x = _rectTransform.rect.width / grid.x;
 			unitSize.y = _rectTransform.rect.height / grid.y;
