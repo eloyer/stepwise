@@ -48,8 +48,8 @@ public class CanvasPanel : MonoBehaviour
 		_image = go.AddComponent (typeof (RawImage)) as RawImage;
 		_image.gameObject.SetActive (false);
 		_image.raycastTarget = false;
-        _videoPlayer = go.AddComponent(typeof(VideoPlayer)) as VideoPlayer;
-        _videoPlayer.enabled = false;
+        //_videoPlayer = go.AddComponent(typeof(VideoPlayer)) as VideoPlayer;
+        //_videoPlayer.enabled = false;
 		rectTransform = go.GetComponent<RectTransform> ();
 		rectTransform.anchorMin = Vector2.zero;
 		rectTransform.anchorMax = Vector2.one;
