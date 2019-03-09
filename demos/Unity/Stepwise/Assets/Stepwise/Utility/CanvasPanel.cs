@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using UnityEngine.Video;
 using TMPro;
 
 public class CanvasPanel : MonoBehaviour
@@ -12,6 +13,7 @@ public class CanvasPanel : MonoBehaviour
 	private RectTransform _rectTransform;
 	private TextMeshProUGUI _text;
 	private RawImage _image;
+    private VideoPlayer _videoPlayer;
     private RawImage _background;
 	private RawImage _textBackground;
 	private RectTransform _parentRectTransform;
@@ -46,6 +48,8 @@ public class CanvasPanel : MonoBehaviour
 		_image = go.AddComponent (typeof (RawImage)) as RawImage;
 		_image.gameObject.SetActive (false);
 		_image.raycastTarget = false;
+        _videoPlayer = go.AddComponent(typeof(VideoPlayer)) as VideoPlayer;
+        _videoPlayer.enabled = false;
 		rectTransform = go.GetComponent<RectTransform> ();
 		rectTransform.anchorMin = Vector2.zero;
 		rectTransform.anchorMax = Vector2.one;
@@ -190,15 +194,21 @@ public class CanvasPanel : MonoBehaviour
 
     public void SetCamera(string cameraName)
     {
-        _camera = GameObject.Find(cameraName).GetComponent<Camera>();
-        if (_camera != null)
+        GameObject go = GameObject.Find(cameraName);
+        if (go != null)
         {
-            _cameraBasePosition = _camera.transform.position;
-            _mainCameraBasePosition = Camera.main.transform.position;
-            _image.texture = _camera.targetTexture;
-            CorrectImageAspectRatio();
-            _image.gameObject.SetActive(true);
+            _camera = go.GetComponent<Camera>();
+            if (_camera != null)
+            {
+                _cameraBasePosition = _camera.transform.position;
+                _mainCameraBasePosition = Camera.main.transform.position;
+                _image.texture = _camera.targetTexture;
+                CorrectImageAspectRatio();
+                _image.gameObject.SetActive(true);
+                return;
+            }
         }
+        Debug.Log("Error: Couldn't find camera.");
     }
 
     public void SetBackgroundColor(Color color)
