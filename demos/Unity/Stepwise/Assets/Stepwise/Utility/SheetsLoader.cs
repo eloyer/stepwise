@@ -384,10 +384,14 @@ namespace Opertoon.Stepwise
 						if (contentResults.Success) {
 							content = contentResults.Value;
 						}
-						if (content [0] == '&') {
-							append = true;
-							content = content.Substring (1);
-						}
+                        if (content.Length > 0)
+                        {
+                            if (content[0] == '&')
+                            {
+                                append = true;
+                                content = content.Substring(1);
+                            }
+                        }
 					}
 
 					float delay = Single.NaN;

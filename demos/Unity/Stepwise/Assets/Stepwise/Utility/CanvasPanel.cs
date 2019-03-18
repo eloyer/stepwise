@@ -14,6 +14,7 @@ public class CanvasPanel : MonoBehaviour
 	private TextMeshProUGUI _text;
 	private RawImage _image;
     private VideoPlayer _videoPlayer;
+    private AudioSource _audioSource;
     private RawImage _background;
 	private RawImage _textBackground;
 	private RectTransform _parentRectTransform;
@@ -44,13 +45,22 @@ public class CanvasPanel : MonoBehaviour
 		rectTransform.sizeDelta = Vector2.zero;
 		rectTransform.SetParent (_rectTransform, false);
 
-		go = new GameObject ("Image");
+		go = new GameObject ("Media");
 		_image = go.AddComponent (typeof (RawImage)) as RawImage;
 		_image.gameObject.SetActive (false);
 		_image.raycastTarget = false;
-        //_videoPlayer = go.AddComponent(typeof(VideoPlayer)) as VideoPlayer;
-        //_videoPlayer.enabled = false;
-		rectTransform = go.GetComponent<RectTransform> ();
+        _audioSource = go.AddComponent<AudioSource>();
+        _audioSource.enabled = false;
+        _audioSource.playOnAwake = false;
+        _videoPlayer = go.AddComponent<VideoPlayer>();
+        _videoPlayer.enabled = false;
+        _videoPlayer.playOnAwake = false;
+        _videoPlayer.aspectRatio = VideoAspectRatio.FitOutside;
+        _videoPlayer.source = VideoSource.Url;
+        _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        _videoPlayer.EnableAudioTrack(0, true);
+        _videoPlayer.SetTargetAudioSource(0, _audioSource);
+        rectTransform = go.GetComponent<RectTransform> ();
 		rectTransform.anchorMin = Vector2.zero;
 		rectTransform.anchorMax = Vector2.one;
 		rectTransform.sizeDelta = Vector2.zero;
@@ -191,6 +201,46 @@ public class CanvasPanel : MonoBehaviour
 	{
 		StartCoroutine (LoadImage (url));
 	}
+
+    public void SetVideo(string filename)
+    {
+        StartCoroutine(LoadVideo(filename));
+    }
+
+    public void Pause()
+    {
+        _videoPlayer.Pause();
+        _audioSource.Pause();
+    }
+
+    public void Play()
+    {
+        _videoPlayer.Play();
+        _audioSource.Play();
+    }
+
+    public void SetLoop(bool loop)
+    {
+        _videoPlayer.isLooping = loop;
+        _audioSource.loop = loop;
+    }
+
+    private IEnumerator LoadVideo(string filename)
+    {
+        _videoPlayer.enabled = true;
+        _audioSource.enabled = true;
+        _image.gameObject.SetActive(true);
+        _audioSource.Pause();
+        _videoPlayer.url = Application.streamingAssetsPath + "/" + filename;
+        _videoPlayer.Prepare();
+        while (!_videoPlayer.isPrepared)
+        {
+            yield return null;
+        }
+        _image.texture = _videoPlayer.texture;
+        _videoPlayer.Play();
+        _audioSource.Play();
+    }
 
     public void SetCamera(string cameraName)
     {

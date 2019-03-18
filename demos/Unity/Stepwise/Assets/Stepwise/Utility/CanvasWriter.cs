@@ -133,6 +133,8 @@ public class CanvasWriter : MonoBehaviour
         				case "m4a":
         					break;
         				case "mp4":
+                        case "mov":
+                            panel.SetVideo(step.content);
         					break;
         				default:
         					panel.SetText (step.content);
@@ -210,6 +212,15 @@ public class CanvasWriter : MonoBehaviour
                     break;
                 case "setcamera":
                     panel.SetCamera(step.content);
+                    break;
+                case "pause":
+                    panel.Pause();
+                    break;
+                case "play":
+                    panel.Play();
+                    break;
+                case "setloop":
+                    panel.SetLoop(step.content == "true" ? true : false);
                     break;
             }
 		}
