@@ -118,7 +118,11 @@ public class CanvasWriter : MonoBehaviour
     			case "think":
     			case "setbackgroundimage":
     				if (step.command == "setbackgroundimage") {
-    					break;
+                        if (step.content == "none")
+                        {
+                            panel.ClearImage();
+                        }
+                        break;
     				}
     				string extension = GetFilenameExtension (step.content);
     				switch (extension) {

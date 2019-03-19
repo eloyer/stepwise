@@ -197,6 +197,14 @@ public class CanvasPanel : MonoBehaviour
         _text.fontStyle = textTransform;
     }
 
+    public void ClearImage()
+    {
+        _image.texture = null;
+        _image.gameObject.SetActive(false);
+        _videoPlayer.Pause();
+        _videoPlayer.gameObject.SetActive(false);
+    }
+
     public void SetImage(string url)
 	{
 		StartCoroutine (LoadImage (url));
