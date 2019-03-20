@@ -226,6 +226,12 @@ public class CanvasWriter : MonoBehaviour
                 case "setloop":
                     panel.SetLoop(step.content == "true" ? true : false);
                     break;
+                case "setlayouttransition":
+                    if (float.TryParse(step.content, out floatValue))
+                    {
+                        panel.SetLayoutTransition(floatValue);
+                    }
+                    break;
             }
 		}
 	}

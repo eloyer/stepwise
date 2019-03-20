@@ -24,6 +24,7 @@ public class CanvasPanel : MonoBehaviour
     private Camera _camera;
     private Vector3 _cameraBasePosition;
     private Vector3 _mainCameraBasePosition;
+    private float _layoutTransitionDuration = .5f;
 
 	// Use this for initialization
 	void Start ()
@@ -100,7 +101,7 @@ public class CanvasPanel : MonoBehaviour
         Vector2 anchorMinEnd = new Vector2(layout.xMin, layout.yMin);
         Vector2 anchorMaxEnd = new Vector2(layout.xMax, layout.yMax);
 		_rectTransform.sizeDelta = Vector2.zero;
-        LeanTween.value(gameObject, 0, 1, .5f).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) => {
+        LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) => {
             _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
             _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
             UpdateMargins();
@@ -115,7 +116,7 @@ public class CanvasPanel : MonoBehaviour
         Vector2 anchorMaxStart = _rectTransform.anchorMax;
         Vector2 anchorMinEnd = position;
         Vector2 anchorMaxEnd = anchorMaxStart + (position - _rectTransform.anchorMin);
-        LeanTween.value(gameObject, 0, 1, .5f).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) =>
+        LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) =>
         {
             _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
             _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
@@ -129,7 +130,7 @@ public class CanvasPanel : MonoBehaviour
         Vector2 anchorMaxStart = _rectTransform.anchorMax;
         Vector2 anchorMinEnd = new Vector2(_rectTransform.anchorMin.x, _rectTransform.anchorMax.y - size.y);
         Vector2 anchorMaxEnd = new Vector2(_rectTransform.anchorMin.x + size.x, _rectTransform.anchorMax.y);
-        LeanTween.value(gameObject, 0, 1, .5f).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val)=> {
+        LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val)=> {
             _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
             _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
             UpdateMargins();
@@ -306,6 +307,11 @@ public class CanvasPanel : MonoBehaviour
 		StoreTextPadding (top, right, bottom, left);
 		UpdateTextMarginsAndPadding ();
 	}
+
+    public void SetLayoutTransition(float duration)
+    {
+        _layoutTransitionDuration = duration;
+    }
 
     public Vector2 GetSize()
 	{
