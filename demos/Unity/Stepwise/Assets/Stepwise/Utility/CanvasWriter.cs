@@ -232,6 +232,12 @@ public class CanvasWriter : MonoBehaviour
                         panel.SetLayoutTransition(floatValue);
                     }
                     break;
+                /*case "setimagetransition":
+                    if (float.TryParse(step.content, out floatValue))
+                    {
+                        panel.SetImageTransition(floatValue);
+                    }
+                    break;*/
             }
 		}
 	}
