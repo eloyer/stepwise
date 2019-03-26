@@ -106,7 +106,6 @@ public class CanvasPanel : MonoBehaviour
             _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
             _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
             UpdateMargins();
-            CorrectImageAspectRatio();
         });
     }
 
@@ -264,6 +263,7 @@ public class CanvasPanel : MonoBehaviour
             yield return null;
         }
         SetImageTexture(_videoPlayer.texture);
+        CorrectImageAspectRatio();
         _videoPlayer.Play();
         _audioSource.Play();
     }
@@ -279,7 +279,6 @@ public class CanvasPanel : MonoBehaviour
                 _cameraBasePosition = _camera.transform.position;
                 _mainCameraBasePosition = Camera.main.transform.position;
                 SetImageTexture(_camera.targetTexture);
-                CorrectImageAspectRatio();
                 _image.gameObject.SetActive(true);
                 return;
             }

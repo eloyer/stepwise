@@ -256,12 +256,16 @@ namespace Opertoon.Stepwise
 			n = groups.Count;
 			for (int i = 0; i < n; i++) {
 				groupElement = groups [i] as XmlElement;
-				if (groupElement.ChildNodes.Count == 1) {
-					// unwrap the child
-					XmlElement parent = groupElement.ParentNode as XmlElement;
-					XmlNode child = groupElement.ChildNodes [0];
-					parent.ReplaceChild (child, groupElement);
-				}
+                if (groupElement != null)
+                {
+                    if (groupElement.ChildNodes.Count == 1)
+                    {
+                        // unwrap the child
+                        XmlElement parent = groupElement.ParentNode as XmlElement;
+                        XmlNode child = groupElement.ChildNodes[0];
+                        parent.ReplaceChild(child, groupElement);
+                    }
+                }
 			}
 		}
 

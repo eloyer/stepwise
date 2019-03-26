@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using Opertoon.Stepwise;
 using System.Text.RegularExpressions;
 using System;
@@ -188,7 +187,8 @@ public class CanvasWriter : MonoBehaviour
     				panel.SetTextMargins (ParseBordersFromString (step.content));
     				break;
     			case "setcaptionbackgroundcolor":
-    				if (ColorUtility.TryParseHtmlString (step.content, out color)) {
+                case "setcaptionbackcolor":
+                    if (ColorUtility.TryParseHtmlString (step.content, out color)) {
     					panel.SetTextBackgroundColor (color);
     				}
     				break;
@@ -232,12 +232,12 @@ public class CanvasWriter : MonoBehaviour
                         panel.SetLayoutTransition(floatValue);
                     }
                     break;
-                /*case "setimagetransition":
+                case "setimagetransition":
                     if (float.TryParse(step.content, out floatValue))
                     {
                         panel.SetImageTransition(floatValue);
                     }
-                    break;*/
+                    break;
             }
 		}
 	}
