@@ -12,12 +12,26 @@ public class SimpleInput : MonoBehaviour {
 	void Start () {
 		
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private IEnumerator DelayedNextStep()
+    {
+        yield return 0;
+        conductor.NextStep();
+    }
+
+    // Update is called once per frame
+    void Update () {
         if (EventSystem.current.currentSelectedGameObject == null && Input.anyKeyDown)
         {
-            conductor.NextStep();
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                conductor.Reset();
+                StartCoroutine(DelayedNextStep());
+            }
+            else
+            {
+                conductor.NextStep();
+            }
         }
     }
 }

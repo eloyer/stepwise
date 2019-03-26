@@ -34,8 +34,8 @@ public class CanvasWriter : MonoBehaviour
 			conductor.OnStepExecuted += HandleStepExecuted;
 			conductor.OnScoreLoading += HandleScoreLoading;
 			conductor.OnScorePrepared += HandleScorePrepared;
+            conductor.OnScoreReset += HandleScoreReset;
 		}
-		_rectTransform = canvas.GetComponent<RectTransform> ();
 		CreateStageBackground ();
 	}
 
@@ -94,152 +94,175 @@ public class CanvasWriter : MonoBehaviour
 	{
 		Debug.Log ("score prepared");
 		_scoreIsPrepared = true;
-		SetupCanvas ();
 	}
 
-	private void HandleStepExecuted (Step step)
+    private void HandleScoreReset(Score score)
+    {
+        Debug.Log("score reset");
+        if (_scoreIsPrepared)
+        {
+            ClearCanvas();
+            SetupCanvas();
+        }
+    }
+
+    private void HandleStepExecuted (Step step)
 	{
 		//Debug.Log(step.command+" "+step.target+" "+step.content);
-		Character character = step.target as Character;
-		int index = visibleCharacters.IndexOf (character);
-		CanvasPanel panel = null;
-		if (index != -1) {
-			panel = _panels [index];
-		}
-		if (panel != null) {
-			Color color;
-			int integer;
-            float floatValue;
-			switch (step.command) {
-    			case "speak":
-    			case "narrate":
-    			case "sing":
-    			case "think":
-    			case "setbackgroundimage":
-    				if (step.command == "setbackgroundimage") {
-                        if (step.content == "none")
+        if (canvas.isActiveAndEnabled)
+        {
+            Character character = step.target as Character;
+            int index = visibleCharacters.IndexOf(character);
+            CanvasPanel panel = null;
+            if (index != -1)
+            {
+                panel = _panels[index];
+            }
+            if (panel != null)
+            {
+                Color color;
+                int integer;
+                float floatValue;
+                switch (step.command)
+                {
+                    case "speak":
+                    case "narrate":
+                    case "sing":
+                    case "think":
+                    case "setbackgroundimage":
+                        if (step.command == "setbackgroundimage")
                         {
-                            panel.ClearImage();
+                            if (step.content == "none")
+                            {
+                                panel.ClearImage();
+                            }
+                            break;
+                        }
+                        string extension = GetFilenameExtension(step.content);
+                        switch (extension)
+                        {
+                            case "gif":
+                            case "png":
+                            case "jpg":
+                                panel.SetImage(step.content);
+                                break;
+                            case "mp3":
+                            case "ogg":
+                            case "wav":
+                            case "m4a":
+                                break;
+                            case "mp4":
+                            case "mov":
+                                panel.SetVideo(step.content);
+                                break;
+                            default:
+                                panel.SetText(step.content);
+                                break;
                         }
                         break;
-    				}
-    				string extension = GetFilenameExtension (step.content);
-    				switch (extension) {
-        				case "gif":
-        				case "png":
-        				case "jpg":
-        					panel.SetImage (step.content);
-        					break;
-        				case "mp3":
-        				case "ogg":
-        				case "wav":
-        				case "m4a":
-        					break;
-        				case "mp4":
-                        case "mov":
-                            panel.SetVideo(step.content);
-        					break;
-        				default:
-        					panel.SetText (step.content);
-        					break;
-    				}
-    				break;
-    			case "setgrid":
-    				SetGrid(ParseVector2FromString(step.content));
-    				break;
-    			case "setlayout":
-    				SetPanelLayout (panel, ParseRectFromString(step.content));
-    				break;
-    			case "setstagecolor":
-    				if (ColorUtility.TryParseHtmlString(step.content, out color)) {
-    					SetStageBackgroundColor (color);
-    				}
-    				break;
-    			case "setbackcolor":
-    				if (ColorUtility.TryParseHtmlString (step.content, out color)) {
-    					panel.SetBackgroundColor (color);
-    				}
-    				break;
-    			case "setforecolor":
-    				if (ColorUtility.TryParseHtmlString (step.content, out color)) {
-    					panel.SetTextColor (color);
-    				}
-    				break;
-    			case "setfont":
-    				panel.SetTextFont (step.content);
-    				break;
-    			case "setposition":
-    			case "moveto":
-    				panel.SetPosition (ParsePositionFromStringForPanel (step.content, panel));
-    				break;
-    			case "setsize":
-    			case "changesize":
-    				SetPanelSize (panel, ParseVector2FromString(step.content));
-    				break;
-                case "setmargin":
-                    panel.SetMargins(ParseBordersFromString(step.content));
-                    break;
-    			case "settextalign":
-    				panel.SetTextAlign (ParseTextAnchorFromString (step.content));
-    				break;
-    			case "setcaptionmargin":
-    			case "setpadding":
-    				panel.SetTextMargins (ParseBordersFromString (step.content));
-    				break;
-    			case "setcaptionbackgroundcolor":
-                case "setcaptionbackcolor":
-                    if (ColorUtility.TryParseHtmlString (step.content, out color)) {
-    					panel.SetTextBackgroundColor (color);
-    				}
-    				break;
-    			case "setcaptionpadding":
-    				panel.SetTextPadding (ParseBordersFromString (step.content));
-    				break;
-    			case "setfontsize":
-    				if (int.TryParse(step.content, out integer)) {
-    					panel.SetTextSize (integer);
-    				}
-    				break;
-                case "setlineheight":
-                    if (float.TryParse(step.content, out floatValue)) {
-                        panel.SetTextLineSpacing(floatValue);
-                    }
-                    break;
-                case "setletterspacing":
-                    if (float.TryParse(step.content, out floatValue))
-                    {
-                        panel.SetTextCharacterSpacing(floatValue);
-                    }
-                    break;
-                case "settexttransform":
-                    panel.SetTextTransform(ParseTextTransformFromString(step.content));
-                    break;
-                case "setcamera":
-                    panel.SetCamera(step.content);
-                    break;
-                case "pause":
-                    panel.Pause();
-                    break;
-                case "play":
-                    panel.Play();
-                    break;
-                case "setloop":
-                    panel.SetLoop(step.content == "true" ? true : false);
-                    break;
-                case "setlayouttransition":
-                    if (float.TryParse(step.content, out floatValue))
-                    {
-                        panel.SetLayoutTransition(floatValue);
-                    }
-                    break;
-                case "setimagetransition":
-                    if (float.TryParse(step.content, out floatValue))
-                    {
-                        panel.SetImageTransition(floatValue);
-                    }
-                    break;
+                    case "setgrid":
+                        SetGrid(ParseVector2FromString(step.content));
+                        break;
+                    case "setlayout":
+                        SetPanelLayout(panel, ParseRectFromString(step.content));
+                        break;
+                    case "setstagecolor":
+                        if (ColorUtility.TryParseHtmlString(step.content, out color))
+                        {
+                            SetStageBackgroundColor(color);
+                        }
+                        break;
+                    case "setbackcolor":
+                        if (ColorUtility.TryParseHtmlString(step.content, out color))
+                        {
+                            panel.SetBackgroundColor(color);
+                        }
+                        break;
+                    case "setforecolor":
+                        if (ColorUtility.TryParseHtmlString(step.content, out color))
+                        {
+                            panel.SetTextColor(color);
+                        }
+                        break;
+                    case "setfont":
+                        panel.SetTextFont(step.content);
+                        break;
+                    case "setposition":
+                    case "moveto":
+                        panel.SetPosition(ParsePositionFromStringForPanel(step.content, panel));
+                        break;
+                    case "setsize":
+                    case "changesize":
+                        SetPanelSize(panel, ParseVector2FromString(step.content));
+                        break;
+                    case "setmargin":
+                        panel.SetMargins(ParseBordersFromString(step.content));
+                        break;
+                    case "settextalign":
+                        panel.SetTextAlign(ParseTextAnchorFromString(step.content));
+                        break;
+                    case "setcaptionmargin":
+                    case "setpadding":
+                        panel.SetTextMargins(ParseBordersFromString(step.content));
+                        break;
+                    case "setcaptionbackgroundcolor":
+                    case "setcaptionbackcolor":
+                        if (ColorUtility.TryParseHtmlString(step.content, out color))
+                        {
+                            panel.SetTextBackgroundColor(color);
+                        }
+                        break;
+                    case "setcaptionpadding":
+                        panel.SetTextPadding(ParseBordersFromString(step.content));
+                        break;
+                    case "setfontsize":
+                        if (int.TryParse(step.content, out integer))
+                        {
+                            panel.SetTextSize(integer);
+                        }
+                        break;
+                    case "setlineheight":
+                        if (float.TryParse(step.content, out floatValue))
+                        {
+                            panel.SetTextLineSpacing(floatValue);
+                        }
+                        break;
+                    case "setletterspacing":
+                        if (float.TryParse(step.content, out floatValue))
+                        {
+                            panel.SetTextCharacterSpacing(floatValue);
+                        }
+                        break;
+                    case "settexttransform":
+                        panel.SetTextTransform(ParseTextTransformFromString(step.content));
+                        break;
+                    case "setcamera":
+                        panel.SetCamera(step.content);
+                        break;
+                    case "pause":
+                        panel.Pause();
+                        break;
+                    case "play":
+                        panel.Play();
+                        break;
+                    case "setloop":
+                        panel.SetLoop(step.content == "true" ? true : false);
+                        break;
+                    case "setlayouttransition":
+                        if (float.TryParse(step.content, out floatValue))
+                        {
+                            panel.SetLayoutTransition(floatValue);
+                        }
+                        break;
+                    case "setimagetransition":
+                        if (float.TryParse(step.content, out floatValue))
+                        {
+                            panel.SetImageTransition(floatValue);
+                        }
+                        break;
+                }
             }
-		}
+        }
 	}
 
     private FontStyles ParseTextTransformFromString(string transformString)
@@ -448,7 +471,17 @@ public class CanvasWriter : MonoBehaviour
 		StartCoroutine(SetPanelsToDefaultPositions ());
 	}
 
-	private void SetStageBackgroundColor(Color color)
+    private void ClearCanvas()
+    {
+        int n = visibleCharacters.Count;
+        for (int i = 0; i < n; i++)
+        {
+            Destroy(_panels[i].gameObject);
+        }
+        _panels.Clear();
+    }
+
+    private void SetStageBackgroundColor(Color color)
 	{
 		_stageBackground.gameObject.SetActive (true);
 		_stageBackground.color = color;
@@ -508,7 +541,12 @@ public class CanvasWriter : MonoBehaviour
 		if (_rectTransform != null) {
 			unitSize.x = _rectTransform.rect.width / grid.x;
 			unitSize.y = _rectTransform.rect.height / grid.y;
-		}
-	}
+		} 
+        else if (_scoreIsPrepared && canvas.isActiveAndEnabled)
+        {
+            _rectTransform = canvas.GetComponent<RectTransform>();
+            SetupCanvas();
+        }
+    }
 }
  

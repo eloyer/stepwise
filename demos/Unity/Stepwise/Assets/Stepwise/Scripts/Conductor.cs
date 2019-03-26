@@ -63,8 +63,13 @@ namespace Opertoon.Stepwise {
 		[HideInInspector]
 		public event StepExecuted OnStepExecuted;
 
-		// Use this for initialization
-		void Start () {
+        [HideInInspector]
+        public delegate void ScoreReset( Score score );
+        [HideInInspector]
+        public event ScoreReset OnScoreReset;
+
+        // Use this for initialization
+        void Start () {
 
 			delayedSteps = new Dictionary<float, List<Step>>();
 			delayedStepsToRemove = new List<float>();
@@ -92,7 +97,7 @@ namespace Opertoon.Stepwise {
 				try {
 					OnScoreLoading(this);
 				} catch {
-					Debug.Log("Failed during initalization. Do you have an OnScoreLoading handler?");
+					Debug.Log("No OnScoreLoading handler available, but you may not need one.");
 				}
 				if ( text.IndexOf( "<stepwise>" ) != -1 ) {
 					xmlDoc = new XmlDocument();
@@ -103,7 +108,7 @@ namespace Opertoon.Stepwise {
 						score.Init();
 						OnScorePrepared(score);
 					} catch {
-						Debug.Log("Failed during initalization. Do you have an OnScorePrepared handler?");
+						Debug.Log("No OnScorePrepared handler available. How will you know when this Conductor is ready to use?");
 						return false;
 					}
 				} else {
@@ -112,7 +117,7 @@ namespace Opertoon.Stepwise {
 						score.SetConductor(this);
 						OnScorePrepared(score);
 					} catch {
-						Debug.Log("Failed during initalization. Do you have an OnScorePrepared handler?");
+						Debug.Log("No OnScorePrepared handler available. How will you know when this Conductor is ready to use?");
 						return false;
 					}
 				}
@@ -124,6 +129,7 @@ namespace Opertoon.Stepwise {
 
 		public virtual void Reset() {
 			if (score != null) {
+                OnScoreReset(score);
 				score.Reset ();
 			}
 		}
