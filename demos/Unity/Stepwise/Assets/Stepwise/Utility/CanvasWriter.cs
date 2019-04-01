@@ -473,12 +473,15 @@ public class CanvasWriter : MonoBehaviour
 
     private void ClearCanvas()
     {
-        int n = visibleCharacters.Count;
-        for (int i = 0; i < n; i++)
+        if (visibleCharacters != null)
         {
-            Destroy(_panels[i].gameObject);
+            int n = visibleCharacters.Count;
+            for (int i = 0; i < n; i++)
+            {
+                Destroy(_panels[i].gameObject);
+            }
+            _panels.Clear();
         }
-        _panels.Clear();
     }
 
     private void SetStageBackgroundColor(Color color)

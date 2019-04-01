@@ -97,45 +97,54 @@ public class CanvasPanel : MonoBehaviour
 	// accepts coordinates where 0,0 is bottom left corner
 	public void SetLayout (Rect layout)
 	{
-        Vector2 anchorMinStart = _rectTransform.anchorMin;
-        Vector2 anchorMaxStart = _rectTransform.anchorMax;
-        Vector2 anchorMinEnd = new Vector2(layout.xMin, layout.yMin);
-        Vector2 anchorMaxEnd = new Vector2(layout.xMax, layout.yMax);
-		_rectTransform.sizeDelta = Vector2.zero;
-        LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) => {
-            _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
-            _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
-            UpdateMargins();
-        });
+        if (_rectTransform != null)
+        {
+            Vector2 anchorMinStart = _rectTransform.anchorMin;
+            Vector2 anchorMaxStart = _rectTransform.anchorMax;
+            Vector2 anchorMinEnd = new Vector2(layout.xMin, layout.yMin);
+            Vector2 anchorMaxEnd = new Vector2(layout.xMax, layout.yMax);
+            _rectTransform.sizeDelta = Vector2.zero;
+            LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) => {
+                _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
+                _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
+                UpdateMargins();
+            });
+        }
     }
 
 	// accepts coordinates where 0,0 is bottom left corner
 	public void SetPosition(Vector2 position)
 	{
-        Vector2 anchorMinStart = _rectTransform.anchorMin;
-        Vector2 anchorMaxStart = _rectTransform.anchorMax;
-        Vector2 anchorMinEnd = position;
-        Vector2 anchorMaxEnd = anchorMaxStart + (position - _rectTransform.anchorMin);
-        LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) =>
+        if (_rectTransform != null)
         {
-            _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
-            _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
-        });
+            Vector2 anchorMinStart = _rectTransform.anchorMin;
+            Vector2 anchorMaxStart = _rectTransform.anchorMax;
+            Vector2 anchorMinEnd = position;
+            Vector2 anchorMaxEnd = anchorMaxStart + (position - _rectTransform.anchorMin);
+            LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) =>
+            {
+                _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
+                _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
+            });
 
+        }
     }
 
 	public void SetSize(Vector2 size)
 	{
-        Vector2 anchorMinStart = _rectTransform.anchorMin;
-        Vector2 anchorMaxStart = _rectTransform.anchorMax;
-        Vector2 anchorMinEnd = new Vector2(_rectTransform.anchorMin.x, _rectTransform.anchorMax.y - size.y);
-        Vector2 anchorMaxEnd = new Vector2(_rectTransform.anchorMin.x + size.x, _rectTransform.anchorMax.y);
-        LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val)=> {
-            _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
-            _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
-            UpdateMargins();
-            CorrectImageAspectRatio();
-        });
+        if (_rectTransform != null)
+        {
+            Vector2 anchorMinStart = _rectTransform.anchorMin;
+            Vector2 anchorMaxStart = _rectTransform.anchorMax;
+            Vector2 anchorMinEnd = new Vector2(_rectTransform.anchorMin.x, _rectTransform.anchorMax.y - size.y);
+            Vector2 anchorMaxEnd = new Vector2(_rectTransform.anchorMin.x + size.x, _rectTransform.anchorMax.y);
+            LeanTween.value(gameObject, 0, 1, _layoutTransitionDuration).setEase(LeanTweenType.easeInOutSine).setOnUpdate((float val) => {
+                _rectTransform.anchorMin = Vector2.Lerp(anchorMinStart, anchorMinEnd, val);
+                _rectTransform.anchorMax = Vector2.Lerp(anchorMaxStart, anchorMaxEnd, val);
+                UpdateMargins();
+                CorrectImageAspectRatio();
+            });
+        }
     }
 
     public void SetMargins(float[] margins)

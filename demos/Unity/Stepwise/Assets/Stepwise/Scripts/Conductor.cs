@@ -129,8 +129,15 @@ namespace Opertoon.Stepwise {
 
 		public virtual void Reset() {
 			if (score != null) {
-                OnScoreReset(score);
-				score.Reset ();
+                try
+                {
+                    OnScoreReset(score);
+                }
+                catch
+                {
+                    Debug.Log("No OnScoreReset handler available. How will you respond when the score is reset?");
+                }
+                score.Reset ();
 			}
 		}
 
