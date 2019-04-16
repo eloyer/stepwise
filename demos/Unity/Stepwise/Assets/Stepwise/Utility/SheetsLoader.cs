@@ -296,8 +296,8 @@ namespace Opertoon.Stepwise
 							string cell = entry [prop] ["$t"].ToString ();
 							if (cell != "") {
 								cell = cell.Substring (1, Mathf.Max (0, cell.Length - 2)); // remove outer quotes
-								cell = cell.Replace ("\\n", "\n");
-								string [] subActions = cell.Split (new char [] { '\n' });
+								cell = cell.Replace ("\\\\n", "\n");
+								string [] subActions = cell.Split (new [] { "\\n" }, StringSplitOptions.None);
 								int n = subActions.Length;
 								for (int i = 0; i < n; i++) {
 									action = GetActionFromCell (subActions [i]);
