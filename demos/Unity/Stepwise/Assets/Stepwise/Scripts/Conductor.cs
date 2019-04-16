@@ -94,32 +94,27 @@ namespace Opertoon.Stepwise {
 
 		public virtual bool Load( string text ) {
 			if ( text != null ) {
-				try {
-					OnScoreLoading(this);
-				} catch {
-					Debug.Log("No OnScoreLoading handler available, but you may not need one.");
-				}
+                if (OnScoreLoading != null)
+                {
+                    OnScoreLoading(this);
+                }
 				if ( text.IndexOf( "<stepwise>" ) != -1 ) {
 					xmlDoc = new XmlDocument();
-					try {
-						xmlDoc.LoadXml( text );
-						score = new Score( xmlDoc.DocumentElement );
-						score.SetConductor(this);
-						score.Init();
-						OnScorePrepared(score);
-					} catch {
-						Debug.Log("No OnScorePrepared handler available. How will you know when this Conductor is ready to use?");
-						return false;
-					}
+					xmlDoc.LoadXml( text );
+					score = new Score( xmlDoc.DocumentElement );
+					score.SetConductor(this);
+					score.Init();
+                    if (OnScorePrepared != null)
+                    {
+                        OnScorePrepared(score);
+                    }
 				} else {
-					try {
-						score = new Score( text );
-						score.SetConductor(this);
-						OnScorePrepared(score);
-					} catch {
-						Debug.Log("No OnScorePrepared handler available. How will you know when this Conductor is ready to use?");
-						return false;
-					}
+					score = new Score( text );
+					score.SetConductor(this);
+                    if (OnScorePrepared != null)
+                    {
+                        OnScorePrepared(score);
+                    }
 				}
 			} else {
 				return false;
@@ -129,13 +124,9 @@ namespace Opertoon.Stepwise {
 
 		public virtual void Reset() {
 			if (score != null) {
-                try
+                if (OnScoreReset != null)
                 {
                     OnScoreReset(score);
-                }
-                catch
-                {
-                    Debug.Log("No OnScoreReset handler available. How will you respond when the score is reset?");
                 }
                 score.Reset ();
 			}
@@ -158,7 +149,10 @@ namespace Opertoon.Stepwise {
 
 		public void HandleStepExecuted( Step step ) {
 
-			OnStepExecuted (step);
+            if (OnStepExecuted != null)
+            {
+                OnStepExecuted(step);
+            }
 
 			if ( step.parentScore == score ) {
 				switch ( step.command ) {

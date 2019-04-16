@@ -33,7 +33,7 @@ public class CanvasWriter : MonoBehaviour
 		if (conductor != null) {
 			conductor.OnStepExecuted += HandleStepExecuted;
 			conductor.OnScoreLoading += HandleScoreLoading;
-			conductor.OnScorePrepared += HandleScorePrepared;
+		    conductor.OnScorePrepared += HandleScorePrepared;
             conductor.OnScoreReset += HandleScoreReset;
 		}
 		CreateStageBackground ();
