@@ -94,7 +94,7 @@ public class CanvasWriter : MonoBehaviour
 	{
 		Debug.Log ("score prepared");
 		_scoreIsPrepared = true;
-	}
+    }
 
     private void HandleScoreReset(Score score)
     {
