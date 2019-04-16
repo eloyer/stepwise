@@ -187,14 +187,14 @@ namespace Opertoon.Stepwise {
 					
 				elements = xml.GetElementsByTagName( "pulse" );
 				if ( elements.Count > 0 ) {
-					if ( elements[ 0 ].Attributes.GetNamedItem( "beatsperminute" ) != null ) {
-						beatsPerMinute = float.Parse( elements[ 0 ].Attributes.GetNamedItem( "beatsperminute" ).InnerXml );
+					if ( elements[ 0 ].Attributes.GetNamedItem("beatsPerMinute") != null ) {
+						beatsPerMinute = float.Parse( elements[ 0 ].Attributes.GetNamedItem("beatsPerMinute").InnerXml );
 					}
-					if ( elements[ 0 ].Attributes.GetNamedItem( "pulsesperbeat" ) != null ) {
-						pulsesPerBeat = float.Parse( elements[ 0 ].Attributes.GetNamedItem( "pulsesperbeat" ).InnerXml );
+					if ( elements[ 0 ].Attributes.GetNamedItem("pulsesPerBeat") != null ) {
+						pulsesPerBeat = float.Parse( elements[ 0 ].Attributes.GetNamedItem("pulsesPerBeat").InnerXml );
 					}
-					if ( elements[ 0 ].Attributes.GetNamedItem( "durationperbeat" ) != null ) {
-						durationPerBeat = float.Parse( elements[ 0 ].Attributes.GetNamedItem( "durationperbeat" ).InnerXml );
+					if ( elements[ 0 ].Attributes.GetNamedItem( "durationPerBeat" ) != null ) {
+						durationPerBeat = float.Parse( elements[ 0 ].Attributes.GetNamedItem("durationPerBeat").InnerXml );
 					}
 					if ( elements[ 0 ].Attributes.GetNamedItem( "swing" ) != null ) {
 						swing = float.Parse( elements[ 0 ].Attributes.GetNamedItem( "swing" ).InnerXml );
