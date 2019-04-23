@@ -90,7 +90,7 @@ public class CanvasPanel : MonoBehaviour
 
 		go = new GameObject ("Text");
 		_text = go.AddComponent (typeof (TextMeshProUGUI)) as TextMeshProUGUI;
-		_text.fontSize = 48;
+		_text.fontSize = 96;
 		_text.color = Color.black;
         _text.alignment = TextAlignmentOptions.Center;
 		_text.raycastTarget = false;
@@ -212,7 +212,7 @@ public class CanvasPanel : MonoBehaviour
 
 	public void SetTextSize(int size)
 	{
-		_text.fontSize = size;
+		_text.fontSize = size * 2;
     }
 
     public void SetTextLineSpacing(float lineSpacing)
