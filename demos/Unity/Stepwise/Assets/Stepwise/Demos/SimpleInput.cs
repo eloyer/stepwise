@@ -7,14 +7,17 @@ using UnityEngine.EventSystems;
 public class SimpleInput : MonoBehaviour {
 
     public Conductor conductor;
+    public Canvas canvas;
 
 	// Use this for initialization
 	void Start () {
 		
 	}
 
-    private IEnumerator DelayedNextStep()
+    private IEnumerator DelayedReset()
     {
+        yield return 0;
+        conductor.Reset();
         yield return 0;
         conductor.NextStep();
     }
@@ -25,8 +28,8 @@ public class SimpleInput : MonoBehaviour {
         {
             if (Input.GetKeyDown(KeyCode.Return))
             {
-                conductor.Reset();
-                StartCoroutine(DelayedNextStep());
+                canvas.gameObject.SetActive(true);
+                StartCoroutine(DelayedReset());
             }
             else
             {

@@ -6,6 +6,12 @@ using UnityEngine.Networking;
 using UnityEngine.Video;
 using TMPro;
 
+public enum BackgroundSize
+{
+    Cover,
+    Contain
+}
+
 public class CanvasPanel : MonoBehaviour
 {
     public float cameraScaleFactor = 1;
@@ -13,6 +19,7 @@ public class CanvasPanel : MonoBehaviour
 	private RectTransform _rectTransform;
 	private TextMeshProUGUI _text;
 	private RawImage _image;
+    private RectTransform _imageRectTransform;
     private VideoPlayer _videoPlayer;
     private AudioSource _audioSource;
     private RawImage _background;
@@ -26,6 +33,7 @@ public class CanvasPanel : MonoBehaviour
     private Vector3 _mainCameraBasePosition;
     private float _layoutTransitionDuration = .5f;
     private float _imageTransitionDuration = .5f;
+    private BackgroundSize _backgroundSize = BackgroundSize.Cover;
 
     // Use this for initialization
     void Start ()
@@ -62,11 +70,11 @@ public class CanvasPanel : MonoBehaviour
         _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
         _videoPlayer.EnableAudioTrack(0, true);
         _videoPlayer.SetTargetAudioSource(0, _audioSource);
-        rectTransform = go.GetComponent<RectTransform> ();
-		rectTransform.anchorMin = Vector2.zero;
-		rectTransform.anchorMax = Vector2.one;
-		rectTransform.sizeDelta = Vector2.zero;
-		rectTransform.SetParent (_rectTransform, false);
+        _imageRectTransform = go.GetComponent<RectTransform> ();
+        _imageRectTransform.anchorMin = Vector2.zero;
+        _imageRectTransform.anchorMax = Vector2.one;
+        _imageRectTransform.sizeDelta = Vector2.zero;
+        _imageRectTransform.SetParent (_rectTransform, false);
 
 		go = new GameObject ("TextBackground");
 		_textBackground = go.AddComponent (typeof (RawImage)) as RawImage;
@@ -307,7 +315,12 @@ public class CanvasPanel : MonoBehaviour
 		_textBackground.gameObject.SetActive (true);
 	}
 
-	public void SetTextMargins(float[] margins)
+    public void SetBackgroundSize(BackgroundSize size)
+    {
+        _backgroundSize = size;
+    }
+
+    public void SetTextMargins(float[] margins)
 	{
 		if (margins.Length == 4) {
 			SetTextMargins (margins [0], margins [1], margins [2], margins [3]);
@@ -391,11 +404,13 @@ public class CanvasPanel : MonoBehaviour
 			}
 			if (!www.isNetworkError) {
                 _camera = null;
-				_image.gameObject.SetActive (true);
 				Texture2D texture = DownloadHandlerTexture.GetContent (www);
+                Canvas.ForceUpdateCanvases();
+                yield return 0;
+                _image.gameObject.SetActive(true);
                 SetImageTexture(texture);
 				CorrectImageAspectRatio ();
-			}
+            }
 		}
 	}
 
@@ -451,26 +466,57 @@ public class CanvasPanel : MonoBehaviour
 	{
 		// simulates "fill" or "cover" image sizing for panel while maintaining image aspect ratio
 		if (_image != null) {
-			if (_image.texture != null) {
-				float imageAspectRatio = _image.texture.width / (float)_image.texture.height;
-				Vector2 panelSize = _rectTransform.anchorMax - _rectTransform.anchorMin;
-				panelSize.x *= _parentRectTransform.sizeDelta.x;
-				panelSize.y *= _parentRectTransform.sizeDelta.y;
-				float panelAspectRatio = panelSize.x / panelSize.y;
-				Rect uvRect;
-				Vector2 sizedDimensions;
-				float normalizedDimension;
-				if (panelAspectRatio > imageAspectRatio) {
-					sizedDimensions = new Vector2 (panelSize.x, _image.texture.height * (panelSize.x / (float)_image.texture.width));
-					normalizedDimension = panelSize.y / sizedDimensions.y;
-					uvRect = new Rect (0, (1 - normalizedDimension) * .5f, 1, normalizedDimension);
-				} else {
-					sizedDimensions = new Vector2 (_image.texture.width * (panelSize.y / (float)_image.texture.height), panelSize.y);
-					normalizedDimension = panelSize.x / sizedDimensions.x;
-					uvRect = new Rect ((1 - normalizedDimension) * .5f, 0, normalizedDimension, 1);
-				}
-				_image.uvRect = uvRect;
-			}
+			if (_image.texture != null)
+            {
+                float imageAspectRatio = _image.texture.width / (float)_image.texture.height;
+                switch (_backgroundSize)
+                {
+                    case BackgroundSize.Cover:
+                        Vector2 panelSize = _rectTransform.anchorMax - _rectTransform.anchorMin;
+                        panelSize.x *= _parentRectTransform.sizeDelta.x;
+                        panelSize.y *= _parentRectTransform.sizeDelta.y;
+                        float panelAspectRatio = panelSize.x / panelSize.y;
+                        Rect uvRect;
+                        Vector2 sizedDimensions;
+                        float normalizedDimension;
+                        if (panelAspectRatio > imageAspectRatio)
+                        {
+                            sizedDimensions = new Vector2(panelSize.x, _image.texture.height * (panelSize.x / (float)_image.texture.width));
+                            normalizedDimension = panelSize.y / sizedDimensions.y;
+                            uvRect = new Rect(0, (1 - normalizedDimension) * .5f, 1, normalizedDimension);
+                        }
+                        else
+                        {
+                            sizedDimensions = new Vector2(_image.texture.width * (panelSize.y / (float)_image.texture.height), panelSize.y);
+                            normalizedDimension = panelSize.x / sizedDimensions.x;
+                            uvRect = new Rect((1 - normalizedDimension) * .5f, 0, normalizedDimension, 1);
+                        }
+                        _image.uvRect = uvRect;
+                        break;
+
+                    case BackgroundSize.Contain:
+                        // Derived from https://forum.unity.com/threads/code-snippet-size-rawimage-to-parent-keep-aspect-ratio.381616/
+                        float w = 0, h = 0;
+                        var bounds = new Rect(0, 0, _rectTransform.rect.width, _rectTransform.rect.height);
+                        Debug.Log(bounds);
+                        if (Mathf.RoundToInt(_imageRectTransform.eulerAngles.z) % 180 == 90)
+                        {
+                            //Invert the bounds if the image is rotated
+                            bounds.size = new Vector2(bounds.height, bounds.width);
+                        }
+                        //Size by height first
+                        h = bounds.height;
+                        w = h * imageAspectRatio;
+                        if (w > bounds.width)
+                        { //If it doesn't fit, fallback to width;
+                            w = bounds.width;
+                            h = w / imageAspectRatio;
+                        }
+                        _imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, w);
+                        _imageRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, h);
+                        break;
+                }
+            }
 		}
 	}
 
@@ -480,6 +526,21 @@ public class CanvasPanel : MonoBehaviour
         if (_camera != null)
         {
             _camera.transform.position = _cameraBasePosition + ((Camera.main.transform.position - _mainCameraBasePosition) / cameraScaleFactor);
+
+            /*Vector3 mainCamPos = Camera.main.transform.position;
+            Quaternion mainCamRot = Camera.main.transform.rotation;
+
+            Vector3 posCanvasToMainCam = mainCamPos - transform.position;
+
+            // compute the rotation between the portal entry and the portal exit
+            Quaternion rotCanvasToAnchor = _camera.transform.rotation * Quaternion.Inverse(transform.rotation);
+
+            // move remote camera position
+            Vector3 posAnchorToStereoCam = rotCanvasToAnchor * posCanvasToMainCam;
+            _camera.transform.position = _camera.transform.position + posAnchorToStereoCam;
+
+            // rotate remote camera
+            _camera.transform.rotation = rotCanvasToAnchor * mainCamRot;*/
         }
 	}
 }

@@ -260,6 +260,15 @@ public class CanvasWriter : MonoBehaviour
                             panel.SetImageTransition(floatValue);
                         }
                         break;
+                    case "setbackgroundsize":
+                        if (step.content == "cover")
+                        {
+                            panel.SetBackgroundSize(BackgroundSize.Cover);
+                        } else if (step.content == "contain")
+                        {
+                            panel.SetBackgroundSize(BackgroundSize.Contain);
+                        }
+                        break;
                 }
             }
         }
