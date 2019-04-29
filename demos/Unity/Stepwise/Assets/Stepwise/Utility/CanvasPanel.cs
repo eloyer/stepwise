@@ -409,7 +409,6 @@ public class CanvasPanel : MonoBehaviour
                 yield return 0;
                 _image.gameObject.SetActive(true);
                 SetImageTexture(texture);
-				CorrectImageAspectRatio ();
             }
 		}
 	}
@@ -424,6 +423,7 @@ public class CanvasPanel : MonoBehaviour
             color.a = 0;
             _image.color = color;
             _image.texture = texture;
+            CorrectImageAspectRatio();
         }
         else
         {
@@ -446,6 +446,7 @@ public class CanvasPanel : MonoBehaviour
         seq.append((object obj) =>
         {
             _image.texture = texture;
+            CorrectImageAspectRatio();
             color = Color.white;
             color.a = 0;
             if (_image.texture == null)
