@@ -20,15 +20,23 @@
         $.extend(this.options, localOptions);
         $.extend(this.options, options);
         if (!window.gibberHasBeenInitialized) {
-			Gibber.init();
+          var me = this;
+          var play = function() {
+            console.log('Initial gesture received');
+          	me.drums = EDrums();
+          	me.bus = Bus().fx.add(Reverb({roomSize: Add(.25, .65)}));
+          	me.drums.send(me.bus, 1);
+          	me.drums.kick.decay = 1;
+          }
+          Gibber.init(play);
         }
 		window.gibberHasBeenInitialized = true;
     	this.unpitchedInstruments = [
-    		"gibberdrumkick", 
-    		"gibberdrumsnare", 
-    		"gibberdrumhat", 
-    		"gibberhatopen", 
-    		"gibbercowbell", 
+    		"gibberdrumkick",
+    		"gibberdrumsnare",
+    		"gibberdrumhat",
+    		"gibberhatopen",
+    		"gibbercowbell",
     		"gibberclave"
     	];
     	this.gibberInstruments = [
@@ -275,9 +283,9 @@
 						case 'gibberfmdrum2':
 						case 'gibberfmbrass':
 						case 'gibberfmclarinet':
-						case 'gibberfmglockenspiel':	
-						instrument = FM(instrumentName.substr(8));	
-						break;	
+						case 'gibberfmglockenspiel':
+						instrument = FM(instrumentName.substr(8));
+						break;
 
 						case "gibberdrumkick":
 						case "gibberdrumsnare":
@@ -327,7 +335,7 @@
             value: function(step, element, processedContent) {
                 var instrumentName = this.getInstrumentNameForStep(step);
 		    	if ((instrumentName != null) && this.isValidNoteName(step.content)) {
-					
+
 					var amplitude;
 					switch (step.tone) {
 
@@ -407,7 +415,7 @@
 		    		}
 		    	}
 		    	return null;
-		    }  
+		    }
 	    },
 
 		isValidNoteName: {
@@ -420,7 +428,7 @@
 				}
 				var name = noteName.substring(0, noteName.length - octavePortionLength);
 				return this.noteNames[name] != null;
-			}   
+			}
 		},
 
 		noteNameToMidiNoteNum: {
@@ -435,13 +443,13 @@
 				var octave = parseInt( noteName.substring( noteName.length - octavePortionLength ) );
 				octave += 2;
 				return ( octave * 12 ) + this.noteNames[ name ];
-			}   
+			}
 		},
 
 		midiNoteNumToFrequency: {
 			value: function( midiNoteNum ) {
 				return Math.pow( 2, ( midiNoteNum - 69 ) / 12.0 ) * 440.0;
-			}   
+			}
 		}
 	});
 
