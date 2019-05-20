@@ -1,5 +1,6 @@
 ==================
 Stepwise for Unity
+by Erik Loyer
 ==================
 
 View this document online at https://github.com/eloyer/stepwise/wiki/Getting-started-with-Stepwise-for-Unity
@@ -29,3 +30,5 @@ In addition, the StepworksCatalog scene includes a plain text input option, to d
 Note that one way to create more complex stories is to visit the Stepworks website and use its Google Sheets authoring features. Every time a Google Sheets script is loaded into the Stepworks website, the Stepwise XML script that results is output to the console of the web browser. The script can be copied from there and pasted into a text file in your Unity project.
 
 For more details on using Stepwise in your Unity project, check the Stepwise Unity API Reference (https://github.com/eloyer/stepwise/wiki/Stepwise-Unity-API-Reference).
+
+Released under an MIT license.
