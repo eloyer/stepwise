@@ -1,5 +1,5 @@
 ;(function ($, window, document, undefined) {
- 
+
     var pluginName = "stepwise",
         defaults = {
             clickInput: true,
@@ -12,7 +12,7 @@
             tapInput: true,
             gamepadInput: true
         };
-        
+
     $.fn[pluginName] = function (config) {
         return this.each(function () {
             if (!$.data(this, "plugin_" + pluginName)) {
@@ -26,7 +26,7 @@
     function Stepwise(element, config) {
 
     	var okToInit = true;
-    
+
     	if (typeof config === 'object') {
     		if (!Array.isArray(config)) {
     			if (config.delimiter == 'newline') {
@@ -44,7 +44,7 @@
     	} else {
     		okToInit = false;
     	}
-     
+
      	if (okToInit) {
 	        this.element = element;
 	        $(this.element).bind("executeStep", this.handleExecuteStep);
@@ -57,12 +57,12 @@
 	 		this.init();
      	}
     }
- 
+
     Stepwise.prototype.init = function() {
     	this.setupInput();
     	this.load(this.options.source, this.options.dataType);
     };
- 
+
     Stepwise.prototype.deactivate = function() {
     	$(this.element).data('plugin_stepwise', null).unbind('executeStep');
     	clearInterval(this._gamepadInterval);
@@ -71,7 +71,7 @@
 
     Stepwise.prototype.setupInput = function() {
     	var me = this;
-    	if (this.options.keyInput) {	
+    	if (this.options.keyInput) {
 	 		$("body").keydown(function(event) {
 				if (me.options.keyCodesToIgnore.indexOf(event.keyCode) == -1) {
 					me.nextStep();
@@ -90,7 +90,7 @@
     	if (this.options.tapInput) {
 			$(inputElement).on("tap", function() {
 				me.nextStep();
-			});   	
+			});
     	}
     	if (this.options.gamepadInput) {
 
@@ -183,11 +183,11 @@
 	Stepwise.prototype.removeGamepad = function(gamepad) {
 		delete this._controllers[gamepad.index];
 	}
-    
+
     Stepwise.prototype.load = function(source, dataType) {
-    
+
     	var me = this;
-    
+
     	switch (dataType) {
 
     		case "array":
@@ -261,25 +261,25 @@
     Stepwise.prototype.reset = function() {
     	this.score.reset();
     }
-	
+
 	Stepwise.prototype.nextStep = function() {
 		return this.score.nextStep(true);
-	}  
-	
+	}
+
 	Stepwise.prototype.play = function() {
 		this.score.play();
-	} 
-	
+	}
+
 	Stepwise.prototype.stop = function() {
 		this.score.stop();
-	} 
-		
+	}
+
 	Stepwise.prototype.handleExecuteStep = function(event, step) {
-	
+
 		var stepwise = $(this).data("plugin_stepwise");
-	
+
 		switch (step.command) {
-		
+
 			case "narrate":
 			case "speak":
 			case "think":
@@ -314,7 +314,7 @@
 			case "setforecolor":
 			stepwise.score.setForeColor(step.content);
 			break;
-			
+
 			case "setlocation":
 			stepwise.score.setLocation(step.target);
 			break;
@@ -322,29 +322,29 @@
 			case "setmidcolor":
 			stepwise.score.setMidColor(step.content);
 			break;
-			
+
 			case "setsequence":
 			stepwise.score.setSequence(step.target, step.atDate, step.autoStart);
 			break;
-			
+
 			case "settemperature":
 			stepwise.score.setTemperature(step.content, step.units);
 			break;
-			
+
 			case "setweather":
 			stepwise.score.setWeather(step.weather);
 			break;
-			
+
 			case "group":
 			step.executeSubsteps();
 			break;
-			
+
 		}
-		
+
 		if (stepwise.options.onStep != null) {
 			stepwise.options.onStep(event, step);
 		}
-	
+
 	}
 
 	Stepwise.prototype.displayStepContent = function(step) {
@@ -353,7 +353,7 @@
 		}
 		$(this.element).append(step.content);
 	}
-	 
+
 	function Score(data, dataType, element, delimiter) {
 		this.element = element;
 		this.isPlaying = false;
@@ -372,17 +372,17 @@
 		this.pulsesPerBeat = 4;
 		this.durationPerBeat = 4;
 		this.swing = 1;
-		
+
 		this.sequenceQueue = [];
 		this.sequenceIndex = 0;
-		
+
 		this.currentLocation = new Location($("<location id=\"defaultLocation\" lat=\"0\" lon=\"0\">Default Location</location>"));
-		
+
 		this.currentTemperature = 24;
 		this.currentTemperatureUnits = TemperatureUnits.CELSIUS;
-		
+
 		this.currentWeather = WeatherConditions.CLEAR;
-		
+
 		this.currentDate = Date.now();
 
 		this.backColor = '#ffffff';
@@ -392,23 +392,23 @@
 	}
 
 	Score.prototype.parseMetadata = function(data, dataType, delimiter) {
-	
+
 		var me = this;
 
 		if (data != null) {
 			if (dataType != "xml") {
 
 				lines = data.split(delimiter);
-				
+
 				var i, line, lineLower, key,
 					n = lines.Length,
 					isUsingStepwiseKeys = false;
 
 				for (i = 0; i < n; i++) {
-					
+
 					line = lines[i];
 					lineLower = line.toLowerCase();
-					
+
 					key = "stepwise.title:";
 					if (lineLower.indexOf(key) == 0) {
 						this.title = line.substr(key.length);
@@ -437,7 +437,7 @@
 						this.description = lines[2].trim();
 					}
 				}
-				
+
 				if (this.title == "") {
 					this.title = "Untitled";
 				}
@@ -445,10 +445,10 @@
 					this.primaryCredits = "Author unknown";
 				}
 				this.version = 1;
-				this.type = "basic";			
+				this.type = "basic";
 
 			} else {
-			
+
 				this.title = data.find("title").first().text();
 				this.description = data.find("description").first().text();
 				this.primaryCredits = data.find("primaryCredits").first().text();
@@ -468,7 +468,7 @@
 					if (pulseData.first().attr("swing") != null) {
 						this.swing = parseFloat(pulseData.first().attr("swing"));
 					}
-					this.pulse = ((60 * 1000) / this.beatsPerMinute) / this.pulsesPerBeat;			
+					this.pulse = ((60 * 1000) / this.beatsPerMinute) / this.pulsesPerBeat;
 				}
 
 			}
@@ -479,7 +479,7 @@
 
 		var me = this;
 		this.xmlData = null;
-				
+
 		if (data != null) {
 
 			this.characters = [];
@@ -504,10 +504,10 @@
 					me.sequences.push(sequence);
 					me.sequencesById[sequence.id] = sequence;
 				});
-				
+
 				this.sequenceIndex = 0;
 				this.currentSequence = null;
-				
+
 				var character;
 				data.find("character").each(function() {
 					character = new Character($(this), me);
@@ -517,7 +517,7 @@
 					me.characters.push(character);
 					me.charactersById[character.id] = character;
 				});
-				
+
 				this.locations = [];
 				this.locationsById = {};
 				var location;
@@ -531,9 +531,9 @@
 				});
 			}
 		}
-		
+
 	}
-	
+
 	Score.prototype.init = function() {
 
 		var i,
@@ -552,7 +552,7 @@
 		for (i = 0; i < n; i++) {
 			this.sequences[i].reset();
 		}
-		
+
 		this.sequenceIndex = 0;
 		this.currentSequence = null;
 		this.sequenceQueue = [];
@@ -569,71 +569,71 @@
 		if (setTriggerTime) {
 			this.triggerTime = new Date().getTime();
 		}
-	
+
 		this.updateCurrentSequence();
-		 
+
 		// if the sequence hasn't been exhausted, execute its next step
-		if (!this.currentSequence.isExhausted) { 
-			step = this.currentSequence.nextStep(); 
+		if (!this.currentSequence.isExhausted) {
+			step = this.currentSequence.nextStep();
 		}
 
 		var me = this;
 		if (this.isPlaying) {
 			this.timeout = setTimeout(function() { me.nextStep(); }, (this.pulse * this.swing * (1.0 / (this.timeScale + .0001))));
 		}
-		
+
 		return step;
-	
-	}   
+
+	}
 
 	Score.prototype.play = function() {
 		this.isPlaying = true;
 		this.nextStep();
-	}	
+	}
 
 	Score.prototype.stop = function() {
 		this.isPlaying = false;
 		clearTimeout(this.timeout);
 	}
-	
+
 	Score.prototype.updateCurrentSequence = function() {
-	
-		var sequence;  
-		
+
+		var sequence;
+
 		// if there are sequences in the queue, get the current one
-		if (this.sequenceQueue.length > 0) { 
-			sequence = this.sequenceQueue[this.sequenceQueue.length - 1]; 
-		 
+		if (this.sequenceQueue.length > 0) {
+			sequence = this.sequenceQueue[this.sequenceQueue.length - 1];
+
 		 	// if it's already completed, then
 			if (sequence.isCompleted) {
-			 
+
 			 	// remove it from the queue
 				if (this.sequenceQueue.length > 0) {
 					this.sequenceQueue.pop();
 				}
-				
+
 				// if there's still a queue, then grab the next sequence from it
 				if (this.sequenceQueue.length > 0) {
 					sequence = this.sequenceQueue[this.sequenceQueue.length - 1];
-					
+
 				// otherwise, grab the current non-queue sequence
 				} else {
-					sequence = this.sequences[this.sequenceIndex]; 
+					sequence = this.sequences[this.sequenceIndex];
 				}
-			} 
-			
+			}
+
 		// grab the current non-queue sequence
 		} else {
 			sequence = this.sequences[this.sequenceIndex];
 		}
-		 
+
 		// if the sequence hasn't been exhausted, make it current
-		if (!sequence.isExhausted) { 
+		if (!sequence.isExhausted) {
 			this.currentSequence = sequence;
 		}
-	
+
 	}
-	
+
 	/**
 	 * Given a sequence id, makes it the current sequence.
 	 *
@@ -642,7 +642,7 @@
 	 * @param autoStart		If true, the sequence will automatically play its first step.
 	 */
 	Score.prototype.setSequence = function(sequence, atDate, autoStart) {
-	
+
 		var index = this.sequences.indexOf(sequence);
 		if (index != -1) {
 			this.sequenceIndex = index;
@@ -654,15 +654,15 @@
 				this.currentSequence.nextStep();
 			}
 		}
-		
+
 	}
-	
+
 	Score.prototype.playSequence = function(sequence) {
 		this.currentSequence = sequence;
 		this.sequenceQueue.push(sequence);
 		sequence.nextStep();
 	}
-	
+
 	/**
 	 * Given an id and a type, returns the corresponding object.
 	 *
@@ -672,50 +672,50 @@
 	Score.prototype.getItemForId = function(type, id) {
 
 		switch (type) {
-		
+
 			case "character":
 			return this.charactersById[id];
 			break;
-		
+
 			case "location":
 			return this.locationsById[id];
 			break;
-		
+
 			case "sequence":
 			return this.sequencesById[id];
 			break;
-		
+
 		}
-		
+
 		return null;
 	}
-	
+
 	Score.prototype.setBackColor = function(color) {
 		this.backColor = color;
 	}
-	
+
 	Score.prototype.setForeColor = function(color) {
 		this.foreColor = color;
 	}
-	
+
 	Score.prototype.setMidColor = function(color) {
 		this.midColor = color;
 	}
-	
+
 	Score.prototype.setLocation = function(location) {
-	
+
 		var index = this.locations.indexOf(location);
 		if (index != -1) {
 			this.currentLocation = location;
 		}
-		
+
 	}
-	
+
 	Score.prototype.setTemperature = function(temperature, units) {
 		this.currentTemperature = temperature;
 		this.currentTemperatureUnits = units;
 	}
-	
+
 	Score.prototype.setWeather = function(weather) {
 		this.currentWeather = weather;
 	}
@@ -723,9 +723,9 @@
 	Score.prototype.setDate = function(date) {
 		this.currentDate = date;
 	}
-	
+
 	function Sequence(data, dataType, score, delimiter) {
-	
+
 		var me = this;
 
 		this.parentScore = score;
@@ -824,70 +824,70 @@
 				});
 			}
 		}
-		
+
 	}
-	
+
 	Sequence.prototype.init = function() {
-	
+
 		var i,
 			n = this.steps.length;
 
 		for (i = 0; i < n; i++) {
 			this.steps[i].init();
 		}
-	
+
 	}
-	 
+
 	Sequence.prototype.reset = function() {
-		this.stepIndex = -1; 
+		this.stepIndex = -1;
 		this.isCompleted = false;
 		this.isExhausted = false;
 		this.percentCompleted = 0;
 	}
-	
+
 	Sequence.prototype.nextStep = function() {
-	
+
 		var result = null;
 
 		//console.log(this.id + ' ' + this.isExhausted + ' ' + this.shuffle + ' ' + this.isCompleted);
-	  
+
 	  	if (this.steps.length > 0) {
 
 		  	// if the sequence hasn't been exhausted, then
 		 	if (!this.isExhausted) {
-			 	
+
 				// if the sequence is not shuffled, then
-				if (!this.shuffle) { 
-				 
+				if (!this.shuffle) {
+
 				 	// if the sequence has been completed and is set to repeat, then restart it
-					if (this.isCompleted && this.repeat) { 
+					if (this.isCompleted && this.repeat) {
 						//console.log('sequence was completed; resetting');
 						this.reset();
 					}
-						 
+
 					this.stepIndex++;
-					result = this.steps[this.stepIndex].execute(); 
+					result = this.steps[this.stepIndex].execute();
 
 					this.percentCompleted = this.stepIndex / parseFloat(this.steps.Count);
-					
+
 					//console.log("step " + this.stepIndex);
-					
+
 					// if this is the last step in the sequence, then
-					if (this.stepIndex >= (this.steps.length - 1)) { 
-						this.completions++; 
-						
+					if (this.stepIndex >= (this.steps.length - 1)) {
+						this.completions++;
+
 						//console.log('sequence ' + this.id + ' reached its end');
-						
+
 						// if the sequence is set to repeat, then
-						if (this.repeat) {   
+						if (this.repeat) {
 							//console.log('this is a repeating sequence');
-						
+
 							if (this.count > -1) {
 								//console.log('a count has been specified');
-								if (this.completions >= this.count) {  
+								if (this.completions >= this.count) {
 									//console.log('the count has been exhausted');
 									this.isExhausted = true;
-								} else { 
+								} else {
 									//console.log('resetting for another round');
 									this.reset();
 								}
@@ -895,28 +895,28 @@
 								//console.log('no count specified; resetting for another round');
 								this.reset();
 							}
-							
+
 						// otherwise, if the sequence is not set to repeat, then mark it as completed
-						} else { 
+						} else {
 							//console.log('this is a non-repeating sequence');
-						
+
 							if (this.count > -1) {
 								//console.log('a count has been specified');
 								if (this.completions >= count) {
 									//console.log('the count has been exhausted');
 									this.isExhausted = true;
-								} else { 
+								} else {
 									//console.log('the sequence is completed');
 									this.isCompleted = true;
 								}
-							} else { 
+							} else {
 								//console.log('no count specified; sequence is completed');
 								this.isCompleted = true;
 								this.isExhausted = true;
 							}
-						} 
+						}
 					}
-					
+
 				// shuffled playback
 				} else {
 					//console.log('this is a shuffled sequence');
@@ -934,14 +934,14 @@
 						//console.log('the count has been exhausted');
 						this.isExhausted = true;
 					}
-					result = this.steps[this.stepIndex].execute(); 
+					result = this.steps[this.stepIndex].execute();
 				}
 			}
 		}
-	
+
 		return result;
-	} 
-	
+	}
+
 	Sequence.prototype.getCurrentStepId = function() {
 		if (this.stepIndex == -1) {
 			return "";
@@ -949,7 +949,7 @@
 			return this.steps[this.stepIndex].id;
 		}
 		return "";
-	}   
+	}
 
 	Sequence.prototype.matchDate = function(date) {
 
@@ -969,8 +969,8 @@
 				}
 			}
 		}
-	} 
-	
+	}
+
 	var SpeechTone = {
 		NORMAL: "normal",
 		MURMUR: "murmur",
@@ -978,12 +978,12 @@
 		SHOUT: "shout",
 		SCREAM: "scream"
 	}
-	
+
 	var TemperatureUnits = {
 		FAHRENHEIT: "fahrenheit",
 		CELSIUS: "celsius"
 	}
-	
+
 	// adapted from http://openweathermap.org/weather-conditions
 	var WeatherConditions = {
 		CLEAR: "clear",
@@ -998,9 +998,9 @@
 		EXTREME: "extreme",
 		ADDITIONAL: "additional"
 	}
-		
+
 	function Step(data, dataType, score) {
-		
+
 		var me = this;
 		this.parentScore = score;
 
@@ -1013,7 +1013,7 @@
 			this.type = null;
 
 		} else {
-	
+
 			this.data = $(data);
 			this.command = data.prop("tagName").toLowerCase();
 			this.itemRef = data.attr("itemRef");
@@ -1025,7 +1025,7 @@
 
 			this.content = data.text();
 			this.substeps = [];
-			
+
 			var step;
 			data.children().each(function() {
 				var step = new Step($(this), "xml", me.parentScore);
@@ -1035,24 +1035,24 @@
 		}
 
 		this.parseCommand();
-	
+
 	}
 
 	Step.prototype.parseCommand = function() {
-			
+
 		switch (this.command) {
-		
+
 			case "speak":
 			case "sing":
 			this.tone = SpeechTone[this.data.attr("tone") != null ? this.data.attr("tone").toUpperCase() : SpeechTone.NORMAL];
 			break;
-			
+
 			case "settemperature":
 			this.units = TemperatureUnits[this.data.attr("units") != null ? this.data.attr("units").toUpperCase() : TemperatureUnits.CELSIUS];
     		break;
-			
+
 			case "setweather":
-			this.weather = WeatherConditions[this.content != null ? this.content.toUpperCase() : WeatherConditions.CLEAR]; 
+			this.weather = WeatherConditions[this.content != null ? this.content.toUpperCase() : WeatherConditions.CLEAR];
 			break;
 
 			case "setdate":
@@ -1064,36 +1064,36 @@
 			this.atDate = this.data.attr("atDate");
 			this.autoStart = this.data.attr("autoStart") == "true" ? true : false;
 			break;
-		
+
 		}
 
 	}
-	
+
 	Step.prototype.init = function(substep) {
-	
+
 		var i, n;
 
 		if (substep == null) {
 			substep = false;
 		}
-	
+
 		switch (this.command) {
 
 			case "narrate":
 			this.target = { visible: true };
 			break;
-		
+
 			case "speak":
 			case "think":
 			case "sing":
 			this.target = this.parentScore.getItemForId("character", this.data.attr("character"));
 			this.target.setVisibilityForStep(this);
 			break;
-			
+
 			case "setlocation":
 			this.target = this.parentScore.getItemForId("location", this.content);
 			break;
-			
+
 			case "setsequence":
 			case "sample":
 			case "reset":
@@ -1122,16 +1122,16 @@
 				this.target = { visible: false };
 			}
 			break;
-		
+
 		}
 
 		n = this.substeps.length;
 		for (i = 0; i < n; i++) {
 			this.substeps[i].init(true);
 		}
-		
+
 	}
-		
+
 	Step.prototype.execute = function() {
 		var me = this;
 		if (this.delay == null) {
@@ -1143,7 +1143,7 @@
 		}
 		return this;
 	}
-	
+
 	Step.prototype.executeSubsteps = function() {
 		var i, step,
 			n = this.substeps.length;
@@ -1152,15 +1152,15 @@
 			step.execute();
 		}
 	}
-	
-	function Character(data, score) {	
+
+	function Character(data, score) {
 		this.data = $(data);
 		this.parentScore = score;
 		this.id = data.attr("id");
 		this.firstName = data.attr("firstname");
 		this.lastName = data.attr("lastname");
 		this.fullName = this.firstName + (((this.lastName == "") || (this.lastName == null)) ? "" : " " + this.lastName);
-		this.visible = (data.attr("visible") == "true") ? true : false;	
+		this.visible = (data.attr("visible") == "true") ? true : false;
 	}
 
 	Character.prototype.setVisibilityForStep = function(step) {
@@ -1175,16 +1175,80 @@
 			}
 		}
 	}
-	
-	function Location(data, score) {	
+
+	function Location(data, score) {
 		this.data = $(data);
 		this.parentScore = score;
 		this.id = data.attr("id");
 		this.latitude = parseFloat(data.prop("lat"));
 		this.longitude = parseFloat(data.attr("lon"));
-		this.name = data.text();	
+		this.name = data.text();
 	}
-	
+
+  function Agent() {
+    this.panel = new Panel();
+    this.typography = new Typography();
+    this.media = new Media();
+    this.camera = new Camera();
+    this.avatar = new Avatar();
+    this.instrument = new Instrument();
+  }
+
+  function Panel() {
+    this.transition = .5;
+    this.easing = "none";
+    this.left = 0;
+    this.top = 0;
+    this.width = 0;
+    this.height = 0;
+    this.margin = 0;
+    this.borderWidth = 0;
+    this.borderColor = "#fff";
+    this.matteColor = "#ffffff00";
+  }
+
+  function Typography() {
+    this.color = "#ffffff";
+    this.transition = .5;
+    this.easing = "none";
+    this.font = "Helvetica";
+    this.fontSize = -1;
+    this.letterSpacing = "100%";
+    this.lineHeight = "100%";
+    this.align = "left";
+    this.transform = "uppercase";
+    this.margin = 0;
+    this.backgroundColor = "#fff";
+    this.padding = 0;
+  }
+
+  function Media() {
+    this.url = "";
+  }
+
+  function Camera() {
+    this.position = "0,0,0";
+    this.rotation = "0,0,0";
+    this.focalLength = 60;
+    this.lookAt = null;
+    this.transition = .5;
+    this.easing = "none";
+  }
+
+  function Avatar() {
+    this.firstName = "";
+    this.lastName = "";
+    this.fullName = "";
+    this.biography = "";
+    this.media = null;
+    this.model = null;
+    this.birthdate = null;
+  }
+
+  function Instrument() {
+    this.name = "";
+  }
+
 })(jQuery, window, document);
 
 
@@ -1213,7 +1277,7 @@
         $.extend(this.options, options);
         this.bindings = [];
         this.displayStepHandlers = [];
-        this.fileExtensions = ['gif','jpg','png','mp3','wav','ogg','mp4','m4a','m4v','obj'];
+        this.fileExtensions = ['gif','jpg','jpeg','png','mp3','wav','ogg','mp4','m4a','m4v','obj'];
         this.lastCharacter = null;
     }
 
@@ -1285,7 +1349,7 @@
                     }
                     break;
 
-                }                
+                }
             }
 
 	    });
@@ -1316,7 +1380,7 @@
 		if (ext.charAt(ext.length - 1) == '#') {
 			ext = ext.substr(0, ext.length - 1);
 		}
-		return (this.fileExtensions.indexOf(ext) != -1);
+		return (this.fileExtensions.indexOf(ext.toLowerCase()) != -1);
  	}
 
     AbstractEffect.prototype.getVisibleCharacterCount = function() {
@@ -1377,15 +1441,15 @@
     AbstractEffect.prototype.parseTemperature = function(step) {
         var text = step.content + "°";
         switch (step.units) {
-            
+
             case TemperatureUnits.CELSIUS:
             text = '<br />' + text + "C";
             break;
-                
+
             case TemperatureUnits.FAHRENHEIT:
             text = '<br />' + text + "F";
             break;
-            
+
         }
         return text;
     }
@@ -1443,7 +1507,7 @@
             } else if ((step.target.id != null) && (binding.character != null) && (step.target.id == binding.character.id)) {
                 characterMatch = true;
             }
-            if (characterMatch) {         
+            if (characterMatch) {
                 eligibleBindings.push(binding);
             }
         }

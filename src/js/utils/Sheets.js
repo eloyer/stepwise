@@ -202,7 +202,7 @@
 										}
 										if (action.payload.visible != null) {
 											script.find('#'+id).attr('visible', action.payload.visible?'true':'false');
-										} 
+										}
 										if (action.payload.repeat != null) {
 											me.sequencesByCharacter[id].attr('repeat', action.payload.repeat);
 										}
@@ -329,6 +329,7 @@
 
 					case '$sample':
 					case '$reset':
+          content = content.trim();
 					script = $('<' + command.substr(1) + '>' + content + '</' + command.substr(1) + '>');
 					action.type = 'command';
 					break;
