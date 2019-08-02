@@ -1297,7 +1297,7 @@
                     case "speak":
                     case "narrate":
                     case "think":
-                    if (!me.options.ignoreFilenames || (me.options.ignoreFilenames && !me.hasMediaFileExtension(step.content))) {
+                    if ((!me.options.ignoreFilenames || (me.options.ignoreFilenames && !me.hasMediaFileExtension(step.content))) && me.getIdFromYouTubeURL(step.content) == null {
                     	me.displayStep(step, bindings[i].element, me.parseCharacterAction(step));
                     }
                     break;
@@ -1382,6 +1382,18 @@
 		}
 		return (this.fileExtensions.indexOf(ext.toLowerCase()) != -1);
  	}
+
+  AbstractEffect.prototype.getIdFromYouTubeURL = function(url) {
+    var id;
+    url = url.replace(/(>|<)/gi, '').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
+    if (url[2] != null) {
+      id = url[2].split(/[^0-9a-z_-]/i);
+      id = id[0];
+      return id;
+    } else {
+      return null;
+    }
+  }
 
     AbstractEffect.prototype.getVisibleCharacterCount = function() {
         var count = 0;
