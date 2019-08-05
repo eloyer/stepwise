@@ -1297,7 +1297,7 @@
                     case "speak":
                     case "narrate":
                     case "think":
-                    if ((!me.options.ignoreFilenames || (me.options.ignoreFilenames && !me.hasMediaFileExtension(step.content))) && me.getIdFromYouTubeURL(step.content) == null {
+                    if ((!me.options.ignoreFilenames || (me.options.ignoreFilenames && !me.hasMediaFileExtension(step.content))) && me.getIdFromYouTubeURL(step.content) == null) {
                     	me.displayStep(step, bindings[i].element, me.parseCharacterAction(step));
                     }
                     break;
