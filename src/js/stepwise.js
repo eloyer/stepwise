@@ -1180,7 +1180,7 @@
 		this.data = $(data);
 		this.parentScore = score;
 		this.id = data.attr("id");
-		this.latitude = parseFloat(data.prop("lat"));
+		this.latitude = parseFloat(data.attr("lat"));
 		this.longitude = parseFloat(data.attr("lon"));
 		this.name = data.text();
 	}
