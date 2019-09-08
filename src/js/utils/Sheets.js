@@ -261,7 +261,7 @@
 				}
 
 				if (command != '$sequence') {
-					var contentMatch = /[^+@=]*/g;
+					var contentMatch = /[^+@]*/g;
 					var contentResults = contentMatch.exec(content);
 					if (contentResults != null) {
 						content = contentResults[0];
@@ -272,23 +272,23 @@
 					}
 				}
 
-				var delayMatch = /\+([\d])*(.[\d]*)(?![^+@=])/g;
+				var delayMatch = /\+([\d])*(.[\d]*)(?![^+@])/g;
 				var delayResults = delayMatch.exec(source);
 				if (delayResults != null) {
 					var delay = parseFloat(delayResults);
 				}
 
-				var toneMatch = /@[^+@=]+/g;
+				var toneMatch = /@[^+@]+/g;
 				var toneResults = toneMatch.exec(source);
 				if (toneResults != null) {
 					var tone = toneResults[0].substr(1);
 				}
 
-				var durationMatch = /=[^@+=]+/g;
+				/*var durationMatch = /=[^@+=]+/g;
 				var durationResults = durationMatch.exec(source);
 				if (durationResults != null) {
 					var duration = durationResults[0].substr(1);
-				}
+				}*/
 
 				var script,
 					action = {};
@@ -431,9 +431,9 @@
 						tone = this.parseTone(tone);
 						script.attr("tone", tone);
 					}
-					if (duration != null) {
+					/*if (duration != null) {
 						script.attr("duration", duration);
-					}
+					}*/
 					action.payload = script;
 				}
 				return action;
