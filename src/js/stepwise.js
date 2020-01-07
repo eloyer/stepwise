@@ -400,7 +400,7 @@
     if (data != null) {
       if (dataType != "xml") {
 
-        lines = data.split(delimiter);
+        var lines = data.split(delimiter);
 
         var i, line, lineLower, key,
           n = lines.Length,
@@ -417,7 +417,7 @@
             isUsingStepwiseKeys = true;
           }
           key = "stepwise.credit:";
-          if (lineLower.indexOf(ey) == 0) {
+          if (lineLower.indexOf(key) == 0) {
             this.primaryCredits = line.substr(key.length);
             isUsingStepwiseKeys = true;
           }
@@ -914,7 +914,7 @@
 
               if (this.count > -1) {
                 //console.log('a count has been specified');
-                if (this.completions >= count) {
+                if (this.completions >= this.count) {
                   //console.log('the count has been exhausted');
                   this.isExhausted = true;
                 } else {
@@ -1327,7 +1327,7 @@
               var step = $(this).data("step");
               if (step.type == "sequence") {
                 step.parentScore.triggerTime = new Date().getTime()
-                stepwise.score.setSequence(step.destination, step.atDate, step.autoStart);
+                this.instance.score.setSequence(step.destination, step.atDate, step.autoStart);
               }
             });
             me.displayStep(step, bindings[i].element, element);
@@ -1391,7 +1391,7 @@
       return false;
     }
     var temp = b.split('.');
-    ext = temp[temp.length - 1];
+    var ext = temp[temp.length - 1];
     if (ext == parseFloat(ext)) {
       return false;
     }
@@ -1472,11 +1472,11 @@
     var text = step.content + "°";
     switch (step.units) {
 
-      case TemperatureUnits.CELSIUS:
+      case this.instance.TemperatureUnits.CELSIUS:
         text = '<br />' + text + "C";
         break;
 
-      case TemperatureUnits.FAHRENHEIT:
+      case this.instance.TemperatureUnits.FAHRENHEIT:
         text = '<br />' + text + "F";
         break;
 
