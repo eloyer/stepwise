@@ -56,6 +56,7 @@
       this._controllers = {};
       this._pressedControllerButtons = [];
       this._isActive = true;
+      this._isInputEnabled = true;
       this.init();
     }
   }
@@ -71,12 +72,18 @@
     this._isActive = false;
   };
 
+  Stepwise.prototype.setInputEnabled = function(enabled) {
+    this._isInputEnabled = enabled;
+  }
+
   Stepwise.prototype.setupInput = function() {
     var me = this;
     if (this.options.keyInput) {
       $("body").keydown(function(event) {
-        if (me.options.keyCodesToIgnore.indexOf(event.keyCode) == -1) {
-          me.nextStep();
+        if (me.options.keyCodesToIgnore.indexOf(event.keyCode) == -1 && me._isInputEnabled) {
+          if (me._isInputEnabled) {
+            me.nextStep();
+          }
         }
       });
     }
@@ -86,12 +93,16 @@
     }
     if (this.options.clickInput) {
       $(inputElement).mousedown(function() {
-        me.nextStep();
+        if (me._isInputEnabled) {
+          me.nextStep();
+        }
       });
     }
     if (this.options.tapInput) {
       $(inputElement).on("tap", function() {
-        me.nextStep();
+        if (me._isInputEnabled) {
+          me.nextStep();
+        }
       });
     }
     if (this.options.gamepadInput) {
@@ -160,7 +171,9 @@
           }
           if (pressed) {
             if (me._pressedControllerButtons.indexOf(i) == -1) {
-              me.nextStep();
+              if (me._isInputEnabled) {
+                me.nextStep();
+              }
               me._pressedControllerButtons.push(i);
             }
           } else {
