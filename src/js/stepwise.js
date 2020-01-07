@@ -857,6 +857,25 @@
     this.percentCompleted = 0;
   }
 
+  Sequence.prototype.seekToStep = function(step) {
+    var index = this.steps.indexOf(step);
+    if (index == -1) {
+      var n = this.steps.length;
+      var subIndex;
+      for (var i=0; i<n; i++) {
+        subIndex = this.steps[i].substeps.indexOf(step);
+        if (subIndex != -1) {
+          this.stepIndex = index - 1;
+        }
+      }
+    } else {
+      this.stepIndex = index - 1;
+    }
+    if (index == -1) {
+      console.log('Could not cue up step in sequence “'+this.id+'”; not found.');
+    }
+  }
+
   Sequence.prototype.nextStep = function() {
 
     var result = null;
