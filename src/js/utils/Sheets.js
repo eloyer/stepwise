@@ -12,29 +12,32 @@
     	sequencesByCharacter: {},
     	restrictedCharacterIds: ['metadata','pulse','comments','instructions'],
 
-	 	getXMLFromSheet: function(sheetId, success) {
+	 	getXMLFromSheet: function(sheetId, success, apiKey) {
+      if (!apiKey) {
+        console.log('The Google Sheets API v4 requires an API key to retrieve data.');
+        return;
+      }
 	 		var me = this;
 	 		var url;
 	 		// sheetId contains a Google Sheets id
 	 		if (sheetId.indexOf('https://') == -1) {
-				url = "https://spreadsheets.google.com/feeds/list/" + sheetId +"/1/public/values?alt=json";
+        url = "https://sheets.googleapis.com/v4/spreadsheets/" + sheetId + "?includeGridData=true&key=AIzaSyD1p4asMHmsiou_nQ_vL7O49OM1tXPDdXo";
 			// or a Google Sheets edit URL
 	 		} else if (sheetId.indexOf('edit#') != -1) {
 				var temp = sheetId.split('/');
-				url = "https://spreadsheets.google.com/feeds/list/" + temp[5] +"/1/public/values?alt=json";
-			// otherwise, assume this is a correctly formed Google Sheets JSON URL
+        url = "https://sheets.googleapis.com/v4/spreadsheets/" + temp[5] + "?includeGridData=true&key=AIzaSyD1p4asMHmsiou_nQ_vL7O49OM1tXPDdXo";
+  		// otherwise, assume this is a correctly formed Google Sheets JSON URL
 	 		} else {
 	 			url = sheetId;
 	 		}
 			var script = $('<stepwise><title>Untitled</title><description></description><primaryCredits></primaryCredits><secondaryCredits></secondaryCredits><version>1</version><sequence id="global" repeat="+"></sequence></stepwise>');
 			$.getJSON(url, function(data) {
-				script.find('title').text(data.feed.title.$t);
-				script.find('primaryCredits').text(data.feed.author[0].name.$t);
-				var entry = data.feed.entry;
-				me.addMetadataFromEntry(script, entry[0]);
-				me.addCharactersFromEntry(script, entry[0]);
-				me.addActionsFromEntries(script, entry);
-				me.trimTrailingEmptySteps(script);
+				script.find('title').text(data.properties.title);
+				var rowData = data.sheets[0].data[0].rowData;
+				me.addMetadataFromRows(script, rowData[0], rowData[1]);
+				me.addCharactersFromRow(script, rowData[0]);
+				me.addActionsFromRows(script, rowData);
+			  me.trimTrailingEmptySteps(script);
 				success(script[0]);
 			});
 		},
@@ -63,7 +66,7 @@
 		},
 
 		propertyIsColumnHeader: function(property) {
-			return (property.indexOf("gsx$") != -1);
+			return (property.userEnteredValue.trim() != '');
 		},
 
 		characterIdIsRestricted: function(id) {
@@ -76,89 +79,90 @@
 			return isRestricted;
 		},
 
-		addMetadataFromEntry: function(script, entry) {
-			var i, temp, param, value;
-			for (i in entry) {
-				if (this.propertyIsColumnHeader(i)) {
-					var str = i.substr(4);
-					switch (str) {
+		addMetadataFromRows: function(script, topRow, secondRow) {
+			var temp, param, value;
+      topRow.values.forEach((value, index) => {
+        if (value.userEnteredValue) {
+          let str = value.userEnteredValue.stringValue.toLowerCase();
+          switch (str) {
 
-						case "metadata":
-						temp = entry[i].$t.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/g); // split on commas outside of double quotes
-						$(temp).each(function() {
-							temp = this.trim().split(':');
-							param = temp.shift();
-							value = temp.join(':');
-							value = value.replace(/^"|"$/g, '');
-							switch (param) {
-								case 'title':
-								script.find('title').text(value.trim());
-								break;
-								case 'primaryCredits':
-								script.find('primaryCredits').text(value.trim());
-								break;
-								case 'secondaryCredits':
-								script.find('secondaryCredits').text(value.trim());
-								break;
-								case 'description':
-								script.find('description').text(value.trim());
-								break;
-								case 'version':
-								script.find('version').text(value.trim());
-								break;
-								case 'pulse':
-								temp = value.split("/");
-								var element = $('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
-								if (temp.length > 2) {
-									element.attr("swing", temp[2]);
-								}
-								script.append(element);
-								break;
-							}
-						});
-						break;
+            case 'metadata':
+            temp = secondRow.values[index].userEnteredValue.stringValue.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/g); // split on commas outside of double quotes
+            temp.forEach(item => {
+              temp = item.trim().split(':');
+              param = temp.shift();
+              value = temp.join(':');
+              value = value.replace(/^"|"$/g, '');
+              switch (param) {
+                case 'title':
+                script.find('title').text(value.trim());
+                break;
+                case 'primaryCredits':
+                script.find('primaryCredits').text(value.trim());
+                break;
+                case 'secondaryCredits':
+                script.find('secondaryCredits').text(value.trim());
+                break;
+                case 'description':
+                script.find('description').text(value.trim());
+                break;
+                case 'version':
+                script.find('version').text(value.trim());
+                break;
+                case 'pulse':
+                temp = value.split("/");
+                var element = $('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
+                if (temp.length > 2) {
+                  element.attr("swing", temp[2]);
+                }
+                script.append(element);
+                break;
+              }
+            });
+            break;
 
-						case "pulse":
-						temp = entry[i].$t.split("/");
-						var element = $('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
-						if (temp.length > 2) {
-							element.attr("swing", temp[2]);
-						}
-						script.append(element);
-						break;
-
-					}
-				}
-			}
+            case 'pulse':
+            temp = secondRow.values[index].userEnteredValue.stringValue.split("/");
+            var element = $('<pulse beatsPerMinute="' + temp[0] + '" pulsesPerBeat="' + temp[1] +'"/>');
+            if (temp.length > 2) {
+              element.attr("swing", temp[2]);
+            }
+            script.append(element);
+            break;
+          }
+        }
+      })
 		},
 
-		addActionsFromEntries: function(script, entries) {
+		addActionsFromRows: function(script, rows) {
 			var me = this;
 			var actions, group;
-			$(entries).each(function() {
-				var globalGroup = $("<group></group>");
-				actionsByCharacter = me.getActionsFromEntry(script, this);
-				for (var prop in actionsByCharacter) {
-					sequence = me.sequencesByCharacter[prop];
-					if (sequence == null) {
-						sequence = script.find('#global');
-						group = globalGroup;
-					} else {
-						group = $("<group></group>");
-					}
-					actions = actionsByCharacter[prop];
-					if (actions.length > 1) {
-						$(actions).each(function() {
-							group.append(this);
-						})
-					} else if (actions.length == 1) {
-						group.append(actions[0]);
-					}
-					if (group.children().length > 0) {
-						sequence.append(group);
-					}
-				}
 
+      rows.forEach((row, index) => {
+        if (index > 0) {
+  				var globalGroup = $("<group></group>");
+  				actionsByCharacter = me.getActionsFromRow(script, row);
+  				for (var prop in actionsByCharacter) {
+  					sequence = me.sequencesByCharacter[prop];
+  					if (sequence == null) {
+  						sequence = script.find('#global');
+  						group = globalGroup;
+  					} else {
+  						group = $("<group></group>");
+  					}
+  					actions = actionsByCharacter[prop];
+  					if (actions.length > 1) {
+  						$(actions).each(function() {
+  							group.append(this);
+  						})
+  					} else if (actions.length == 1) {
+  						group.append(actions[0]);
+  					}
+  					if (group.children().length > 0) {
+  						sequence.append(group);
+  					}
+  				}
+        }
 			});
 			// if the first character's actions are part of a custom sequence, then make sure that sequence
 			// is the first to be executed by moving the global sequence to the end of the script
@@ -173,61 +177,62 @@
 			})
 		},
 
-		getActionsFromEntry: function(script, entry) {
+		getActionsFromRow: function(script, row) {
 			var action,
 				actionsByCharacter = {},
 				me = this;
-			for (var prop in entry) {
-				if (this.propertyIsCharacterId(prop)) {
-					id = this.getCharacterIdFromProperty(prop);
-					actionsByCharacter[id] = [];
-					if (entry[prop] != null) {
-						if (entry[prop].$t == ' ') {
-							actionsByCharacter[id].push($('<nothing character="'+id+'" explicit="true"/>'));
-						} else if (entry[prop].$t == '') {
-							actionsByCharacter[id].push($('<nothing character="'+id+'"/>'));
-						} else {
-							var subActions = entry[prop].$t.split("\n");
-							$(subActions).each(function() {
-								action = me.getActionFromCell(this);
-								if (action != null) {
-									switch (action.type) {
-										case 'config':
-										for (var index in me.sequencesByCharacter) {
-											me.sequencesByCharacter[index].find('nothing').attr('explicit', 'true');
-										}
-										me.sequencesByCharacter[id] = $('<sequence></sequence>').appendTo(script);
-										if (action.payload.shuffle) {
-											me.sequencesByCharacter[id].attr('shuffle', 'true');
-										}
-										if (action.payload.visible != null) {
-											script.find('#'+id).attr('visible', action.payload.visible?'true':'false');
-										}
-										if (action.payload.repeat != null) {
-											me.sequencesByCharacter[id].attr('repeat', action.payload.repeat);
-										}
-										if (action.payload.grouping != null) {
-											me.sequencesByCharacter[id].attr('grouping', action.payload.grouping);
-										}
-										if (action.payload.id != null) {
-											me.sequencesByCharacter[id].attr('id', action.payload.id);
-										}
-										break;
-										case 'command':
-										action.payload.attr("character", id);
-										actionsByCharacter[id].push(action.payload);
-										break;
-										case 'utterance':
-										action.payload.attr("character", id);
-										actionsByCharacter[id].push(action.payload);
-										break;
-									}
-								}
-							});
-						}
-					}
-				}
-			}
+      this.characterData.forEach(character => {
+        let id = character.id;
+				actionsByCharacter[id] = [];
+        if (row.values[character.column]) {
+          let userEnteredValue = row.values[character.column].userEnteredValue;
+          if (userEnteredValue) {
+            if (userEnteredValue.stringValue == ' ') {
+              actionsByCharacter[id].push($('<nothing character="'+id+'" explicit="true"/>'));
+            } else if (userEnteredValue.stringValue == '') {
+              actionsByCharacter[id].push($('<nothing character="'+id+'"/>'));
+            } else {
+              var subActions = userEnteredValue.stringValue.split("\n");
+              subActions.forEach(subAction => {
+                action = me.getActionFromCell(subAction);
+                if (action != null) {
+                  switch (action.type) {
+                    case 'config':
+                    for (var index in me.sequencesByCharacter) {
+                      me.sequencesByCharacter[index].find('nothing').attr('explicit', 'true');
+                    }
+                    me.sequencesByCharacter[id] = $('<sequence></sequence>').appendTo(script);
+                    if (action.payload.shuffle) {
+                      me.sequencesByCharacter[id].attr('shuffle', 'true');
+                    }
+                    if (action.payload.visible != null) {
+                      script.find('#'+id).attr('visible', action.payload.visible?'true':'false');
+                    }
+                    if (action.payload.repeat != null) {
+                      me.sequencesByCharacter[id].attr('repeat', action.payload.repeat);
+                    }
+                    if (action.payload.grouping != null) {
+                      me.sequencesByCharacter[id].attr('grouping', action.payload.grouping);
+                    }
+                    if (action.payload.id != null) {
+                      me.sequencesByCharacter[id].attr('id', action.payload.id);
+                    }
+                    break;
+                    case 'command':
+                    action.payload.attr("character", id);
+                    actionsByCharacter[id].push(action.payload);
+                    break;
+                    case 'utterance':
+                    action.payload.attr("character", id);
+                    actionsByCharacter[id].push(action.payload);
+                    break;
+                  }
+                }
+              });
+            }
+          }
+        }
+			});
 			return actionsByCharacter;
 		},
 
@@ -235,16 +240,27 @@
 			return ((property.indexOf("gsx$") != -1) && !this.characterIdIsRestricted(property.substr(4)));
 		},
 
-		getCharacterIdFromProperty: function(property) {
-			var str = property.substr(4);
-			if (!this.getCharacterVisibilityFromProperty(property)) {
+    getCharacterDataFromHeaderString: function(str, column) {
+      let name = this.getCharacterNameFromHeaderString(str);
+      let id = name.toLowerCase();
+      let characterData = {
+        id: id,
+        firstName: name,
+        column: column,
+        visible: this.getCharacterVisibilityFromHeaderString(str)
+      }
+      return characterData;
+    },
+
+		getCharacterNameFromHeaderString: function(str) {
+			if (!this.getCharacterVisibilityFromHeaderString(str)) {
 				str = str.substr(0, str.length-7);
 			}
 			return str;
 		},
 
-		getCharacterVisibilityFromProperty: function(property) {
-			return !(property.indexOf("-hidden") == (property.length - 7));
+		getCharacterVisibilityFromHeaderString: function(str) {
+			return !((str.indexOf("-hidden") == (str.length - 7)) && str.indexOf("-hidden") != -1);
 		},
 
 		getActionFromCell: function(cell) {
@@ -459,22 +475,24 @@
 			return isEmpty;
 		},
 
-		addCharactersFromEntry: function(script, entry) {
-			var i, id, character;
+		addCharactersFromRow: function(script, topRow) {
+			var id, name, character, characterData;
 			var characterIds = [];
-			for (i in entry) {
-				if (this.propertyIsColumnHeader(i)) {
-					id = this.getCharacterIdFromProperty(i);
-					if ((characterIds.indexOf(id) == -1) && !this.characterIdIsRestricted(id)) {
-						character = $('<character id="' + id + '" firstName="' + id + '"></character>');
-						if (!this.getCharacterVisibilityFromProperty(i)) {
-							character.attr("visible", "false");
-						}
-						script.append(character);
-						characterIds.push(id);
-					}
-				}
-			}
+      this.characterData = []
+      topRow.values.forEach((value, index) => {
+        if (value.userEnteredValue) {
+          let characterData = this.getCharacterDataFromHeaderString(value.userEnteredValue.stringValue, index);
+  				if (this.restrictedCharacterIds.indexOf(characterData.id) == -1 && (characterIds.indexOf(characterData.id) == -1) && !this.characterIdIsRestricted(characterData.id)) {
+  					character = $('<character id="' + characterData.id + '" firstName="' + characterData.firstName + '"></character>');
+  					if (!characterData.visible) {
+  						character.attr("visible", "false");
+  					}
+  					script.append(character);
+            this.characterData.push(characterData);
+  					characterIds.push(id);
+  				}
+        }
+			});
 		},
 
 		parseTone: function(tone) {
