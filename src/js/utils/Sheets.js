@@ -70,13 +70,14 @@
 		},
 
 		characterIdIsRestricted: function(id) {
-			var isRestricted = false;
+      return this.restrictedCharacterIds.indexOf(id.toLowerCase()) != -1;
+			/*var isRestricted = false;
 			$(this.restrictedCharacterIds).each(function() {
 				if (this.indexOf(id.toLowerCase()) != -1) {
 					isRestricted = true;
 				}
 			});
-			return isRestricted;
+			return isRestricted;*/
 		},
 
 		addMetadataFromRows: function(script, topRow, secondRow) {
@@ -495,14 +496,14 @@
             headerString = value.userEnteredValue.numberValue.toString();
           }
           let characterData = this.getCharacterDataFromHeaderString(headerString, index);
-  				if (this.restrictedCharacterIds.indexOf(characterData.id) == -1 && (characterIds.indexOf(characterData.id) == -1) && !this.characterIdIsRestricted(characterData.id)) {
+  				if ((characterIds.indexOf(characterData.id) == -1) && !this.characterIdIsRestricted(characterData.id)) {
   					character = $('<character id="' + characterData.id + '" firstName="' + characterData.firstName + '"></character>');
   					if (!characterData.visible) {
   						character.attr("visible", "false");
   					}
   					script.append(character);
             this.characterData.push(characterData);
-  					characterIds.push(id);
+  					characterIds.push(characterData.id);
   				}
         }
 			});
