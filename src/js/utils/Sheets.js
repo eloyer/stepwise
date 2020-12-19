@@ -21,11 +21,11 @@
 	 		var url;
 	 		// sheetId contains a Google Sheets id
 	 		if (sheetId.indexOf('https://') == -1) {
-        url = "https://sheets.googleapis.com/v4/spreadsheets/" + sheetId + "?includeGridData=true&key=AIzaSyD1p4asMHmsiou_nQ_vL7O49OM1tXPDdXo";
+        url = "https://sheets.googleapis.com/v4/spreadsheets/" + sheetId + "?includeGridData=true&key=" + apiKey;
 			// or a Google Sheets edit URL
 	 		} else if (sheetId.indexOf('edit#') != -1) {
 				var temp = sheetId.split('/');
-        url = "https://sheets.googleapis.com/v4/spreadsheets/" + temp[5] + "?includeGridData=true&key=AIzaSyD1p4asMHmsiou_nQ_vL7O49OM1tXPDdXo";
+        url = "https://sheets.googleapis.com/v4/spreadsheets/" + temp[5] + "?includeGridData=true&key=" + apiKey;
   		// otherwise, assume this is a correctly formed Google Sheets JSON URL
 	 		} else {
 	 			url = sheetId;
@@ -83,7 +83,12 @@
 			var temp, param, value;
       topRow.values.forEach((value, index) => {
         if (value.userEnteredValue) {
-          let str = value.userEnteredValue.stringValue.toLowerCase();
+          let str;
+          if (value.userEnteredValue.stringValue) {
+            str = value.userEnteredValue.stringValue.toLowerCase();
+          } else {
+            str = value.userEnteredValue.numberValue.toString();
+          }
           switch (str) {
 
             case 'metadata':
@@ -192,7 +197,11 @@
             } else if (userEnteredValue.stringValue == '') {
               actionsByCharacter[id].push($('<nothing character="'+id+'"/>'));
             } else {
-              var subActions = userEnteredValue.stringValue.split("\n");
+              let subActionStr = userEnteredValue.stringValue;
+              if (!subActionStr) {
+                subActionStr = userEnteredValue.numberValue.toString();
+              }
+              var subActions = subActionStr.split("\n");
               subActions.forEach(subAction => {
                 action = me.getActionFromCell(subAction);
                 if (action != null) {
@@ -481,7 +490,11 @@
       this.characterData = []
       topRow.values.forEach((value, index) => {
         if (value.userEnteredValue) {
-          let characterData = this.getCharacterDataFromHeaderString(value.userEnteredValue.stringValue, index);
+          let headerString = value.userEnteredValue.stringValue;
+          if (!headerString) {
+            headerString = value.userEnteredValue.numberValue.toString();
+          }
+          let characterData = this.getCharacterDataFromHeaderString(headerString, index);
   				if (this.restrictedCharacterIds.indexOf(characterData.id) == -1 && (characterIds.indexOf(characterData.id) == -1) && !this.characterIdIsRestricted(characterData.id)) {
   					character = $('<character id="' + characterData.id + '" firstName="' + characterData.firstName + '"></character>');
   					if (!characterData.visible) {
