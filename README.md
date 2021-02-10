@@ -23,7 +23,6 @@ Stepwise is a multimodal content sequencer—a library for one-button storytelli
 ## Powered by Stepwise
 + [Stepworks](http://step.works), a collection of experiments in one-button storytelling
 + [Strange Rain 2.0](http://opertoon.com/strange-rain/) for Apple TV, which uses the Unity version of the library
-+ [I feel the earth move](http://erikloyer.com/einstein/), adaptation of an excerpt from Philip Glass' opera *Einstein on the Beach* (requires Chrome)
 
 
 ## How does it work?
