@@ -1,5 +1,7 @@
 # Stepwise
 
+NOTE: This repo supports the initial, Google Sheets-powered version of Stepworks (aka "[Stepworks Classic](https://step.works/index.php/site_2023/classic)"). The current version is called [Stepworks Studio](https://step.works/index.php/site/stepworks-studio). These days, I am in development on a [third version](https://opertoon.com/blog/building-the-next-stepworks) of Stepworks, which will focus on interactive comics.
+
 >"Press SPACE BAR to continue."
 
 >"Click to continue."
